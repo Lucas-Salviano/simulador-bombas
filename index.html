@@ -1,0 +1,2394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<script>try{if(!location.hash||location.hash==='#')document.documentElement.classList.add('intro-on');}catch(e){}</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calculadora de Perdas de Carga Hidráulicas</title>
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f6f7f9; --card:#ffffff; --text:#1c2430; --muted:#5b6675; --line:#dde2e8; --grid:#e7ebf0;
+  --accent:#1d4ed8; --accent-text:#ffffff; --focus:#b45309; --warn-bg:#fff7e0; --warn-line:#e8c766; --err-bg:#fdecec; --err-line:#e49a9a; --ok-bg:#eaf6ee; --ok-line:#9fd0ae;
+  --c1:#2563eb; --c2:#d97706; --c3:#16a34a; --c4:#c026d3; --c5:#0e7490; --c6:#dc2626; --c7:#7c3aed;
+  --pipe:#9aa6b6; --water:#38bdf8; --metal:#cbd5e1;
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0f141b; --card:#171e27; --text:#e6ebf2; --muted:#9aa6b6; --line:#2a3441; --grid:#232d3a;
+  --accent:#6ea0ff; --accent-text:#0b1220; --focus:#fbbf24; --warn-bg:#2c2512; --warn-line:#7a6425; --err-bg:#331a1a; --err-line:#7d3a3a; --ok-bg:#15291c; --ok-line:#2f6a43;
+  --c1:#60a5fa; --c2:#fbbf24; --c3:#4ade80; --c4:#e879f9; --c5:#22d3ee; --c6:#f87171; --c7:#a78bfa;
+  --pipe:#55657a; --water:#38bdf8; --metal:#3b4757;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]):not([data-theme="dark"]){
+    color-scheme:dark;
+    --bg:#0f141b; --card:#171e27; --text:#e6ebf2; --muted:#9aa6b6; --line:#2a3441; --grid:#232d3a;
+    --accent:#6ea0ff; --accent-text:#0b1220; --focus:#fbbf24; --warn-bg:#2c2512; --warn-line:#7a6425; --err-bg:#331a1a; --err-line:#7d3a3a; --ok-bg:#15291c; --ok-line:#2f6a43;
+    --c1:#60a5fa; --c2:#fbbf24; --c3:#4ade80; --c4:#e879f9; --c5:#22d3ee; --c6:#f87171; --c7:#a78bfa;
+    --pipe:#55657a; --water:#38bdf8; --metal:#3b4757;
+  }
+}
+:root{--radius:14px;--shadow:0 1px 2px rgba(16,24,40,.05),0 4px 14px rgba(16,24,40,.06);--shadow-hover:0 2px 4px rgba(16,24,40,.08),0 8px 22px rgba(16,24,40,.10);--ease:.18s cubic-bezier(.4,0,.2,1)}
+:root[data-theme="dark"]{--shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35);--shadow-hover:0 2px 4px rgba(0,0,0,.5),0 8px 22px rgba(0,0,0,.45)}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(1200px 500px at 50% -200px,color-mix(in srgb,var(--accent) 10%,transparent),transparent 70%),var(--bg);background-attachment:fixed;color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+body.pres-on{padding-bottom:190px}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip{position:absolute;left:8px;top:-60px;background:var(--accent);color:var(--accent-text);padding:8px 12px;border-radius:8px;z-index:50}
+.skip:focus{top:8px}
+header{padding:28px 20px 10px;max-width:1180px;margin:0 auto}
+h1{font-size:clamp(1.4rem,2.6vw,1.95rem);margin:0 0 6px;line-height:1.2;letter-spacing:-.02em;font-weight:750}
+.sub{margin:0;color:var(--muted);font-size:.95rem}
+.toolbar{max-width:1180px;margin:14px auto 0;padding:0 20px;display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center}
+.toolbar>.btn{margin-left:0}
+.toolbar>#btn-present{margin-left:auto}
+.toolbar .grp{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
+.toolbar select{width:auto;padding:6px 8px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
+.seg span{transition:background var(--ease),color var(--ease)}
+.seg label:hover input:not(:checked) + span{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.seg label{margin:0;position:relative;display:block;color:var(--text)}
+.seg input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.seg span{display:block;padding:6px 12px;font-size:.88rem;white-space:nowrap}
+.seg input:checked + span{background:var(--accent);color:var(--accent-text);font-weight:600}
+.seg input:focus-visible + span{outline:3px solid var(--focus);outline-offset:-3px}
+nav{max-width:1180px;margin:16px auto 0;padding:0 20px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--muted);padding:10px 16px;border-radius:999px;font:inherit;font-size:.92rem;cursor:pointer;white-space:nowrap;transition:background var(--ease),color var(--ease),border-color var(--ease),box-shadow var(--ease)}
+.tab:hover{color:var(--text);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:600;box-shadow:0 2px 10px color-mix(in srgb,var(--accent) 35%,transparent)}
+a:focus-visible,.tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+main{max-width:1180px;margin:0 auto;padding:14px 20px 40px}
+.panel{display:none}
+.panel.active{display:block;animation:fadeup .28s ease both}
+@keyframes fadeup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);transition:box-shadow var(--ease)}
+.card:hover{box-shadow:var(--shadow-hover)}
+.card h2{font-size:1.05rem;margin:0 0 14px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.card h2::before{content:"";width:4px;height:1em;border-radius:2px;background:var(--accent);flex:none}
+.card h3{font-size:.95rem;margin:14px 0 6px}
+.grid2{display:grid;grid-template-columns:minmax(300px,410px) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:860px){.grid2{grid-template-columns:1fr}}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fields .full{grid-column:1/-1}
+label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:3px}
+label{font-weight:500}
+input[type=text],select{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;font-size:.95rem;transition:border-color var(--ease),box-shadow var(--ease)}
+input[type=text]:hover,select:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+input[type=text]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.radio{display:flex;gap:14px;flex-wrap:wrap;font-size:.92rem}
+.radio label{display:flex;align-items:center;gap:6px;color:var(--text);font-size:.92rem;margin:0}
+button.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-text);padding:9px 16px;border-radius:10px;font:inherit;font-size:.9rem;font-weight:550;cursor:pointer;transition:filter var(--ease),transform var(--ease),background var(--ease),box-shadow var(--ease)}
+button.btn:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 2px 8px color-mix(in srgb,var(--accent) 30%,transparent)}
+button.btn:active:not(:disabled){transform:translateY(1px)}
+button.btn.sec{background:transparent;color:var(--accent)}
+button.btn.sec:hover:not(:disabled){background:color-mix(in srgb,var(--accent) 10%,transparent);filter:none;box-shadow:none}
+button.btn.danger{border-color:var(--c6);color:var(--c6);background:transparent}
+button.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-text)}
+button.btn:disabled{opacity:.5;cursor:not-allowed}
+.icon-btn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;width:34px;height:34px;font-size:1.1rem;cursor:pointer;line-height:1}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.metric{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:12px 14px;background:var(--bg)}
+.metric .k{font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.metric .v{font-size:1.45rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.metric .u{font-size:.8rem;color:var(--muted);font-weight:400}
+.msg{border:1px solid;border-radius:8px;padding:8px 12px;margin:8px 0;font-size:.9rem}
+.msg.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+.msg.err{background:var(--err-bg);border-color:var(--err-line)}
+.msg.ok{background:var(--ok-bg);border-color:var(--ok-line)}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em}
+table:not(.pts) tbody tr:nth-child(even){background:color-mix(in srgb,var(--text) 3%,transparent)}
+table:not(.pts) tbody tr:hover{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+th:first-child,td:first-child{text-align:left}
+.tablewrap{overflow-x:auto}
+.pts td{padding:3px 4px;border:0}
+.pts th{padding:2px 4px;border:0;text-align:left}
+.pts input{padding:6px 8px}
+canvas{width:100%;height:300px;display:block;touch-action:pan-y}
+.charts{display:grid;grid-template-columns:1fr;gap:14px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88rem;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;white-space:pre-wrap;overflow-x:auto}
+.eq{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 8px;display:inline-block;margin:2px 0}
+ul.tight{margin:6px 0;padding-left:20px}
+ul.tight li{margin:3px 0}
+.small{font-size:.85rem;color:var(--muted)}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:860px){.cols2{grid-template-columns:1fr}}
+/* controles ao vivo */
+.ctl{margin-bottom:12px}
+.ctl-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.ctl-head label{margin:0;flex:1}
+.ctl-num{display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:.82rem;color:var(--muted)}
+.ctl-num input{width:84px;text-align:right;padding:5px 8px}
+input[type=range]{width:100%;height:30px;accent-color:var(--accent);margin:2px 0 0;background:transparent}
+.hintline{font-size:.8rem;color:var(--muted);margin:2px 0 0}
+.pumpinfo{font-size:.82rem;color:var(--muted);margin:8px 0 0}
+details.fold{margin-top:10px}
+details.fold summary{cursor:pointer;font-size:.9rem;color:var(--accent);padding:4px 0}
+/* esquema */
+#schem{width:100%;height:auto;display:block;max-height:340px}
+.sv-text{fill:var(--text);font:12px system-ui,sans-serif}
+.sv-muted{fill:var(--muted);font:11px system-ui,sans-serif}
+.sv-tank{fill:none;stroke:var(--text);stroke-width:2.5}
+.sv-water{fill:var(--water);fill-opacity:.75}
+.sv-pipe{fill:none;stroke:var(--pipe);stroke-width:16;stroke-linejoin:round}
+.sv-flow{fill:none;stroke:var(--water);stroke-width:8;stroke-dasharray:12 10;stroke-linejoin:round}
+.sv-pump{fill:var(--metal);stroke:var(--text);stroke-width:2.5}
+.sv-blade{stroke:var(--text);stroke-width:3;stroke-linecap:round}
+.sv-valve{fill:var(--metal);stroke:var(--text);stroke-width:2}
+.sv-gate{fill:var(--c6)}
+.livebar{display:none}
+@media (max-width:860px){
+  .livebar{display:flex;gap:4px 14px;flex-wrap:wrap;position:sticky;top:0;z-index:6;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 12px;margin-bottom:10px;font-size:.85rem;font-variant-numeric:tabular-nums;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+  .livebar b{font-weight:650}
+}
+.readout{font-size:.85rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-top:10px;min-height:2.2em}
+.sel2{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+@media (max-width:640px){.sel2{grid-template-columns:1fr}}
+.dpos{color:var(--text)}
+/* apresentação */
+.pres{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:3px solid var(--accent);padding:12px 20px 14px;box-shadow:0 -4px 16px rgba(0,0,0,.2)}
+.pres-in{max-width:1180px;margin:0 auto}
+.pres-top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.pres-top strong{font-size:1.1rem}
+.pres p{margin:6px 0 10px;font-size:1.02rem}
+/* impressão */
+#print-report{display:none}
+@media print{
+  html,body{background:#fff!important;color:#000!important}
+  body>*:not(#print-report){display:none!important}
+  #print-report{display:block;font:12pt/1.4 system-ui,"Segoe UI",Arial,sans-serif;color:#000}
+  #print-report h1{font-size:18pt;margin:0 0 4pt}
+  #print-report h2{font-size:13pt;margin:14pt 0 4pt;border-bottom:1px solid #999;padding-bottom:2pt}
+  #print-report table{font-size:10pt;margin:4pt 0}
+  #print-report th,#print-report td{border-bottom:1px solid #bbb;color:#000}
+  #print-report img{max-width:100%;height:auto;page-break-inside:avoid;margin:4pt 0}
+  #print-report .meta{color:#444;font-size:10pt}
+  #print-report ul{margin:4pt 0;padding-left:18pt}
+  #print-report .pb{page-break-before:always}
+}
+@media (max-width:560px){
+  header{padding-top:20px}
+  .card{padding:16px}
+  .fields{grid-template-columns:1fr}
+  .toolbar>#btn-present{margin-left:0}
+  canvas{height:260px}
+}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+</style>
+<style id="ui2">
+/* ===== camada de design 2: moderno e interativo ===== */
+:root{--accent2:#0891b2;--ease:.2s cubic-bezier(.23,1,.32,1);--ease-out:cubic-bezier(.23,1,.32,1);--bg:#f3f6fb}
+:root[data-theme="dark"]{--accent2:#22d3ee;--bg:#0b1017;--card:#131a24}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-theme="dark"]){--accent2:#22d3ee;--bg:#0b1017;--card:#131a24}}
+body{background:
+  radial-gradient(900px 420px at 12% -120px,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%),
+  radial-gradient(800px 380px at 92% -160px,color-mix(in srgb,var(--accent2) 14%,transparent),transparent 70%),
+  var(--bg);background-attachment:fixed}
+
+/* hero */
+header.hero{display:grid;grid-template-columns:1fr;gap:18px;padding:30px 20px 8px}
+.brand{display:flex;align-items:center;gap:16px}
+.mark{width:56px;height:56px;flex:none;filter:drop-shadow(0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent))}
+.mark-imp{transform-origin:24px 24px;animation:spin 14s linear infinite}
+.brand:hover .mark-imp{animation-duration:2.2s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.live{display:flex;flex-wrap:wrap;gap:10px}
+.chip{display:flex;flex-direction:column;gap:1px;min-width:118px;padding:9px 14px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--card) 82%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shadow);position:relative;overflow:hidden}
+.chip .k{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.chip .v{font-size:1.15rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.chip.bump .v{animation:bump .35s var(--ease-out)}
+@keyframes bump{0%{transform:translateY(3px);opacity:.5}100%{transform:none;opacity:1}}
+.chip-go{justify-content:center;flex-direction:row;align-items:center;font:inherit;font-size:.9rem;font-weight:600;color:var(--accent);cursor:pointer;margin-left:auto;transition:transform var(--ease),background var(--ease)}
+.chip-go::before{display:none}
+.chip-go:hover{background:color-mix(in srgb,var(--accent) 10%,var(--card))}
+.chip-go:active{transform:scale(.97)}
+@media (max-width:560px){.chip{flex:1 1 calc(50% - 10px);min-width:0}.chip-go{flex-basis:100%;margin-left:0}}
+/* entrada do hero (uma vez) */
+.brand,.live .chip,.toolbar{animation:rise .55s var(--ease-out) both}
+.live .chip:nth-child(1){animation-delay:.05s}.live .chip:nth-child(2){animation-delay:.1s}.live .chip:nth-child(3){animation-delay:.15s}.live .chip:nth-child(4){animation-delay:.2s}.live .chip:nth-child(5){animation-delay:.25s}
+.toolbar{animation-delay:.12s}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* abas: pílula flutuante com indicador deslizante */
+nav{position:sticky;top:10px;z-index:30;width:fit-content;max-width:calc(100% - 28px);margin:18px auto 0;padding:5px;gap:2px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--card) 80%,transparent);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);box-shadow:var(--shadow-hover)}
+nav .ind{position:absolute;left:0;top:5px;bottom:5px;width:0;border-radius:999px;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 60%,var(--accent2)));box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 40%,transparent);transition:transform .38s var(--ease-out),width .38s var(--ease-out);pointer-events:none}
+.tab{position:relative;z-index:1;border:0;background:transparent;box-shadow:none}
+.tab:hover{background:color-mix(in srgb,var(--accent) 9%,transparent);border-color:transparent}
+.tab[aria-selected="true"]{background:transparent;box-shadow:none;color:var(--accent-text)}
+.tab:active{transform:scale(.97)}
+@media (max-width:860px){.livebar{top:64px}}
+main{padding-top:20px}
+
+/* entrada dos cards ao abrir uma aba (escalonada, 1 vez) */
+.panel.active .card,.panel.active .charts>.card,.panel.active .readout{animation:rise .5s var(--ease-out) both}
+.panel.active .card:nth-child(2){animation-delay:.05s}.panel.active .card:nth-child(3){animation-delay:.1s}.panel.active .card:nth-child(4){animation-delay:.15s}.panel.active .card:nth-child(n+5){animation-delay:.2s}
+
+/* cards: holofote que segue o mouse */
+.card{position:relative;overflow:hidden}
+@media (hover:hover) and (pointer:fine){
+  .card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),color-mix(in srgb,var(--accent) 9%,transparent),transparent 60%)}
+  .card:hover::after{opacity:1}
+  .card:hover{transform:translateY(-2px)}
+}
+.card{transition:box-shadow var(--ease),transform var(--ease),border-color var(--ease)}
+.card:hover{border-color:color-mix(in srgb,var(--accent) 30%,var(--line))}
+
+/* métricas */
+.metric{transition:transform var(--ease),border-color var(--ease),background var(--ease)}
+.metric:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.metric .v .u{color:var(--muted)}
+
+/* sliders com trilha preenchida */
+input[type=range]{-webkit-appearance:none;appearance:none;height:26px;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2)) 0/var(--pct,50%) 100% no-repeat,var(--line)}
+input[type=range]::-moz-range-track{height:6px;border-radius:999px;background:var(--line)}
+input[type=range]::-moz-range-progress{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-7px;border-radius:50%;background:var(--card);border:3px solid var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.25);transition:transform .15s var(--ease-out),box-shadow .15s}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--card);border:3px solid var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.12)}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2);box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 20%,transparent)}
+
+/* mensagens */
+.msg{border-radius:12px;border-width:1px;padding:10px 14px;animation:rise .35s var(--ease-out) both}
+
+/* esquema SVG */
+#schem{filter:drop-shadow(0 6px 18px color-mix(in srgb,var(--accent) 12%,transparent))}
+
+/* toasts */
+#toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:calc(100% - 28px)}
+.toast{pointer-events:auto;padding:10px 16px;border-radius:12px;background:var(--text);color:var(--bg);font-size:.9rem;box-shadow:0 10px 30px rgba(0,0,0,.28);animation:toastin .32s var(--ease-out) both}
+.toast.out{animation:toastout .2s ease-in both}
+@keyframes toastin{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes toastout{to{opacity:0;transform:translateY(6px) scale(.98)}}
+body.pres-on #toasts{bottom:210px}
+
+/* barra de apresentação */
+.pres{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:color-mix(in srgb,var(--card) 88%,transparent);border-top:0;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+.pres::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+
+/* rodapé de scroll suave nas tabelas */
+.tablewrap{border-radius:10px}
+details.fold[open] summary{margin-bottom:6px}
+/* ===== espaço e respiro (app maior, menos apertado) ===== */
+html{font-size:106.25%}
+header.hero,.toolbar,main{max-width:1320px}
+header.hero{padding:44px 32px 14px;gap:26px}
+h1{font-size:clamp(1.7rem,3vw,2.35rem)}
+.mark{width:64px;height:64px}
+.chip{min-width:150px;padding:13px 18px;border-radius:14px}
+.chip .v{font-size:1.4rem}
+.toolbar{margin-top:26px;padding:0 32px;gap:14px 22px}
+.toolbar .grp{font-size:.92rem}
+.toolbar select{padding:9px 12px}
+.seg span{padding:9px 16px;font-size:.95rem}
+nav{margin-top:30px;padding:6px}
+.tab{padding:12px 20px;font-size:.98rem}
+nav .ind{top:6px;bottom:6px}
+main{padding:34px 32px 100px}
+.grid2{grid-template-columns:minmax(340px,450px) minmax(0,1fr);gap:28px}
+.card{padding:28px;margin-bottom:28px;border-radius:18px}
+.card h2{font-size:1.18rem;margin-bottom:20px}
+.card h3{margin:22px 0 8px;font-size:1.02rem}
+.fields{gap:18px 18px}
+label{font-size:.88rem;margin-bottom:6px}
+input[type=text],select{padding:12px 14px;font-size:1rem}
+.radio{gap:18px;padding:4px 0}
+button.btn{padding:12px 20px;font-size:.96rem}
+.row{gap:12px}
+.metrics{gap:16px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.metric{padding:18px 20px;border-radius:14px}
+.metric .v{font-size:1.65rem}
+.msg{padding:14px 18px;margin:14px 0}
+th,td{padding:13px 14px}
+.pts td{padding:5px 6px}
+.charts{gap:28px}
+canvas{height:360px}
+.cols2{gap:28px}
+.ctl{margin-bottom:22px}
+.mono{padding:18px 20px;line-height:1.7}
+.readout{padding:12px 16px;margin-top:14px}
+ul.tight li{margin:7px 0}
+.small{font-size:.9rem;line-height:1.6}
+details.fold{margin-top:16px}
+.pumpinfo{margin-top:14px;line-height:1.6}
+.pres{padding:18px 32px 20px}
+.pres-in{max-width:1320px}
+@media (max-width:860px){header.hero{padding:28px 18px 8px}.toolbar,main{padding-left:18px;padding-right:18px}.card{padding:20px}canvas{height:300px}.grid2,.charts,.cols2{gap:20px}}
+@media (max-width:560px){html{font-size:100%}canvas{height:270px}}
+
+.chip-go{display:none}
+.toolbar{gap:12px 18px}
+.toolbar .btn{padding:10px 16px;font-size:.92rem;white-space:nowrap}
+.toolbar .seg span{padding:8px 13px;font-size:.92rem}
+.toolbar .grp{font-size:.88rem}
+.toolbar>#btn-home{margin-right:4px}
+@media (max-width:1100px){.toolbar>#btn-present{margin-left:0}}
+
+/* ===== página inicial ===== */
+html:not(.intro-on) #intro{display:none}
+html.intro-on header.hero,html.intro-on .toolbar,html.intro-on nav,html.intro-on main,html.intro-on .pres{display:none!important}
+#intro{max-width:1240px;margin:0 auto;padding:0 32px 80px}
+.in-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:26px 0}
+.in-brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:-.01em}
+.in-brand .mark{width:40px;height:40px}
+.in-top-actions{display:flex;align-items:center;gap:12px}
+.in-top-actions select{width:auto;padding:9px 12px}
+.in-top-actions .btn{white-space:nowrap;padding:10px 18px}
+.in-brand span{white-space:nowrap}
+.eyebrow{margin:0 0 14px;font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:var(--accent)}
+.in-hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:56px;align-items:center;min-height:min(78vh,720px);padding:36px 0 64px}
+.in-hero h1{font-size:clamp(2.1rem,4.6vw,3.6rem);line-height:1.08;letter-spacing:-.035em;margin:0 0 22px;font-weight:800}
+.lead{font-size:1.18rem;line-height:1.65;color:var(--muted);margin:0 0 32px;max-width:58ch}
+.in-cta{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:38px}
+button.btn.big{padding:16px 28px;font-size:1.05rem;border-radius:14px}
+.in-facts{display:flex;flex-wrap:wrap;gap:12px 40px;list-style:none;margin:0;padding:22px 0 0;border-top:1px solid var(--line)}
+.in-facts li{display:flex;flex-direction:column}
+.in-facts b{font-size:1.9rem;line-height:1.1;letter-spacing:-.02em}
+.in-facts span{font-size:.88rem;color:var(--muted)}
+/* arte */
+.in-hero-art{position:relative;aspect-ratio:1;max-width:460px;width:100%;margin-inline:auto;display:grid;place-items:center}
+.art-ring{position:absolute;border-radius:50%;border:1.5px dashed color-mix(in srgb,var(--accent) 45%,transparent)}
+.art-ring.r1{inset:0;animation:spin 40s linear infinite}
+.art-ring.r2{inset:11%;border-style:solid;border-color:color-mix(in srgb,var(--accent2) 30%,transparent);animation:spin 28s linear infinite reverse}
+.art-ring.r3{inset:24%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%);border:0}
+.art-imp{width:46%;animation:spin 6s linear infinite;filter:drop-shadow(0 12px 28px color-mix(in srgb,var(--accent) 40%,transparent))}
+.in-hero-art:hover .art-imp{animation-duration:1.6s}
+.art-chip{position:absolute;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shadow-hover);font-size:.92rem;font-variant-numeric:tabular-nums;white-space:nowrap;animation:floaty 6s ease-in-out infinite}
+.art-chip span{color:var(--accent);font-weight:700}
+.art-chip.c1{top:6%;left:-4%}
+.art-chip.c2{bottom:12%;right:-6%;animation-delay:-2s}
+.art-chip.c3{bottom:-2%;left:6%;animation-delay:-4s}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+/* seções */
+.in-sec{padding:72px 0;border-top:1px solid var(--line)}
+.in-head{max-width:760px;margin-bottom:38px}
+.in-head h2{margin:0;font-size:clamp(1.6rem,3vw,2.3rem);line-height:1.15;letter-spacing:-.025em}
+.in-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
+.in-cols p{margin:0;font-size:1.04rem;line-height:1.75;color:var(--muted)}
+.in-cols strong{color:var(--text)}
+.in-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.in-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:6px;padding:28px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--text);font:inherit;cursor:pointer;box-shadow:var(--shadow);transition:transform var(--ease),box-shadow var(--ease),border-color var(--ease)}
+.in-card.static{cursor:default;background:transparent;box-shadow:none;border-style:dashed}
+.in-card .n{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;margin-bottom:12px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-text)}
+.in-card h3{margin:0;font-size:1.2rem;letter-spacing:-.01em}
+.in-card p{margin:0 0 12px;color:var(--muted);line-height:1.65;font-size:.98rem}
+.in-card .go{margin-top:auto;font-weight:600;color:var(--accent);transition:transform var(--ease)}
+@media (hover:hover) and (pointer:fine){
+  .in-card:not(.static):hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+  .in-card:not(.static):hover .go{transform:translateX(4px)}
+}
+.in-card:not(.static):active{transform:scale(.985)}
+.in-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.in-steps li{display:flex;gap:18px;align-items:flex-start}
+.in-steps .n{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);font-weight:700;font-size:1.1rem}
+.in-steps h3{margin:2px 0 6px;font-size:1.15rem}
+.in-steps p{margin:0;color:var(--muted);line-height:1.65}
+.in-note{padding-top:0;border-top:0}
+.in-note-box{padding:32px 36px;border:1px solid var(--warn-line);border-radius:18px;background:var(--warn-bg)}
+.in-note-box h2{margin:0 0 10px;font-size:1.2rem}
+.in-note-box p{margin:0;line-height:1.7}
+.in-final{text-align:center;padding:72px 24px;border:1px solid var(--line);border-radius:28px;background:radial-gradient(600px 240px at 50% 0%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%),var(--card);box-shadow:var(--shadow)}
+.in-final h2{margin:0 0 26px;font-size:clamp(1.6rem,3vw,2.3rem);letter-spacing:-.025em}
+.in-final .small{margin:18px 0 0}
+/* entrada da página inicial (uma vez) */
+.in-hero-text>*{animation:rise .6s var(--ease-out) both}
+.in-hero-text>:nth-child(2){animation-delay:.07s}.in-hero-text>:nth-child(3){animation-delay:.14s}.in-hero-text>:nth-child(4){animation-delay:.21s}.in-hero-text>:nth-child(5){animation-delay:.28s}
+.in-hero-art{animation:rise .8s .15s var(--ease-out) both}
+@media (max-width:960px){
+  .in-hero{grid-template-columns:1fr;gap:40px;min-height:0;padding-top:12px}
+  .in-hero-art{max-width:340px}
+  .in-cols,.in-steps{grid-template-columns:1fr}
+  .in-cards{grid-template-columns:1fr 1fr}
+  .art-chip.c1{left:0}.art-chip.c2{right:0}
+}
+@media (max-width:620px){
+  #intro{padding:0 18px 60px}
+  .in-cards{grid-template-columns:1fr}
+  .in-sec{padding:52px 0}
+  .in-top-actions select{display:none}
+  .in-cta .btn{width:100%}
+  .in-final{padding:48px 18px}
+}
+@media (prefers-reduced-motion: reduce){.art-ring,.art-imp,.art-chip,.in-hero-text>*,.in-hero-art{animation:none!important}}
+@media (prefers-reduced-motion: reduce){.mark-imp{animation:none!important}.panel.active .card,.brand,.live .chip,.toolbar,.msg{animation:none!important}nav .ind{transition:none}}
+</style>
+<style id="ui4">
+/* ===== paleta aquática ===== */
+:root{
+  --bg:#e8f3f8;--card:#ffffff;--text:#08283a;--muted:#4a6a7b;--line:#cde1ea;--grid:#dfecf2;
+  --accent:#0a6f96;--accent-text:#ffffff;--accent2:#12b5c9;--deep:#04384f;
+  --c1:#0369a1;--c2:#d97706;--c3:#059669;--c4:#db2777;--c5:#0891b2;--c6:#dc2626;--c7:#475569;
+  --pipe:#8aa8b8;--water:#22b8e8;--metal:#c3d6e0;
+  --shadow:0 1px 2px rgba(4,56,79,.06),0 6px 20px rgba(4,56,79,.08);
+  --shadow-hover:0 2px 4px rgba(4,56,79,.08),0 12px 28px rgba(4,56,79,.14);
+}
+:root[data-theme="dark"]{
+  --bg:#04101a;--card:#0a1e2d;--text:#e2f3fa;--muted:#8db0c3;--line:#16394c;--grid:#11303f;
+  --accent:#3cc3f5;--accent-text:#03202e;--accent2:#2dd4bf;--deep:#021018;
+  --c1:#38bdf8;--c2:#fbbf24;--c3:#4ade80;--c4:#f472b6;--c5:#2dd4bf;--c6:#f87171;--c7:#94a3b8;
+  --pipe:#3d6378;--water:#38bdf8;--metal:#244458;
+  --shadow:0 1px 2px rgba(0,0,0,.45),0 6px 20px rgba(0,0,0,.4);
+  --shadow-hover:0 2px 4px rgba(0,0,0,.5),0 12px 28px rgba(0,0,0,.5);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-theme="dark"]){
+  --bg:#04101a;--card:#0a1e2d;--text:#e2f3fa;--muted:#8db0c3;--line:#16394c;--grid:#11303f;
+  --accent:#3cc3f5;--accent-text:#03202e;--accent2:#2dd4bf;--deep:#021018;
+  --c1:#38bdf8;--c2:#fbbf24;--c3:#4ade80;--c4:#f472b6;--c5:#2dd4bf;--c6:#f87171;--c7:#94a3b8;
+  --pipe:#3d6378;--water:#38bdf8;--metal:#244458;
+  --shadow:0 1px 2px rgba(0,0,0,.45),0 6px 20px rgba(0,0,0,.4);
+  --shadow-hover:0 2px 4px rgba(0,0,0,.5),0 12px 28px rgba(0,0,0,.5);
+}}
+body{background:
+  radial-gradient(900px 440px at 10% -140px,color-mix(in srgb,var(--accent) 20%,transparent),transparent 70%),
+  radial-gradient(800px 420px at 95% -180px,color-mix(in srgb,var(--accent2) 18%,transparent),transparent 70%),
+  linear-gradient(180deg,var(--bg) 0%,var(--bg) 45%,color-mix(in srgb,var(--bg) 82%,var(--accent)) 100%);
+  background-attachment:fixed}
+
+/* ===== oceano: ondas, bolhas e maré ===== */
+.ocean{position:fixed;left:0;right:0;bottom:0;height:min(30vh,300px);z-index:-1;pointer-events:none;overflow:hidden}
+.wave{position:absolute;left:0;bottom:0;width:200%;height:100%;fill:var(--accent);animation:drift 26s linear infinite}
+.wave.w1{opacity:.10;height:62%;animation-duration:20s}
+.wave.w2{opacity:.09;height:80%;fill:var(--accent2);animation-duration:32s;animation-direction:reverse}
+.wave.w3{opacity:.07;height:100%;animation-duration:44s}
+@keyframes drift{to{transform:translateX(-50%)}}
+.bubbles{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.bub{position:absolute;bottom:-30px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--accent2) 55%,transparent);background:radial-gradient(circle at 30% 30%,color-mix(in srgb,#fff 45%,transparent),color-mix(in srgb,var(--accent2) 10%,transparent) 60%);opacity:0;animation:bubup linear infinite}
+@keyframes bubup{0%{transform:translate(0,0) scale(.7);opacity:0}10%{opacity:.85}50%{transform:translate(18px,-50vh) scale(1)}90%{opacity:.5}100%{transform:translate(-14px,-108vh) scale(1.08);opacity:0}}
+#tide{position:fixed;left:0;right:0;top:0;height:120vh;z-index:90;pointer-events:none;transform:translateY(105%);background:linear-gradient(180deg,var(--accent2),var(--accent) 35%,var(--deep));border-radius:50% 50% 0 0/90px 90px 0 0}
+#tide.run{animation:tide .95s cubic-bezier(.65,0,.35,1) both}
+@keyframes tide{0%{transform:translateY(105%)}45%,55%{transform:translateY(-8%)}100%{transform:translateY(-125%)}}
+
+/* ===== animações melhoradas ===== */
+/* aba: indicador líquido */
+nav .ind{background:linear-gradient(110deg,var(--accent),var(--accent2),var(--accent));background-size:220% 100%;animation:liquid 5s ease-in-out infinite;transition:transform .5s cubic-bezier(.34,1.3,.5,1),width .5s cubic-bezier(.34,1.3,.5,1)}
+@keyframes liquid{0%,100%{background-position:0 0}50%{background-position:100% 0}}
+/* botões: ondulação ao clicar e brilho ao passar */
+button.btn,.tab,.in-card{position:relative;overflow:hidden}
+.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);pointer-events:none;animation:rip .7s cubic-bezier(.23,1,.32,1) forwards}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+button.btn:not(.sec)::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-120%);pointer-events:none}
+@media (hover:hover){button.btn:not(.sec):hover::after{transform:translateX(120%);transition:transform .7s var(--ease-out)}}
+button.btn:not(.sec){background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 65%,var(--accent2)))}
+/* métricas: linha d'água que corre */
+.metric{position:relative;overflow:hidden}
+.metric.flash{animation:flash .6s var(--ease-out)}
+@keyframes flash{0%{background:color-mix(in srgb,var(--accent2) 22%,var(--bg))}100%{background:var(--bg)}}
+/* cabeçalho: ondas de pressão na marca */
+.brand{position:relative}
+.mark{position:relative;z-index:1}
+.brand::before{content:"";position:absolute;left:0;top:50%;width:64px;height:64px;margin-top:-32px;border-radius:50%;border:2px solid var(--accent2);opacity:0;animation:pulse 3.2s ease-out infinite;z-index:0}
+@keyframes pulse{0%{transform:scale(.9);opacity:.55}100%{transform:scale(2);opacity:0}}
+/* chips ao vivo: respiração suave */
+.live .chip:not(.chip-go){animation:rise .55s var(--ease-out) both,bob 5s ease-in-out 1s infinite}
+.live .chip:nth-child(2){animation-delay:.1s,1.4s}.live .chip:nth-child(3){animation-delay:.15s,1.8s}.live .chip:nth-child(4){animation-delay:.2s,2.2s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+/* esquema: água viva */
+.sv-water{animation:shim 3.6s ease-in-out infinite}
+@keyframes shim{0%,100%{fill-opacity:.62}50%{fill-opacity:.86}}
+.sv-bub{fill:rgba(255,255,255,.55);stroke:rgba(255,255,255,.85);stroke-width:.8;animation:bsv 3.4s ease-in infinite;transform-box:fill-box}
+.sv-bub.b2{animation-duration:4.2s;animation-delay:-1.2s}.sv-bub.b3{animation-duration:2.9s;animation-delay:-2s}
+@keyframes bsv{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(-46px);opacity:0}}
+.sv-pump{transition:stroke .4s}
+/* sliders: pulso da bolinha */
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 7px color-mix(in srgb,var(--accent) 25%,transparent)}
+/* hero da introdução: ondas de superfície e entrada */
+.in-hero-art::before,.in-hero-art::after{content:"";position:absolute;inset:22%;border-radius:50%;border:2px solid var(--accent2);opacity:0;animation:ripple 4.5s ease-out infinite}
+.in-hero-art::after{animation-delay:2.25s}
+@keyframes ripple{0%{transform:scale(.7);opacity:.55}100%{transform:scale(1.7);opacity:0}}
+.art-ring.r3{animation:breathe 5s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+/* revelar ao rolar (só na introdução) */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out);transition-delay:calc(var(--i,0) * 80ms)}
+.rv.in-view{opacity:1;transform:none}
+.msg{animation:none!important}
+.wave,.bub,#tide{will-change:transform}
+/* barra de apresentação e toasts */
+.toast{border:1px solid color-mix(in srgb,var(--accent2) 40%,transparent);background:linear-gradient(135deg,var(--deep),color-mix(in srgb,var(--deep) 70%,var(--accent)));color:#e8f8ff}
+html:not([data-theme="dark"]) .toast{color:#e8f8ff}
+.in-final{background:radial-gradient(700px 260px at 50% 0%,color-mix(in srgb,var(--accent2) 22%,transparent),transparent 70%),var(--card)}
+@media (prefers-reduced-motion: reduce){
+  .wave,.bub,#tide,.brand::before,.metric::after,.sv-bub,.sv-water,.in-hero-art::before,.in-hero-art::after,.art-ring.r3,nav .ind,.grad{animation:none!important}
+  .live .chip:not(.chip-go){animation:none!important}
+  .rv{opacity:1;transform:none;transition:none}
+  .bubbles,#tide{display:none}
+}
+</style>
+<style id="ui5">
+/* ===== componentes do tema "perdas de carga" ===== */
+.art-pipe{width:80%;filter:drop-shadow(0 12px 28px color-mix(in srgb,var(--accent) 35%,transparent))}
+.art-flow{animation:flowdash 1.2s linear infinite}
+@keyframes flowdash{to{stroke-dashoffset:-26}}
+.in-hero-art:hover .art-flow{animation-duration:.5s}
+.tchips{display:flex;flex-wrap:wrap;gap:10px}
+.tchip{border:1px solid var(--line);background:transparent;color:var(--text);padding:9px 16px;border-radius:999px;font:inherit;font-size:.92rem;cursor:pointer;transition:background var(--ease),color var(--ease),border-color var(--ease),transform var(--ease)}
+.tchip:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
+.tchip:active{transform:scale(.97)}
+.tchip[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:600}
+table.acc td,table.acc th{padding:8px 8px}
+table.acc th:nth-child(n+2),table.acc td:nth-child(n+2){text-align:right}
+table.acc input{width:86px;padding:8px 10px;text-align:right}
+canvas.tall{height:520px}
+@media (max-width:860px){canvas.tall{height:380px}}
+tr.hl td{background:color-mix(in srgb,var(--accent2) 15%,transparent)}
+tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+#sim-table th,#sim-table td{text-align:left;vertical-align:top;min-width:150px}
+#sim-table th:first-child,#sim-table td:first-child{min-width:190px;position:sticky;left:0;background:var(--card);z-index:1}
+#sim-table tr.key td{font-weight:700}
+button.btn.mini{padding:6px 10px;font-size:.78rem;margin-top:8px;white-space:normal;text-align:left}
+#schem{max-height:270px}
+.sv-flow2{fill:none;stroke:var(--water)}
+input[aria-invalid="true"]{border-color:var(--c6)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--c6) 22%,transparent)}
+.cols2>.card{margin-bottom:28px}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.88em}
+@media print{#print-report pre{page-break-inside:auto}}
+button.btn.danger:not(.sec){background:transparent;color:var(--c6);border-color:var(--c6)}
+button.btn.danger:not(.sec):hover:not(:disabled){background:color-mix(in srgb,var(--c6) 12%,transparent);filter:none;box-shadow:none}
+button.btn.danger::after{display:none}
+@media (max-width:860px){.grid2{grid-template-columns:minmax(0,1fr)}.cols2{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{padding:14px}.metric .v{font-size:1.35rem}table.acc input{width:68px}}
+
+/* ===== menos ruído, mais hierarquia ===== */
+.eyebrow{display:none}
+.grad{color:var(--accent)}
+.card h2::before{display:none}
+.card h2{margin-bottom:18px}
+.card::after{display:none!important}
+.card:hover{transform:none;box-shadow:var(--shadow);border-color:var(--line)}
+.metric{border:1px solid var(--line);border-radius:12px}
+.metric::after{display:none}
+.metric:hover{transform:none;border-color:var(--line)}
+.metric .v{background:none;-webkit-text-fill-color:currentColor;color:var(--text)}
+.metric .v .u{-webkit-text-fill-color:var(--muted);color:var(--muted)}
+.metric.flash{animation:none}
+.chip{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--card);min-width:128px;padding:10px 16px}
+.chip::before{display:none}
+.chip .v{font-size:1.2rem}
+.live .chip:not(.chip-go){animation:rise .55s var(--ease-out) both}
+.art-chip{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--card)}
+.mark,.brand::before{filter:none}
+.brand::before{display:none}
+header.hero{padding-top:32px;gap:20px}
+.toolbar{margin-top:20px}
+nav{margin-top:22px}
+main{padding-top:26px}
+
+/* resumo do resultado */
+.summary{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:stretch;margin-top:6px}
+.metrics.key{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.metrics.key .metric{padding:14px 16px}
+.metrics.key .metric .v{font-size:1.5rem}
+.flowfig{margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
+.flowcv{display:block;width:100%;height:150px;border:1px solid var(--line);border-radius:12px;background:var(--bg);touch-action:auto}
+#flow-mini{flex:1;min-height:150px;height:auto}
+.flowfig figcaption{margin:0;text-align:center}
+@media (max-width:760px){.summary{grid-template-columns:minmax(0,1fr)}#flow-mini{height:150px;flex:none}}
+
+/* detalhes recolhíveis */
+details.fold{border-top:1px solid var(--line);padding-top:14px;margin-top:20px}
+details.fold>summary,details.memo>summary{cursor:pointer;font-weight:600;color:var(--text);padding:2px 0;list-style-position:inside}
+details.fold>summary span{color:var(--muted);font-weight:400}
+details.fold[open]>summary{margin-bottom:14px}
+details.memo>summary{font-size:1.1rem;font-weight:700;letter-spacing:-.01em}
+details.fold h3{margin:18px 0 10px}
+.msg-more{margin:4px 0 8px}
+.msg-more>summary{cursor:pointer;font-size:.88rem;color:var(--muted);padding:2px 0}
+.msg-more[open]>summary{margin-bottom:6px}
+.card>details:only-child{margin:0}
+
+/* regimes */
+.reg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.reg{display:flex;flex-direction:column;gap:6px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--bg);min-width:0}
+.reg .flowcv{height:170px;border-radius:10px;background:var(--card);margin-bottom:6px}
+.reg h3{margin:6px 0 0;font-size:1.1rem}
+.reg p{margin:0}
+.reg-now{color:var(--accent);font-weight:600;min-height:1.3em}
+.reg[data-now="true"]{border-color:var(--accent);outline:2px solid var(--accent);outline-offset:-1px}
+@media (max-width:860px){.reg3{grid-template-columns:minmax(0,1fr)}}
+
+/* extras: uma ferramenta por vez */
+.ex-nav{display:flex;max-width:100%;overflow-x:auto;margin-bottom:26px;box-shadow:none}
+.ex-nav label{flex:0 0 auto}
+.ex-panel[hidden]{display:none}
+
+/* introdução: lista em vez de grade de cartões iguais */
+.in-cards{grid-template-columns:minmax(0,1fr);gap:0;border-top:1px solid var(--line)}
+.in-card{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr) auto;align-items:center;gap:8px 28px;padding:22px 6px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;box-shadow:none}
+.in-card.static{border:0;border-bottom:1px solid var(--line);border-style:solid}
+.in-card h3{font-size:1.15rem}
+.in-card p{margin:0}
+.in-card .go{margin-top:0;white-space:nowrap}
+@media (hover:hover) and (pointer:fine){.in-card:not(.static):hover{transform:none;box-shadow:none;background:color-mix(in srgb,var(--accent) 6%,transparent);border-color:var(--line)}}
+@media (max-width:720px){.in-card{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+
+<body>
+<div class="ocean" aria-hidden="true">
+  <svg class="wave w3" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 60 C240 0 480 0 720 60 C960 120 1200 120 1440 60 C1680 0 1920 0 2160 60 C2400 120 2640 120 2880 60 V120 H0Z"/></svg>
+  <svg class="wave w2" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 60 C240 0 480 0 720 60 C960 120 1200 120 1440 60 C1680 0 1920 0 2160 60 C2400 120 2640 120 2880 60 V120 H0Z"/></svg>
+  <svg class="wave w1" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 60 C240 0 480 0 720 60 C960 120 1200 120 1440 60 C1680 0 1920 0 2160 60 C2400 120 2640 120 2880 60 V120 H0Z"/></svg>
+</div>
+<div class="bubbles" id="bubbles" aria-hidden="true"></div>
+<div id="tide" aria-hidden="true"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="mk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent2)"/></linearGradient></defs></svg>
+<a class="skip" href="#main">Pular para o conteúdo</a>
+
+<header class="hero">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+      <circle cx="24" cy="24" r="22" fill="none" stroke="url(#mk)" stroke-width="2.5"/>
+      <path d="M8 18 H30 Q40 18 40 28 V30" fill="none" stroke="url(#mk)" stroke-width="5" stroke-linecap="round"/>
+      <path d="M8 31 H22" fill="none" stroke="url(#mk)" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+      <circle cx="24" cy="24" r="2" fill="var(--card)" opacity="0"/>
+    </svg>
+    <div>
+      <h1>Calculadora de <span class="grad">perdas de carga hidráulicas</span></h1>
+      <p class="sub">Projeto Final · Fenômenos de Transporte · Engenharia da Computação · CESUPA · tema: Perdas de carga hidráulicas</p>
+    </div>
+  </div>
+  <div class="live" id="hero-live" role="group" aria-label="Resultado atual do trecho selecionado e do sistema">
+    <div class="chip" data-chip="re"><span class="k">Reynolds</span><span class="v">—</span></div>
+    <div class="chip" data-chip="f"><span class="k">Fator de atrito</span><span class="v">—</span></div>
+    <div class="chip" data-chip="h"><span class="k">Perda total</span><span class="v">—</span></div>
+    <div class="chip" data-chip="dp"><span class="k">Queda de pressão</span><span class="v">—</span></div>
+    <button class="chip chip-go" type="button" id="chip-go" aria-label="Abrir a calculadora">Abrir</button>
+  </div>
+</header>
+<div id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+<!-- ============ PÁGINA INICIAL ============ -->
+<div id="intro">
+  <div class="in-top">
+    <div class="in-brand">
+      <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="22" fill="none" stroke="url(#mk)" stroke-width="2.5"/><path d="M8 18 H30 Q40 18 40 28 V30" fill="none" stroke="url(#mk)" stroke-width="5" stroke-linecap="round"/><path d="M8 31 H22" fill="none" stroke="url(#mk)" stroke-width="5" stroke-linecap="round" opacity=".55"/></svg>
+      <span>Perdas de carga</span>
+    </div>
+    <div class="in-top-actions">
+      <select id="theme-intro" aria-label="Tema"><option value="auto">Tema automático</option><option value="light">Claro</option><option value="dark">Escuro</option></select>
+      <button class="btn" type="button" data-enter="calc">Abrir calculadora</button>
+    </div>
+  </div>
+
+  <section class="in-hero">
+    <div class="in-hero-text">
+            <h1>Quanta pressão a tubulação <span class="grad">consome só para a água passar?</span></h1>
+      <p class="lead">Este projeto é um programa de cálculo de perdas de carga hidráulicas. Você informa o fluido, a vazão, o diâmetro, o comprimento, o material e os acessórios; ele calcula a perda distribuída (Darcy-Weisbach), a perda localizada (coeficientes K) e mostra tudo no diagrama de Moody e em gráficos.</p>
+      <div class="in-cta">
+        <button class="btn big" type="button" data-enter="calc">Começar a calcular</button>
+        <button class="btn sec big" type="button" data-go="#in-conceito">Entender o projeto</button>
+      </div>
+    </div>
+    <div class="in-hero-art" aria-hidden="true">
+      <div class="art-ring r1"></div><div class="art-ring r2"></div><div class="art-ring r3"></div>
+      <svg class="art-pipe" viewBox="0 0 220 160"><defs><linearGradient id="pp" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--accent2)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs>
+        <path d="M10 40 H130 Q170 40 170 80 V120" fill="none" stroke="var(--pipe)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+        <path class="art-flow" d="M10 40 H130 Q170 40 170 80 V120" fill="none" stroke="url(#pp)" stroke-width="9" stroke-linecap="round" stroke-dasharray="14 12"/>
+        <rect x="64" y="22" width="12" height="36" rx="3" fill="var(--card)" stroke="var(--text)" stroke-width="2"/>
+        <rect x="150" y="62" width="40" height="12" rx="3" fill="var(--card)" stroke="var(--text)" stroke-width="2"/></svg>
+      <div class="art-chip c1"><span>h<sub>f</sub></span> = f · L/D · v²/2g</div>
+      <div class="art-chip c2"><span>h<sub>L</sub></span> = ΣK · v²/2g</div>
+      <div class="art-chip c3"><span>Re</span> = ρ · v · D / μ</div>
+    </div>
+  </section>
+
+  <section class="in-sec" id="in-conceito">
+    <div class="in-head"><h2>Cada metro de tubo e cada curva custam pressão</h2></div>
+    <div class="in-cols">
+      <p>Quando um fluido escoa, ele perde energia por atrito nas paredes (<strong>perda distribuída</strong>) e por turbulência em curvas, válvulas, tês e entradas (<strong>perda localizada</strong>). Essa energia perdida precisa ser fornecida por uma bomba ou pela altura do reservatório.</p>
+      <p>O programa calcula a velocidade, o número de Reynolds e o regime de escoamento. Em seguida obtém o fator de atrito: <strong>64/Re</strong> no regime laminar e <strong>Colebrook-White</strong> (resolvido por iteração) no turbulento, conferindo com a fórmula explícita de Swamee-Jain.</p>
+      <p>Depois soma as perdas de cada trecho em série, converte em queda de pressão e mostra a memória de cálculo passo a passo, pronta para copiar para o relatório.</p>
+    </div>
+  </section>
+
+  <section class="in-sec">
+    <div class="in-head"><h2>Seis seções, do cálculo simples às decisões de projeto</h2></div>
+    <div class="in-cards">
+      <button class="in-card" type="button" data-enter="calc"><h3>Calculadora</h3><p>Fluido, vazão, trechos em série, material e acessórios com K editáveis. Resultados em tempo real e memória de cálculo.</p><span class="go">Abrir</span></button>
+      <button class="in-card" type="button" data-enter="moody"><h3>Diagrama de Moody</h3><p>O ponto de operação aparece no diagrama e se move quando você muda vazão, diâmetro ou material.</p><span class="go">Abrir</span></button>
+      <button class="in-card" type="button" data-enter="curvas"><h3>Curvas</h3><p>Perda de carga em função da vazão para vários diâmetros, e barras empilhadas com a contribuição do tubo e de cada acessório.</p><span class="go">Abrir</span></button>
+      <button class="in-card" type="button" data-enter="sim"><h3>Simulações</h3><p>Três situações prontas e editáveis: água em PVC turbulento, óleo laminar e o mesmo sistema com outro diâmetro.</p><span class="go">Abrir</span></button>
+      <button class="in-card" type="button" data-enter="extras"><h3>Extras</h3><p>Hazen-Williams, potência da bomba e custo de energia, diâmetro econômico, envelhecimento do tubo e “o que mudar?”.</p><span class="go">Abrir</span></button>
+      <button class="in-card" type="button" data-enter="teoria"><h3>Teoria</h3><p>Equações, hipóteses, limitações e sugestões de referências para o relatório.</p><span class="go">Abrir</span></button>
+    </div>
+  </section>
+
+  <section class="in-sec">
+    <div class="in-head"><h2>Três passos</h2></div>
+    <ol class="in-steps">
+      <li><div><h3>Descreva o sistema</h3><p>Escolha o fluido e o material, informe vazão, diâmetro e comprimento e marque os acessórios de cada trecho.</p></div></li>
+      <li><div><h3>Mexa nos controles</h3><p>Sliders e campos atualizam tudo na hora. Veja o ponto andar no Moody e as curvas mudarem.</p></div></li>
+      <li><div><h3>Compare e documente</h3><p>Use as simulações, copie a memória de cálculo e exporte CSV ou imprima o relatório.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="in-sec in-note">
+    <div class="in-note-box">
+      <h2>Antes de usar</h2>
+      <p>Os dados dos cenários prontos (vazões, diâmetros, comprimentos, acessórios, preços e tarifa) são <strong>hipotéticos</strong>, e os coeficientes K, as rugosidades e as propriedades dos fluidos são <strong>valores típicos de livros</strong>: confira na fonte antes de citar. Tudo pode ser editado na própria tela.</p>
+    </div>
+  </section>
+
+  <section class="in-final">
+    <h2>Pronto para calcular a primeira perda de carga?</h2>
+    <button class="btn big" type="button" data-enter="calc">Abrir a calculadora</button>
+    <p class="small">Tudo roda no seu navegador. Nada é enviado a servidores.</p>
+  </section>
+</div>
+
+<div class="toolbar" role="group" aria-label="Preferências e ações">
+  <button class="btn sec" id="btn-home" type="button">Página inicial</button>
+  <div class="grp"><span id="lb-uq">Vazão:</span>
+    <div class="seg" role="radiogroup" aria-labelledby="lb-uq">
+      <label><input type="radio" name="uq" value="m3h" checked><span>m³/h</span></label>
+      <label><input type="radio" name="uq" value="Ls"><span>L/s</span></label>
+    </div></div>
+  <div class="grp"><label for="theme" style="margin:0">Tema:</label>
+    <select id="theme"><option value="auto">Automático</option><option value="light">Claro</option><option value="dark">Escuro</option></select></div>
+  <button class="btn sec" id="btn-print" type="button" style="margin-left:auto">Imprimir relatório</button>
+</div>
+
+<nav role="tablist" aria-label="Seções">
+  <button class="tab" role="tab" id="tabbtn-calc" aria-controls="tab-calc" data-tab="calc" aria-selected="true">Calculadora</button>
+  <button class="tab" role="tab" id="tabbtn-moody" aria-controls="tab-moody" data-tab="moody" aria-selected="false" tabindex="-1">Moody</button>
+  <button class="tab" role="tab" id="tabbtn-curvas" aria-controls="tab-curvas" data-tab="curvas" aria-selected="false" tabindex="-1">Curvas</button>
+  <button class="tab" role="tab" id="tabbtn-sim" aria-controls="tab-sim" data-tab="sim" aria-selected="false" tabindex="-1">Simulações</button>
+  <button class="tab" role="tab" id="tabbtn-extras" aria-controls="tab-extras" data-tab="extras" aria-selected="false" tabindex="-1">Extras</button>
+  <button class="tab" role="tab" id="tabbtn-teoria" aria-controls="tab-teoria" data-tab="teoria" aria-selected="false" tabindex="-1">Teoria</button>
+</nav>
+
+<main id="main">
+
+<!-- ============ 1. CALCULADORA ============ -->
+<section id="tab-calc" class="panel active" role="tabpanel" aria-labelledby="tabbtn-calc">
+  <div class="grid2">
+    <div>
+      <div class="card">
+        <h2>Fluido e vazão</h2>
+        <div class="fields">
+          <div class="full"><label for="fl-sel">Fluido</label><select id="fl-sel"></select></div>
+          <div><label for="fl-rho">Massa específica ρ (kg/m³)</label><input id="fl-rho" type="text" inputmode="decimal"></div>
+          <div><label for="fl-mu">Viscosidade μ (mPa·s)</label><input id="fl-mu" type="text" inputmode="decimal"></div>
+        </div>
+        <div style="margin-top:20px" data-ctl="Q"></div>
+        <p class="small" style="margin-bottom:0">Valores típicos de tabelas, editáveis. A mesma vazão atravessa todos os trechos em série.</p>
+      </div>
+
+      <div class="card">
+        <h2 id="t-title">Trecho</h2>
+        <div class="tchips" id="tchips" aria-label="Trechos"></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn sec" id="t-add" type="button">Adicionar trecho</button>
+          <button class="btn danger" id="t-del" type="button">Remover este</button>
+        </div>
+        <div class="fields" style="margin-top:20px">
+          <div><label for="t-nome">Nome</label><input id="t-nome" type="text" maxlength="30"></div>
+          <div><label for="t-mat">Material</label><select id="t-mat" data-mat></select></div>
+        </div>
+        <div style="margin-top:20px" data-ctl="D"></div>
+        <div data-ctl="L"></div>
+        <div data-ctl="eps"></div>
+        <details class="fold" id="acc-det">
+          <summary>Acessórios <span id="acc-sum"></span></summary>
+          <div class="tablewrap"><table class="acc" id="acc-table">
+            <thead><tr><th>Acessório</th><th>K</th><th>Qtd.</th></tr></thead><tbody id="acc-body"></tbody></table></div>
+          <div class="row" style="margin-top:12px"><button class="btn sec" id="k-reset" type="button">Restaurar K típicos</button></div>
+          <p class="small" style="margin-bottom:0"><strong>Valores típicos de livros: conferir na fonte.</strong> Os K são editáveis e valem para todos os trechos.</p>
+        </details>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>Resultado</h2>
+        <div id="calc-msg"></div>
+        <div class="summary">
+          <div class="metrics key" id="calc-key"></div>
+          <figure class="flowfig">
+            <canvas id="flow-mini" class="flowcv" aria-hidden="true"></canvas>
+            <figcaption id="flow-cap" class="small"></figcaption>
+          </figure>
+        </div>
+        <details class="fold more">
+          <summary>Mais detalhes</summary>
+          <h3>Trecho selecionado</h3>
+          <div class="metrics" id="calc-metrics-t"></div>
+          <h3>Sistema</h3>
+          <div class="metrics" id="calc-metrics-s"></div>
+          <div class="tablewrap" id="tr-table-wrap" style="margin-top:16px" hidden><table id="tr-table"></table></div>
+        </details>
+        <div class="row" style="margin-top:20px">
+          <button class="btn sec" id="calc-copy" type="button">Copiar memória de cálculo</button>
+          <button class="btn sec" id="calc-csv" type="button">Baixar CSV</button>
+        </div>
+        <p class="small" id="dl-status" role="status" aria-live="polite" style="margin-bottom:0"></p>
+      </div>
+      <div class="card">
+        <h2>Esquema da tubulação</h2>
+        <svg id="schem" viewBox="0 0 760 170" role="img" aria-labelledby="schem-title"><title id="schem-title">Esquema da tubulação</title></svg>
+        <div class="row" style="margin-top:8px"><button class="btn sec" id="btn-anim" type="button" aria-pressed="false">Pausar animação</button>
+          <span class="small">Espessura = diâmetro, velocidade do fluxo = v, cor mais quente = maior participação na perda.</span></div>
+      </div>
+      <div class="card">
+        <details class="memo">
+          <summary>Memória de cálculo passo a passo</summary>
+          <div class="mono" id="calc-steps" style="margin-top:14px"></div>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2. MOODY ============ -->
+<section id="tab-moody" class="panel" role="tabpanel" aria-labelledby="tabbtn-moody">
+  <div class="grid2">
+    <div>
+      <div class="card">
+        <h2>Controles</h2>
+        <div data-ctl="Q"></div>
+        <div data-ctl="D"></div>
+        <label for="m-mat">Material do trecho selecionado</label>
+        <select id="m-mat" data-mat></select>
+        <div style="margin-top:18px" data-ctl="eps"></div>
+        <p class="small" style="margin-bottom:0" id="m-trecho"></p>
+      </div>
+      <div class="card">
+        <h2>Leitura do ponto</h2>
+        <div class="metrics" id="m-metrics"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h2>Diagrama de Moody</h2>
+        <canvas id="ch-moody" class="tall" role="img" aria-label="Diagrama de Moody com o ponto de operação"></canvas>
+        <p class="small" style="margin:10px 0 0">Passe o mouse (ou o dedo) para ler Re, f e ε/D. A faixa cinza é a transição (2300 a 4000). Os pontos numerados são os trechos; o destacado é o selecionado.</p>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="reg-card">
+    <h2>Como a água escoa em cada regime</h2>
+    <div class="reg3">
+      <div class="reg" data-reg="laminar">
+        <canvas class="flowcv" data-reg="laminar" aria-hidden="true"></canvas>
+        <h3>Laminar</h3>
+        <p class="small">Re &lt; 2300. Camadas paralelas deslizam sem se misturar; o centro corre mais que a parede. f = 64/Re.</p>
+        <p class="reg-now small"></p>
+      </div>
+      <div class="reg" data-reg="transicao">
+        <canvas class="flowcv" data-reg="transicao" aria-hidden="true"></canvas>
+        <h3>Transição</h3>
+        <p class="small">2300 a 4000. O escoamento ordenado é interrompido por rajadas turbulentas que vão e vêm. f é incerto.</p>
+        <p class="reg-now small"></p>
+      </div>
+      <div class="reg" data-reg="turbulento">
+        <canvas class="flowcv" data-reg="turbulento" aria-hidden="true"></canvas>
+        <h3>Turbulento</h3>
+        <p class="small">Re &gt; 4000. Redemoinhos misturam o fluido e achatam o perfil de velocidade. f por Colebrook-White.</p>
+        <p class="reg-now small"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. CURVAS ============ -->
+<section id="tab-curvas" class="panel" role="tabpanel" aria-labelledby="tabbtn-curvas">
+  <div class="card">
+    <h2>Perda de carga × vazão</h2>
+    <div class="fields" style="max-width:760px">
+      <div><label for="cv-d">Diâmetros comparados (mm, separados por vírgula)</label><input id="cv-d" type="text" value="25, 32, 40, 50, 75, 100"></div>
+      <div data-ctl="Qmax"></div>
+    </div>
+    <p class="small" id="cv-info"></p>
+    <canvas id="ch-curve" class="tall" role="img" aria-label="Perda de carga em função da vazão para vários diâmetros"></canvas>
+    <p class="small" style="margin:8px 0 0">Usa o fluido, o material, o comprimento e os acessórios do trecho selecionado. A linha mais grossa é o diâmetro atual e o ponto marca a vazão atual. Em escala log-log o trecho turbulento aparece quase reto, com inclinação próxima de 2.</p>
+  </div>
+  <div class="card">
+    <h2>De onde vem a perda</h2>
+    <canvas id="ch-stack" role="img" aria-label="Barras empilhadas com a perda no tubo e em cada acessório"></canvas>
+    <p class="small" style="margin:8px 0 0">Cada barra é um trecho (e o total, se houver mais de um): atrito no tubo mais a perda de cada tipo de acessório, em metros de coluna de fluido.</p>
+  </div>
+</section>
+
+<!-- ============ 4. SIMULAÇÕES ============ -->
+<section id="tab-sim" class="panel" role="tabpanel" aria-labelledby="tabbtn-sim">
+  <div class="card">
+    <h2>Comparação dos cenários</h2>
+    <p class="small" style="margin-top:0"><strong>Dados hipotéticos/típicos de demonstração:</strong> troque por dados reais e cite as fontes. Cenários 1 a 3 são as simulações pedidas; o 4 é um extra (tubo envelhecido). A coluna “Atual” segue a Calculadora. Custo de energia com os parâmetros da aba Extras.</p>
+    <div class="row" style="margin-bottom:12px"><button class="btn sec" id="sim-more" type="button" aria-pressed="false">Mostrar todos os indicadores</button></div>
+    <div class="tablewrap"><table id="sim-table"></table></div>
+    <div class="row" style="margin-top:16px"><button class="btn sec" id="sim-copy" type="button">Copiar tabela</button><button class="btn sec" id="sim-csv" type="button">Baixar tabela (CSV)</button></div>
+  </div>
+  <div class="card">
+    <h2>Leitura dos resultados</h2>
+    <ul class="tight" id="sim-notes"></ul>
+  </div>
+  <div class="cols2">
+    <div class="card"><h2>Perda total (m): distribuída e localizada</h2><canvas id="ch-simh" role="img" aria-label="Perda distribuída e localizada por cenário"></canvas></div>
+    <div class="card"><h2>Custo anual de energia (R$)</h2><canvas id="ch-simc" role="img" aria-label="Custo anual de energia por cenário"></canvas></div>
+  </div>
+</section>
+
+<!-- ============ 5. EXTRAS ============ -->
+<section id="tab-extras" class="panel" role="tabpanel" aria-labelledby="tabbtn-extras">
+  <div class="seg ex-nav" role="radiogroup" aria-label="Ferramenta extra">
+    <label><input type="radio" name="ex" value="energia" checked><span>Bomba e energia</span></label>
+    <label><input type="radio" name="ex" value="mudar"><span>O que mudar?</span></label>
+    <label><input type="radio" name="ex" value="econ"><span>Diâmetro econômico</span></label>
+    <label><input type="radio" name="ex" value="aging"><span>Envelhecimento</span></label>
+    <label><input type="radio" name="ex" value="hazen"><span>Hazen-Williams</span></label>
+  </div>
+
+  <div class="ex-panel" data-ex="energia">
+    <div class="card">
+      <h2>Bomba e energia</h2>
+      <div class="fields" style="max-width:760px">
+        <div><label for="e-etab">Rendimento da bomba (%)</label><input id="e-etab" type="text" inputmode="decimal"></div>
+        <div><label for="e-etam">Rendimento do motor (%)</label><input id="e-etam" type="text" inputmode="decimal"></div>
+        <div><label for="e-hd">Horas por dia</label><input id="e-hd" type="text" inputmode="decimal"></div>
+        <div><label for="e-da">Dias por ano</label><input id="e-da" type="text" inputmode="decimal"></div>
+        <div class="full"><label for="e-tar">Tarifa de energia (R$/kWh)</label><input id="e-tar" type="text" inputmode="decimal"></div>
+      </div>
+      <div class="metrics" id="e-metrics" style="margin-top:22px"></div>
+      <p class="small" style="margin-bottom:0">Potência para vencer apenas a perda de carga: P = ρ·g·Q·h/η. Não inclui desnível geométrico nem pressão de saída. Os parâmetros valem também para o custo na aba Simulações.</p>
+    </div>
+  </div>
+
+  <div class="ex-panel" data-ex="mudar" hidden>
+    <div class="card">
+      <h2>O que mudar?</h2>
+      <div class="cols2">
+        <div><h3 style="margin-top:0">Quem mais consome</h3><div class="tablewrap"><table id="wc-contrib"></table></div></div>
+        <div><h3 style="margin-top:0">Melhorias testadas</h3><div class="tablewrap"><table id="wc-tests"></table></div></div>
+      </div>
+      <p class="small" style="margin-bottom:0">Cada melhoria é recalculada sozinha, com a mesma vazão. Os preços não entram: a decisão final depende de custo e disponibilidade.</p>
+    </div>
+  </div>
+
+  <div class="ex-panel" data-ex="econ" hidden>
+    <div class="card">
+      <h2>Diâmetro econômico</h2>
+      <div class="fields" style="max-width:820px">
+        <div><label for="d-c100">Custo do tubo de 100 mm (R$/m)</label><input id="d-c100" type="text" inputmode="decimal"></div>
+        <div><label for="d-n">Expoente do custo (C ∝ D<sup>n</sup>)</label><input id="d-n" type="text" inputmode="decimal"></div>
+        <div><label for="d-fa">Anualização do investimento (%/ano)</label><input id="d-fa" type="text" inputmode="decimal"></div>
+      </div>
+      <p id="d-info" style="margin:18px 0 8px;font-weight:600"></p>
+      <canvas id="ch-econ" role="img" aria-label="Custo anual por diâmetro: energia, investimento e total"></canvas>
+      <details class="fold"><summary>Tabela por diâmetro</summary><div class="tablewrap" style="margin-top:12px"><table id="d-table"></table></div></details>
+      <p class="small" style="margin:16px 0 0">Diâmetros maiores gastam menos energia, mas o tubo custa mais. Preços hipotéticos; o modelo de custo (potência do diâmetro) é ilustrativo.</p>
+    </div>
+  </div>
+
+  <div class="ex-panel" data-ex="aging" hidden>
+    <div class="card">
+      <h2>Envelhecimento do tubo</h2>
+      <div class="fields" style="max-width:820px">
+        <div><label for="a-rate">Aumento da rugosidade (mm/ano)</label><input id="a-rate" type="text" inputmode="decimal"></div>
+        <div data-ctl="years"></div>
+      </div>
+      <div class="metrics" id="a-metrics" style="margin:22px 0"></div>
+      <canvas id="ch-aging" role="img" aria-label="Perda total ao longo dos anos"></canvas>
+      <p class="small" style="margin:16px 0 0">Modelo linear ilustrativo: ε(t) = ε₀ + taxa·t, aplicado a todos os trechos. Taxas reais dependem da água e do material; use dados medidos.</p>
+    </div>
+  </div>
+
+  <div class="ex-panel" data-ex="hazen" hidden>
+    <div class="card">
+      <h2>Hazen-Williams × Darcy-Weisbach</h2>
+      <div id="hw-msg"></div>
+      <div class="tablewrap"><table id="hw-table"></table></div>
+      <p class="small" style="margin-bottom:0">Hazen-Williams vale para água em escoamento turbulento. O C é típico do material e serve só de conferência: a base do programa é Darcy-Weisbach.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6. TEORIA ============ -->
+<section id="tab-teoria" class="panel" role="tabpanel" aria-labelledby="tabbtn-teoria">
+  <div class="cols2">
+    <div class="card">
+      <h2>Equações usadas</h2>
+      <h3>Velocidade e Reynolds</h3>
+      <span class="eq">v = Q / A,  A = π·D²/4</span><br>
+      <span class="eq">Re = ρ·v·D / μ</span>
+      <p class="small">Laminar: Re &lt; 2300. Transição: 2300 a 4000 (resultado incerto). Turbulento: Re &gt; 4000. Os limites são aproximados e dependem de perturbações na entrada.</p>
+      <h3>Perda distribuída (Darcy-Weisbach)</h3>
+      <span class="eq">h<sub>f</sub> = f · (L/D) · v²/(2g)</span>
+      <h3>Fator de atrito</h3>
+      <span class="eq">Laminar: f = 64/Re</span><br>
+      <span class="eq">Colebrook-White: 1/√f = −2·log₁₀[ ε/(3,7·D) + 2,51/(Re·√f) ]</span><br>
+      <span class="eq">Swamee-Jain: f = 0,25 / [log₁₀( ε/(3,7·D) + 5,74/Re<sup>0,9</sup> )]²</span>
+      <p class="small">Colebrook é implícita e é resolvida por Newton em x = 1/√f, partindo de Swamee-Jain, até variação menor que 10⁻¹³. Swamee-Jain é explícita e serve de conferência (válida para 5000 ≤ Re ≤ 10⁸ e 10⁻⁶ ≤ ε/D ≤ 10⁻²). Na transição o programa adota o maior entre 64/Re e Colebrook, resultado conservador.</p>
+      <h3>Perda localizada</h3>
+      <span class="eq">h<sub>L</sub> = ΣK · v²/(2g)</span>
+      <h3>Total e pressão</h3>
+      <span class="eq">h = h<sub>f</sub> + h<sub>L</sub></span><br>
+      <span class="eq">Δp = ρ·g·h</span>
+      <p class="small">Em trechos em série a vazão é a mesma e as perdas se somam. A velocidade muda com o diâmetro de cada trecho.</p>
+      <h3>Hazen-Williams (conferência)</h3>
+      <span class="eq">h<sub>f</sub> = 10,67 · L · Q<sup>1,852</sup> / (C<sup>1,852</sup> · D<sup>4,87</sup>)  (SI)</span>
+      <h3>Potência e energia</h3>
+      <span class="eq">P<sub>hid</sub> = ρ·g·Q·h</span><br>
+      <span class="eq">P<sub>elétrica</sub> = P<sub>hid</sub> / (η<sub>bomba</sub>·η<sub>motor</sub>)</span><br>
+      <span class="eq">Custo = P<sub>elétrica</sub> · h/dia · dias/ano · tarifa</span>
+      <h3>Unidades</h3>
+      <p class="small" style="margin-top:0">Internamente: m³/h, mm (convertidos para m nas fórmulas) e mPa·s (convertido para Pa·s). L/s = m³/h ÷ 3,6. g = 9,80665 m/s².</p>
+    </div>
+    <div>
+      <div class="card">
+        <h2>Hipóteses e limitações</h2>
+        <ul class="tight">
+          <li>Fluido incompressível e newtoniano, regime permanente, tubo cheio e de seção circular constante em cada trecho.</li>
+          <li>Rugosidade uniforme (ε) e K constantes, independentes de Re.</li>
+          <li>Os K de livros foram obtidos em escoamento turbulento: em regime laminar e na transição, a perda localizada é só uma estimativa (o programa avisa).</li>
+          <li>Mudanças de diâmetro entre trechos (expansões e reduções) não geram perda automática: inclua-as pelos acessórios, editando K se preciso.</li>
+          <li>Não há desnível geométrico, cavitação, NPSH, golpe de aríete nem efeito térmico.</li>
+          <li>Colebrook e Swamee-Jain são correlações empíricas; os valores têm incerteza de alguns por cento.</li>
+          <li>Tubos “lisos” (PVC) usam ε típico de 0,0015 mm: ε/D muito pequeno pode sair da faixa de validade de Swamee-Jain, e o programa avisa.</li>
+          <li>Todos os cenários prontos e os preços são hipotéticos, e as bibliotecas de fluidos, materiais e K são valores típicos que devem ser conferidos na fonte.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Sugestões de referências</h2>
+        <ul class="tight">
+          <li>ÇENGEL, Y. A.; CIMBALA, J. M. <em>Mecânica dos Fluidos: Fundamentos e Aplicações</em>. McGraw-Hill.</li>
+          <li>FOX, R. W.; McDONALD, A. T. <em>Introdução à Mecânica dos Fluidos</em>. LTC.</li>
+          <li>MACINTYRE, A. J. <em>Bombas e Instalações de Bombeamento</em>. LTC.</li>
+          <li>WHITE, F. M. <em>Mecânica dos Fluidos</em> (ou <em>Fluid Mechanics</em>). McGraw-Hill.</li>
+          <li>COLEBROOK, C. F. Turbulent flow in pipes, with particular reference to the transition region between the smooth and rough pipe laws. <em>J. Inst. Civil Engineers</em>, 1939.</li>
+          <li>SWAMEE, P. K.; JAIN, A. K. Explicit equations for pipe-flow problems. <em>J. Hydraulics Division, ASCE</em>, 1976.</li>
+        </ul>
+        <p class="small">Confira edição, autores, anos e páginas antes de citar no relatório.</p>
+      </div>
+      <div class="card">
+        <h2>Como o programa conferiu o cálculo</h2>
+        <p style="margin-top:0">O arquivo <code>teste-nucleo.mjs</code> (rodado com Node) executa o núcleo isolado e compara Colebrook com uma solução independente por bisseção, verifica f = 64/Re contra Hagen-Poiseuille, mede a diferença entre Swamee-Jain e Colebrook e reproduz um exemplo calculado à mão.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<div id="print-report" aria-hidden="true"></div>
+
+<script>
+/* CORE-START — núcleo de cálculo (sem DOM; testável em Node) */
+const CORE = (function () {
+  'use strict';
+  const G = 9.80665;                       // m/s²
+  const RE_LAM = 2300, RE_TURB = 4000;     // limites de regime
+  const LN10 = Math.LN10;
+
+  /* ---------- bibliotecas (valores típicos: conferir na fonte) ---------- */
+  // μ em mPa·s (= cP); ρ em kg/m³
+  const FLUIDS = [
+    { id: 'agua20', nome: 'Água a 20 °C', rho: 998.2, mu: 1.002 },
+    { id: 'agua40', nome: 'Água a 40 °C', rho: 992.2, mu: 0.653 },
+    { id: 'agua60', nome: 'Água a 60 °C', rho: 983.2, mu: 0.467 },
+    { id: 'oleoleve', nome: 'Óleo lubrificante leve (típico)', rho: 860, mu: 40 },
+    { id: 'oleovisc', nome: 'Óleo viscoso (típico, tipo SAE 30)', rho: 890, mu: 290 },
+    { id: 'glicerina', nome: 'Glicerina a 20 °C', rho: 1274, mu: 1520 },
+    { id: 'custom', nome: 'Personalizado', rho: 1000, mu: 1 }
+  ];
+  // ε em mm; C = coeficiente de Hazen-Williams (típico)
+  const MATERIALS = [
+    { id: 'pvc', nome: 'PVC / plástico liso', eps: 0.0015, C: 150 },
+    { id: 'acocom', nome: 'Aço comercial', eps: 0.045, C: 130 },
+    { id: 'galv', nome: 'Aço galvanizado', eps: 0.15, C: 120 },
+    { id: 'fofo', nome: 'Ferro fundido', eps: 0.26, C: 130 },
+    { id: 'concreto', nome: 'Concreto', eps: 1.0, C: 120 },
+    { id: 'custom', nome: 'Personalizado', eps: 0.1, C: 130 }
+  ];
+  // K típicos de livros (Çengel/Macintyre), EDITÁVEIS na interface
+  const ACCESSORIES = [
+    { key: 'entrada', nome: 'Entrada de borda viva', K: 0.5 },
+    { key: 'saida', nome: 'Saída (descarga em reservatório)', K: 1.0 },
+    { key: 'c90', nome: 'Curva 90°', K: 0.9 },
+    { key: 'c45', nome: 'Curva 45°', K: 0.4 },
+    { key: 'tedir', nome: 'Tê, passagem direta', K: 0.6 },
+    { key: 'telat', nome: 'Tê, saída lateral', K: 1.3 },
+    { key: 'gaveta', nome: 'Válvula gaveta (aberta)', K: 0.2 },
+    { key: 'globo', nome: 'Válvula globo (aberta)', K: 10 },
+    { key: 'retencao', nome: 'Válvula de retenção', K: 2.5 },
+    { key: 'esfera', nome: 'Registro de esfera (aberto)', K: 0.1 }
+  ];
+  const COMMERCIAL_D = [20, 25, 32, 40, 50, 60, 75, 85, 100, 125, 150, 200, 250, 300, 400, 500]; // mm (ilustrativo)
+
+  /* ---------- utilitários ---------- */
+  const isNum = x => typeof x === 'number' && Number.isFinite(x);
+  function parseNum(s) {
+    if (typeof s === 'number') return s;
+    s = String(s == null ? '' : s).trim().replace(/\s+/g, '');
+    if (!s) return NaN;
+    if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+    return /^[+-]?(\d+\.?\d*|\.\d+)(e[+-]?\d+)?$/i.test(s) ? parseFloat(s) : NaN;
+  }
+  function fmt(x, d) {
+    if (!isNum(x)) return '—';
+    if (d === undefined) d = 2;
+    return x.toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function sci(x, d) { // 1,23e-5
+    if (!isNum(x)) return '—';
+    if (d === undefined) d = 2;
+    if (x === 0) return '0';
+    return x.toExponential(d).replace('.', ',').replace('e+', 'e');
+  }
+  // formato adaptativo (3 algarismos significativos mínimos)
+  function fx(x, d) {
+    if (!isNum(x)) return '—';
+    const a = Math.abs(x);
+    if (a !== 0 && (a < 1e-3 || a >= 1e6)) return sci(x, 2);
+    return fmt(x, d === undefined ? (a >= 100 ? 1 : a >= 10 ? 2 : a >= 1 ? 3 : 4) : d);
+  }
+  const m3hToM3s = q => q / 3600;
+  const lsToM3h = q => q * 3.6;
+  const area = Dm => Math.PI * Dm * Dm / 4;
+
+  /* ---------- fator de atrito ---------- */
+  function swameeJain(Re, rr) {
+    const a = Math.log10(rr / 3.7 + 5.74 / Math.pow(Re, 0.9));
+    return 0.25 / (a * a);
+  }
+  // Colebrook-White por Newton em x = 1/√f :  g(x) = x + 2·log10(A + B·x) = 0
+  function colebrook(Re, rr) {
+    const A = rr / 3.7, B = 2.51 / Re;
+    let x = 1 / Math.sqrt(swameeJain(Re, rr));
+    if (!isNum(x) || x <= 0) x = 5;
+    let it = 0, conv = false;
+    for (; it < 100; it++) {
+      const arg = A + B * x;
+      const g = x + 2 * Math.log10(arg);
+      const gp = 1 + 2 * B / (arg * LN10);
+      let xn = x - g / gp;
+      if (!(xn > 0)) xn = x / 2;
+      const d = Math.abs(xn - x);
+      x = xn;
+      if (d < 1e-13 * Math.max(1, x)) { conv = true; it++; break; }
+    }
+    return { f: 1 / (x * x), iter: it, converged: conv };
+  }
+  function regimeOf(Re) { return Re < RE_LAM ? 'laminar' : Re < RE_TURB ? 'transicao' : 'turbulento'; }
+  function frictionFactor(Re, rr) {
+    const regime = regimeOf(Re);
+    const out = { regime, f: NaN, fLam: 64 / Re, fCol: null, fSJ: null, iter: 0, converged: true, diffPct: null, method: '' };
+    if (regime === 'laminar') { out.f = out.fLam; out.method = 'laminar'; return out; }
+    const c = colebrook(Re, rr);
+    out.fCol = c.f; out.iter = c.iter; out.converged = c.converged;
+    out.fSJ = swameeJain(Re, rr);
+    out.diffPct = (out.fSJ - out.fCol) / out.fCol * 100;
+    if (regime === 'transicao') { out.f = Math.max(out.fLam, out.fCol); out.method = 'transicao'; }
+    else { out.f = out.fCol; out.method = 'colebrook'; }
+    return out;
+  }
+
+  /* ---------- um trecho ---------- */
+  // fl: {rho, mu(mPa·s)}; Q em m³/h; t: {nome, eps(mm), D(mm), L(m), acc:{key:qtd}}; Ks: {key:K}
+  function solveTrecho(fl, Q, t, Ks) {
+    const errors = [], warnings = [];
+    const rho = fl.rho, mu = fl.mu / 1000;
+    if (!(rho > 0)) errors.push('A massa específica ρ deve ser positiva.');
+    if (!(fl.mu > 0)) errors.push('A viscosidade μ deve ser positiva.');
+    if (!(Q > 0)) errors.push('A vazão Q deve ser positiva (não nula).');
+    if (!(t.D > 0)) errors.push('O diâmetro interno D deve ser positivo (não nulo).');
+    if (!isNum(t.L) || t.L < 0) errors.push('O comprimento L deve ser maior ou igual a zero.');
+    if (!isNum(t.eps) || t.eps < 0) errors.push('A rugosidade ε deve ser maior ou igual a zero.');
+    if (t.D > 0 && t.eps >= t.D) errors.push('A rugosidade ε deve ser menor que o diâmetro D.');
+    const acc = t.acc || {};
+    Object.keys(acc).forEach(k => { if (!(acc[k] >= 0) || !isNum(acc[k])) errors.push('A quantidade de acessórios deve ser maior ou igual a zero.'); });
+    Object.keys(Ks || {}).forEach(k => { if (!(Ks[k] >= 0) || !isNum(Ks[k])) errors.push('O coeficiente K deve ser maior ou igual a zero.'); });
+    if (errors.length) return { ok: false, errors: Array.from(new Set(errors)), warnings };
+
+    const Dm = t.D / 1000, Qs = m3hToM3s(Q), A = area(Dm);
+    const v = Qs / A, Re = rho * v * Dm / mu, rr = (t.eps / 1000) / Dm;
+    const fi = frictionFactor(Re, rr);
+    const v2g = v * v / (2 * G);
+    const hf = fi.f * (t.L / Dm) * v2g;
+    const accList = [];
+    let sumK = 0;
+    ACCESSORIES.forEach(a => {
+      const q = acc[a.key] || 0;
+      if (q > 0) { const K = (Ks && isNum(Ks[a.key])) ? Ks[a.key] : a.K; sumK += K * q; accList.push({ key: a.key, nome: a.nome, K, qty: q, h: K * q * v2g }); }
+    });
+    const hL = sumK * v2g;
+    const h = hf + hL;
+
+    if (fi.regime === 'transicao') warnings.push('Re entre 2300 e 4000 (transição): o fator de atrito é incerto. Foi adotado o maior entre 64/Re e Colebrook (resultado conservador).');
+    if (fi.regime === 'laminar' && sumK > 0) warnings.push('Em regime laminar os K de livros (válvulas, curvas) foram obtidos para escoamento turbulento: a perda localizada é apenas uma estimativa.');
+    if (Re > 1e8) warnings.push('Re acima de 1e8: fora da faixa do diagrama de Moody.');
+    if (rr > 0.05) warnings.push('ε/D acima de 0,05: fora da faixa usual do diagrama de Moody.');
+    if (fi.regime !== 'laminar' && !fi.converged) warnings.push('Colebrook-White não convergiu em 100 iterações; use o valor com cautela.');
+    if (fi.regime === 'turbulento' && (Re < 5000 || Re > 1e8 || rr < 1e-6 || rr > 1e-2)) warnings.push('Swamee-Jain fora da faixa de validade (5000 ≤ Re ≤ 1e8 e 1e-6 ≤ ε/D ≤ 1e-2): a diferença para Colebrook pode ser maior.');
+    if (v > 3) warnings.push('Velocidade acima de 3 m/s: confira ruído, erosão e golpe de aríete.');
+    if (t.L === 0) warnings.push('Comprimento nulo: não há perda distribuída neste trecho.');
+
+    return {
+      ok: true, errors: [], warnings, nome: t.nome, D: t.D, L: t.L, eps: t.eps,
+      Qs, A, v, Re, rr, regime: fi.regime, fi, f: fi.f, v2g, hf, sumK, hL, h, dp: rho * G * h, acc: accList
+    };
+  }
+
+  /* ---------- sistema em série ---------- */
+  function solveSystem(fl, Q, trechos, Ks) {
+    const res = trechos.map(t => solveTrecho(fl, Q, t, Ks));
+    const ok = res.every(r => r.ok);
+    const tot = { ok, hf: 0, hL: 0, h: 0, dp: 0, L: 0, sumK: 0, results: res };
+    if (!ok) { tot.errors = [].concat.apply([], res.map((r, i) => (r.errors || []).map(e => (res.length > 1 ? 'Trecho ' + (i + 1) + ': ' : '') + e))); return tot; }
+    res.forEach(r => { tot.hf += r.hf; tot.hL += r.hL; tot.h += r.h; tot.L += r.L; tot.sumK += r.sumK; });
+    tot.dp = fl.rho * G * tot.h;
+    return tot;
+  }
+
+  /* ---------- energia ---------- */
+  function pumpPower(fl, Q, h, etaB, etaM) {
+    const Phyd = fl.rho * G * m3hToM3s(Q) * h / 1000;     // kW
+    const Pshaft = Phyd / etaB, Pelec = Pshaft / etaM;
+    return { Phyd, Pshaft, Pelec };
+  }
+  function annualEnergy(Pelec, hDia, dias, tarifa) { const kWh = Pelec * hDia * dias; return { kWh, cost: kWh * tarifa }; }
+
+  /* ---------- Hazen-Williams (conferência, água) ---------- */
+  function hazenWilliams(Q, D, L, C) { // Q m³/h, D mm, L m → hf em m
+    const Qs = m3hToM3s(Q), Dm = D / 1000;
+    return 10.67 * L * Math.pow(Qs, 1.852) / (Math.pow(C, 1.852) * Math.pow(Dm, 4.87));
+  }
+
+  /* ---------- envelhecimento ---------- */
+  const epsAged = (eps0, ratePerYear, years) => eps0 + ratePerYear * years;
+
+  /* ---------- diâmetro econômico ---------- */
+  // opts: {fl, Q, L, eps, sumK, etaB, etaM, hDia, dias, tarifa, c100 (R$/m p/ 100 mm), n, fa (1/ano)}
+  function economicDiameter(o, list) {
+    const rows = (list || COMMERCIAL_D).map(D => {
+      const r = solveTrecho(o.fl, o.Q, { nome: 'x', eps: o.eps, D, L: o.L, acc: {} }, null);
+      if (!r.ok) return { D, ok: false };
+      const hL = o.sumK * r.v2g, h = r.hf + hL;
+      const p = pumpPower(o.fl, o.Q, h, o.etaB, o.etaM);
+      const e = annualEnergy(p.Pelec, o.hDia, o.dias, o.tarifa);
+      const pipeCostM = o.c100 * Math.pow(D / 100, o.n);
+      const invest = pipeCostM * o.L, capAnnual = invest * o.fa;
+      return { D, ok: true, v: r.v, Re: r.Re, h, Pelec: p.Pelec, energy: e.cost, invest, capAnnual, total: e.cost + capAnnual };
+    });
+    let best = -1;
+    rows.forEach((r, i) => { if (r.ok && (best < 0 || r.total < rows[best].total)) best = i; });
+    return { rows, best };
+  }
+
+  /* ---------- "o que mudar?" ---------- */
+  function nextD(D) { for (let i = 0; i < COMMERCIAL_D.length; i++) if (COMMERCIAL_D[i] > D + 1e-9) return COMMERCIAL_D[i]; return null; }
+  function whatToChange(fl, Q, trechos, Ks) {
+    const base = solveSystem(fl, Q, trechos, Ks);
+    if (!base.ok) return { base, contrib: [], tests: [] };
+    const contrib = [];
+    base.results.forEach((r, i) => {
+      const tag = trechos.length > 1 ? 'Trecho ' + (i + 1) + ' — ' : '';
+      contrib.push({ label: tag + 'atrito no tubo', h: r.hf });
+      r.acc.forEach(a => contrib.push({ label: tag + a.nome + (a.qty > 1 ? ' × ' + a.qty : ''), h: a.h }));
+    });
+    contrib.sort((a, b) => b.h - a.h);
+    contrib.forEach(c => { c.share = base.h > 0 ? c.h / base.h * 100 : 0; });
+    const tests = [];
+    const tryMod = (label, mod) => {
+      const ts = trechos.map(t => Object.assign({}, t, { acc: Object.assign({}, t.acc) }));
+      mod(ts);
+      const s = solveSystem(fl, Q, ts, Ks);
+      if (s.ok) tests.push({ label, h: s.h, saving: base.h - s.h, pct: base.h > 0 ? (base.h - s.h) / base.h * 100 : 0 });
+    };
+    trechos.forEach((t, i) => {
+      const tag = trechos.length > 1 ? 'Trecho ' + (i + 1) + ': ' : '';
+      const nd = nextD(t.D);
+      if (nd) tryMod(tag + 'diâmetro ' + fmt(t.D, 0) + ' → ' + fmt(nd, 0) + ' mm', ts => { ts[i].D = nd; });
+      if (t.eps > 0.05) tryMod(tag + 'trocar por tubo liso (ε = 0,0015 mm)', ts => { ts[i].eps = 0.0015; });
+      if ((t.acc.globo || 0) > 0) tryMod(tag + 'trocar válvula globo por gaveta', ts => { ts[i].acc.gaveta = (ts[i].acc.gaveta || 0) + ts[i].acc.globo; ts[i].acc.globo = 0; });
+      if ((t.acc.c90 || 0) >= 2) tryMod(tag + 'trocar uma curva 90° por duas de 45°', ts => { ts[i].acc.c90 -= 1; ts[i].acc.c45 = (ts[i].acc.c45 || 0) + 2; });
+    });
+    tests.sort((a, b) => b.saving - a.saving);
+    return { base, contrib, tests };
+  }
+
+  /* ---------- diagrama de Moody ---------- */
+  function logspace(a, b, n) { const out = []; for (let i = 0; i < n; i++) out.push(Math.pow(10, Math.log10(a) + (Math.log10(b) - Math.log10(a)) * i / (n - 1))); return out; }
+  function moodyCurve(rr, n) {
+    return logspace(RE_TURB, 1e8, n || 60).map(Re => ({ x: Re, y: colebrook(Re, rr).f }));
+  }
+  function laminarLine() { return logspace(600, RE_LAM, 12).map(Re => ({ x: Re, y: 64 / Re })); }
+
+  /* ---------- memória de cálculo ---------- */
+  function memoryTrecho(fl, Q, t, r, idx, total) {
+    const L = [];
+    const tag = total > 1 ? 'Trecho ' + (idx + 1) + (t.nome ? ' (' + t.nome + ')' : '') : (t.nome || 'Trecho único');
+    L.push('== ' + tag + ' ==');
+    if (!r.ok) { r.errors.forEach(e => L.push('Erro: ' + e)); return L.join('\n'); }
+    const mu = fl.mu / 1000;
+    L.push('Dados: ρ = ' + fx(fl.rho, 1) + ' kg/m³; μ = ' + fx(fl.mu, 3) + ' mPa·s = ' + sci(mu, 3) + ' Pa·s; Q = ' + fx(Q, 3) + ' m³/h = ' + sci(r.Qs, 4) + ' m³/s');
+    L.push('       D = ' + fx(t.D, 1) + ' mm = ' + fx(t.D / 1000, 4) + ' m; L = ' + fx(t.L, 2) + ' m; ε = ' + fx(t.eps, 4) + ' mm; ε/D = ' + sci(r.rr, 3));
+    L.push('1) Área:        A = π·D²/4 = π·(' + fx(t.D / 1000, 4) + ')²/4 = ' + sci(r.A, 4) + ' m²');
+    L.push('2) Velocidade:  v = Q/A = ' + sci(r.Qs, 4) + ' / ' + sci(r.A, 4) + ' = ' + fx(r.v, 4) + ' m/s');
+    L.push('3) Reynolds:    Re = ρ·v·D/μ = ' + fx(fl.rho, 1) + ' × ' + fx(r.v, 4) + ' × ' + fx(t.D / 1000, 4) + ' / ' + sci(mu, 3) + ' = ' + fx(r.Re, 1) + '  →  regime ' + r.regime.replace('transicao', 'de transição'));
+    const fi = r.fi;
+    if (fi.regime === 'laminar') {
+      L.push('4) Atrito:      escoamento laminar → f = 64/Re = 64 / ' + fx(r.Re, 1) + ' = ' + fx(fi.f, 5));
+    } else {
+      L.push('4) Atrito:      Colebrook-White (iterativo, Newton): 1/√f = −2·log10[ ε/(3,7·D) + 2,51/(Re·√f) ]');
+      L.push('               → f_Colebrook = ' + fx(fi.fCol, 5) + ' (' + fi.iter + ' iterações)');
+      L.push('               Swamee-Jain: f = 0,25 / [log10( ε/(3,7·D) + 5,74/Re^0,9 )]² = ' + fx(fi.fSJ, 5) + '  (diferença de ' + fmt(fi.diffPct, 2) + ' % em relação a Colebrook)');
+      if (fi.regime === 'transicao') L.push('               Transição: f adotado = máx(64/Re ; Colebrook) = máx(' + fx(fi.fLam, 5) + ' ; ' + fx(fi.fCol, 5) + ') = ' + fx(fi.f, 5));
+      else L.push('               f adotado = f_Colebrook = ' + fx(fi.f, 5));
+    }
+    L.push('5) v²/(2g) = ' + fx(r.v, 4) + '² / (2 × 9,80665) = ' + fx(r.v2g, 5) + ' m');
+    L.push('6) Distribuída: hf = f·(L/D)·v²/(2g) = ' + fx(fi.f, 5) + ' × (' + fx(t.L, 2) + ' / ' + fx(t.D / 1000, 4) + ') × ' + fx(r.v2g, 5) + ' = ' + fx(r.hf, 4) + ' m');
+    if (r.acc.length) {
+      L.push('7) Localizada:  hL = ΣK·v²/(2g)');
+      r.acc.forEach(a => L.push('               ' + a.nome + ': ' + a.qty + ' × K ' + fx(a.K, 3) + ' = ' + fx(a.qty * a.K, 3)));
+      L.push('               ΣK = ' + fx(r.sumK, 3) + '  →  hL = ' + fx(r.sumK, 3) + ' × ' + fx(r.v2g, 5) + ' = ' + fx(r.hL, 4) + ' m');
+    } else L.push('7) Localizada:  sem acessórios → hL = 0');
+    L.push('8) Trecho:      h = hf + hL = ' + fx(r.hf, 4) + ' + ' + fx(r.hL, 4) + ' = ' + fx(r.h, 4) + ' m');
+    return L.join('\n');
+  }
+  function memorySystem(fl, Q, trechos, sys) {
+    const parts = trechos.map((t, i) => memoryTrecho(fl, Q, t, sys.results[i], i, trechos.length));
+    if (sys.ok) {
+      const L = ['== Sistema =='];
+      if (trechos.length > 1) L.push('Série (mesma vazão em todos os trechos): h_total = ' + sys.results.map(r => fx(r.h, 4)).join(' + ') + ' = ' + fx(sys.h, 4) + ' m');
+      else L.push('h_total = ' + fx(sys.h, 4) + ' m');
+      L.push('Distribuída total: ' + fx(sys.hf, 4) + ' m; localizada total: ' + fx(sys.hL, 4) + ' m');
+      L.push('Queda de pressão: Δp = ρ·g·h_total = ' + fx(fl.rho, 1) + ' × 9,80665 × ' + fx(sys.h, 4) + ' = ' + fx(sys.dp, 0) + ' Pa = ' + fx(sys.dp / 1000, 3) + ' kPa = ' + fx(sys.dp / 1e5, 4) + ' bar');
+      parts.push(L.join('\n'));
+    }
+    return parts.join('\n\n');
+  }
+
+  return {
+    G, RE_LAM, RE_TURB, FLUIDS, MATERIALS, ACCESSORIES, COMMERCIAL_D,
+    parseNum, fmt, sci, fx, isNum, m3hToM3s, lsToM3h, area,
+    swameeJain, colebrook, frictionFactor, regimeOf, solveTrecho, solveSystem,
+    pumpPower, annualEnergy, hazenWilliams, epsAged, economicDiameter, nextD, whatToChange,
+    logspace, moodyCurve, laminarLine, memoryTrecho, memorySystem
+  };
+})();
+/* CORE-END */
+
+/* ===== gráficos em canvas (sem dependências) ===== */
+const CHARTS = (function () {
+  'use strict';
+  const RENDER = { light: false };
+  const LIGHT = { '--text': '#08283a', '--muted': '#4a6a7b', '--grid': '#dfecf2', '--line': '#cde1ea', '--card': '#ffffff', '--accent': '#0a6f96', '--accent2': '#12b5c9', '--c1': '#0369a1', '--c2': '#d97706', '--c3': '#059669', '--c4': '#db2777', '--c5': '#0891b2', '--c6': '#dc2626', '--c7': '#475569' };
+  const EXTRA = ['#f97316', '#84cc16', '#14b8a6', '#eab308'];
+  function theme() {
+    const cs = getComputedStyle(document.documentElement);
+    const g = n => RENDER.light ? LIGHT[n] : cs.getPropertyValue(n).trim();
+    return { text: g('--text'), muted: g('--muted'), grid: g('--grid'), line: g('--line'), card: g('--card'), accent: g('--accent'), accent2: g('--accent2'), c: i => (i >= 7 ? EXTRA[(i - 7) % EXTRA.length] : g('--c' + (((i % 7) + 7) % 7 + 1))) };
+  }
+  function setup(canvas, size) {
+    const dpr = size ? 2 : (window.devicePixelRatio || 1);
+    const w = size ? size.w : canvas.clientWidth, h = size ? size.h : canvas.clientHeight;
+    if (!w || !h) return null;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
+    return { ctx, w, h };
+  }
+  const SUP = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻' };
+  const sup = n => String(n).split('').map(c => SUP[c] || c).join('');
+  function logTick(v) {
+    const e = Math.round(Math.log10(v));
+    if (e >= -2 && e <= 4) return v.toLocaleString('pt-BR', { maximumFractionDigits: 4 });
+    return '10' + sup(e);
+  }
+  function niceTicks(min, max, n) {
+    const span = max - min || 1, raw = span / (n || 5), p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const f = raw / p, step = (f < 1.5 ? 1 : f < 3 ? 2 : f < 7 ? 5 : 10) * p, out = [];
+    for (let v = Math.ceil(min / step - 1e-9) * step; v <= max + step * 1e-9; v += step) out.push(Math.abs(v) < step * 1e-9 ? 0 : v);
+    return out;
+  }
+  function hoverable(canvas) {
+    if (canvas._hv) return; canvas._hv = true;
+    const rq = () => { if (canvas._rq) return; canvas._rq = true; requestAnimationFrame(() => { canvas._rq = false; if (canvas._redraw) canvas._redraw(); }); };
+    const mv = e => { const r = canvas.getBoundingClientRect(); canvas._hover = { x: e.clientX - r.left, y: e.clientY - r.top }; rq(); };
+    canvas.addEventListener('pointermove', mv); canvas.addEventListener('pointerdown', mv);
+    canvas.addEventListener('pointerleave', () => { canvas._hover = null; rq(); });
+  }
+  function legend(ctx, T, items, w) {
+    ctx.font = '12px system-ui,sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    const maxW = w - 24; let x = 0, row = 0; const pos = [];
+    items.forEach(it => { const tw = ctx.measureText(it.name).width + 30; if (x + tw > maxW && x > 0) { row++; x = 0; } pos.push([x, row]); x += tw + 8; });
+    return { rows: items.length ? row + 1 : 0, draw: () => items.forEach((it, i) => {
+      ctx.font = '12px system-ui,sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+      const x0 = 12 + pos[i][0], y0 = 12 + pos[i][1] * 20;
+      ctx.strokeStyle = it.color; ctx.fillStyle = it.color; ctx.lineWidth = 3; ctx.setLineDash(it.dash || []);
+      if (it.box) { ctx.fillRect(x0, y0 - 5, 14, 10); } else { ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + 16, y0); ctx.stroke(); }
+      ctx.setLineDash([]); ctx.fillStyle = T.text; ctx.fillText(it.name, x0 + 22, y0);
+    }) };
+  }
+  function tooltip(ctx, T, w, h, px, py, lines) {
+    ctx.font = '12px system-ui,sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    const tw = Math.max.apply(null, lines.map(l => ctx.measureText(l).width)) + 18, th = lines.length * 17 + 12;
+    let x = px + 14, y = py - th - 10;
+    if (x + tw > w - 4) x = px - tw - 14; if (x < 4) x = 4;
+    if (y < 4) y = py + 14; if (y + th > h - 4) y = h - th - 4;
+    ctx.fillStyle = T.card; ctx.strokeStyle = T.accent; ctx.lineWidth = 1.2; ctx.globalAlpha = .97;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, tw, th, 8) : ctx.rect(x, y, tw, th); ctx.fill(); ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.fillStyle = T.text; lines.forEach((l, i) => { ctx.font = (i === 0 ? '600 ' : '') + '12px system-ui,sans-serif'; ctx.fillText(l, x + 9, y + 15 + i * 17); });
+  }
+
+  /* ---------- XY ---------- */
+  // cfg: {xlog,ylog,xmin,xmax,ymin,ymax,xlabel,ylabel,series:[{name,color,pts,w,dash,alpha,label,noLegend,markers}],
+  //       bands:[{x0,x1,color,label}], vlines:[{x,color,label,dash}], points:[{x,y,color,r,label,tip}], tipDefault:(s,p)=>[...]}
+  function drawXY(canvas, cfg, size) {
+    const B = setup(canvas, size); if (!B) return; const { ctx, w, h } = B, T = theme();
+    const items = cfg.series.filter(s => s.name && !s.noLegend).map(s => ({ name: s.name, color: s.color, dash: s.dash }));
+    (cfg.points || []).forEach(p => { if (p.legend) items.push({ name: p.legend, color: p.color, box: true }); });
+    const lg = legend(ctx, T, items, w);
+    const m = { l: cfg.ml || 66, r: 22, t: 14 + lg.rows * 20, b: 52 };
+    const pw = w - m.l - m.r, ph = h - m.t - m.b;
+    if (pw < 40 || ph < 40) return;
+    const L = Math.log10;
+    const sx = v => cfg.xlog ? m.l + (L(v) - L(cfg.xmin)) / (L(cfg.xmax) - L(cfg.xmin)) * pw : m.l + (v - cfg.xmin) / (cfg.xmax - cfg.xmin) * pw;
+    const sy = v => cfg.ylog ? m.t + ph - (L(v) - L(cfg.ymin)) / (L(cfg.ymax) - L(cfg.ymin)) * ph : m.t + ph - (v - cfg.ymin) / (cfg.ymax - cfg.ymin) * ph;
+    const ticks = (lo, hi, log) => {
+      if (!log) return { major: niceTicks(lo, hi, 6), minor: [] };
+      const major = [], minor = [];
+      for (let e = Math.ceil(L(lo) - 1e-9); Math.pow(10, e) <= hi * 1.0000001; e++) major.push(Math.pow(10, e));
+      for (let e = Math.floor(L(lo)); Math.pow(10, e) <= hi; e++) for (let k = 2; k < 10; k++) { const v = k * Math.pow(10, e); if (v > lo && v < hi) minor.push(v); }
+      return { major, minor };
+    };
+    const tx = ticks(cfg.xmin, cfg.xmax, cfg.xlog), ty = ticks(cfg.ymin, cfg.ymax, cfg.ylog);
+    // faixas
+    (cfg.bands || []).forEach(b => {
+      const a = sx(Math.max(b.x0, cfg.xmin)), c = sx(Math.min(b.x1, cfg.xmax));
+      if (c > a) { ctx.fillStyle = b.color; ctx.fillRect(a, m.t, c - a, ph); if (b.label) { ctx.fillStyle = T.muted; ctx.font = '11px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(b.label, (a + c) / 2, m.t + 4); } }
+    });
+    // grade
+    ctx.lineWidth = 1; ctx.setLineDash([]);
+    ctx.strokeStyle = T.grid; ctx.globalAlpha = .5; tx.minor.forEach(v => { ctx.beginPath(); ctx.moveTo(sx(v), m.t); ctx.lineTo(sx(v), m.t + ph); ctx.stroke(); }); ty.minor.forEach(v => { ctx.beginPath(); ctx.moveTo(m.l, sy(v)); ctx.lineTo(m.l + pw, sy(v)); ctx.stroke(); }); ctx.globalAlpha = 1;
+    ctx.strokeStyle = T.grid; tx.major.forEach(v => { ctx.beginPath(); ctx.moveTo(sx(v), m.t); ctx.lineTo(sx(v), m.t + ph); ctx.stroke(); }); ty.major.forEach(v => { ctx.beginPath(); ctx.moveTo(m.l, sy(v)); ctx.lineTo(m.l + pw, sy(v)); ctx.stroke(); });
+    ctx.strokeStyle = T.line; ctx.strokeRect(m.l, m.t, pw, ph);
+    // rótulos dos eixos
+    ctx.fillStyle = T.muted; ctx.font = '11.5px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    tx.major.forEach(v => ctx.fillText(cfg.xlog ? logTick(v) : (cfg.xfmt ? cfg.xfmt(v) : String(v)), sx(v), m.t + ph + 6));
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ty.major.forEach(v => ctx.fillText(cfg.ylog ? logTick(v) : (cfg.yfmt ? cfg.yfmt(v) : String(v)), m.l - 7, sy(v)));
+    ctx.fillStyle = T.text; ctx.font = '12px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText(cfg.xlabel || '', m.l + pw / 2, h - 4);
+    ctx.save(); ctx.translate(14, m.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textBaseline = 'top'; ctx.fillText(cfg.ylabel || '', 0, 0); ctx.restore();
+    // séries
+    ctx.save(); ctx.beginPath(); ctx.rect(m.l, m.t, pw, ph); ctx.clip();
+    const hit = [];
+    cfg.series.forEach((s, si) => {
+      const pts = s.pts.filter(p => p.x > 0 && (!cfg.ylog || p.y > 0));
+      if (!pts.length) return;
+      ctx.strokeStyle = s.color; ctx.lineWidth = s.w || 2; ctx.setLineDash(s.dash || []); ctx.globalAlpha = s.alpha === undefined ? 1 : s.alpha; ctx.lineJoin = 'round';
+      ctx.beginPath(); pts.forEach((p, i) => { const X = sx(p.x), Y = sy(p.y); if (i === 0 || p.gap) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }); ctx.stroke();
+      ctx.setLineDash([]);
+      if (s.markers) { ctx.fillStyle = s.color; pts.forEach(p => { ctx.beginPath(); ctx.arc(sx(p.x), sy(p.y), 3.2, 0, 7); ctx.fill(); }); }
+      ctx.globalAlpha = 1;
+      pts.forEach(p => hit.push({ X: sx(p.x), Y: sy(p.y), s, p }));
+    });
+    (cfg.vlines || []).forEach(v => { ctx.strokeStyle = v.color || T.accent; ctx.lineWidth = 1.6; ctx.setLineDash(v.dash || [5, 4]); ctx.beginPath(); ctx.moveTo(sx(v.x), m.t); ctx.lineTo(sx(v.x), m.t + ph); ctx.stroke(); ctx.setLineDash([]); });
+    ctx.restore();
+    // rótulos no fim das curvas
+    ctx.font = '10.5px system-ui,sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    cfg.series.forEach(s => {
+      if (!s.label) return; const q = s.pts.filter(p => p.x <= cfg.xmax && p.x >= cfg.xmin); if (!q.length) return;
+      const p = q[q.length - 1]; ctx.fillStyle = s.color; ctx.globalAlpha = Math.max(.7, s.alpha || 1); ctx.fillText(s.label, Math.min(sx(p.x), m.l + pw) - 4, sy(p.y) - 3); ctx.globalAlpha = 1;
+    });
+    (cfg.vlines || []).forEach(v => { if (!v.label) return; ctx.fillStyle = v.color || T.accent; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = '11px system-ui,sans-serif'; ctx.fillText(v.label, sx(v.x) + 5, m.t + 4); });
+    // pontos marcados
+    (cfg.points || []).forEach(p => {
+      if (p.x < cfg.xmin || p.x > cfg.xmax || p.y < cfg.ymin || p.y > cfg.ymax) return;
+      const X = sx(p.x), Y = sy(p.y), r = p.r || 7;
+      ctx.beginPath(); ctx.arc(X, Y, r + 3, 0, 7); ctx.fillStyle = T.card; ctx.fill();
+      ctx.beginPath(); ctx.arc(X, Y, r, 0, 7); ctx.fillStyle = p.color; ctx.fill(); ctx.strokeStyle = T.card; ctx.lineWidth = 1.5; ctx.stroke();
+      if (p.label) { ctx.fillStyle = T.card; ctx.font = '600 ' + Math.round(r * 1.25) + 'px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(p.label, X, Y + .5); }
+      hit.push({ X, Y, s: { name: p.name || '' }, p, mark: true });
+    });
+    lg.draw();
+    // dica ao passar o mouse
+    const hv = canvas._hover;
+    if (hv && !size) {
+      let best = null, bd = 30 * 30;
+      hit.forEach(o => { const d = (o.X - hv.x) * (o.X - hv.x) + (o.Y - hv.y) * (o.Y - hv.y) - (o.mark ? 400 : 0); if (d < bd) { bd = d; best = o; } });
+      if (best && best.X >= m.l - 1 && best.X <= m.l + pw + 1) {
+        ctx.beginPath(); ctx.arc(best.X, best.Y, 6, 0, 7); ctx.strokeStyle = T.text; ctx.lineWidth = 2; ctx.stroke();
+        const lines = (best.p.tip) || (cfg.tipDefault ? cfg.tipDefault(best.s, best.p) : [best.s.name, 'x = ' + best.p.x, 'y = ' + best.p.y]);
+        tooltip(ctx, T, w, h, best.X, best.Y, lines);
+      }
+    }
+    canvas._geo = { m, pw, ph };
+    if (!size) { canvas._redraw = () => drawXY(canvas, cfg); hoverable(canvas); }
+  }
+
+  /* ---------- barras empilhadas ---------- */
+  // cfg: {cats:[], segs:[{name,color,vals:[]}], yfmt, ylabel, vfmt, tip}
+  function drawStack(canvas, cfg, size) {
+    const B = setup(canvas, size); if (!B) return; const { ctx, w, h } = B, T = theme();
+    const items = cfg.segs.filter(s => s.vals.some(v => v > 0)).map(s => ({ name: s.name, color: s.color, box: true }));
+    const lg = legend(ctx, T, items, w);
+    const m = { l: 62, r: 16, t: 30 + lg.rows * 20, b: 56 };
+    const pw = w - m.l - m.r, ph = h - m.t - m.b; if (pw < 40 || ph < 40) return;
+    const totals = cfg.cats.map((_, i) => cfg.segs.reduce((s, g) => s + (g.vals[i] || 0), 0));
+    const mx = Math.max.apply(null, totals.concat([1e-12])), tk = niceTicks(0, mx * 1.08, 5);
+    if (tk[tk.length - 1] < mx * 1.04) tk.push(tk[tk.length - 1] + (tk.length > 1 ? tk[1] - tk[0] : mx));
+    const ymax = tk[tk.length - 1] || 1, sy = v => m.t + ph - v / ymax * ph;
+    ctx.lineWidth = 1; ctx.strokeStyle = T.grid; ctx.fillStyle = T.muted; ctx.font = '11.5px system-ui,sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    tk.forEach(v => { ctx.beginPath(); ctx.moveTo(m.l, sy(v)); ctx.lineTo(m.l + pw, sy(v)); ctx.stroke(); ctx.fillText(cfg.yfmt ? cfg.yfmt(v) : String(v), m.l - 7, sy(v)); });
+    ctx.strokeStyle = T.line; ctx.strokeRect(m.l, m.t, pw, ph);
+    const n = cfg.cats.length, slot = pw / n, bw = Math.min(90, slot * .6), rects = [];
+    cfg.cats.forEach((c, i) => {
+      let acc = 0; const x = m.l + slot * i + (slot - bw) / 2;
+      cfg.segs.forEach(g => { const v = g.vals[i] || 0; if (v <= 0) return; const y0 = sy(acc + v), y1 = sy(acc); ctx.fillStyle = g.color; ctx.fillRect(x, y0, bw, Math.max(1, y1 - y0)); rects.push({ x, y: y0, w: bw, h: y1 - y0, g, v, i, tot: totals[i] }); acc += v; });
+      ctx.fillStyle = T.text; ctx.font = '600 11.5px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(cfg.vfmt ? cfg.vfmt(totals[i]) : String(totals[i]), x + bw / 2, sy(totals[i]) - 3);
+      ctx.fillStyle = T.muted; ctx.font = '11.5px system-ui,sans-serif'; ctx.textBaseline = 'top';
+      const words = String(c).split('\n'); words.forEach((wd, k) => ctx.fillText(wd, x + bw / 2, m.t + ph + 6 + k * 14));
+    });
+    ctx.fillStyle = T.text; ctx.font = '12px system-ui,sans-serif'; ctx.save(); ctx.translate(14, m.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(cfg.ylabel || '', 0, 0); ctx.restore();
+    lg.draw();
+    const hv = canvas._hover;
+    if (hv && !size) {
+      const r = rects.find(o => hv.x >= o.x && hv.x <= o.x + o.w && hv.y >= o.y && hv.y <= o.y + o.h);
+      if (r) {
+        ctx.strokeStyle = T.text; ctx.lineWidth = 2; ctx.strokeRect(r.x, r.y, r.w, r.h);
+        const lines = cfg.tip ? cfg.tip(r) : [r.g.name, (cfg.vfmt ? cfg.vfmt(r.v) : r.v) + ' (' + (r.tot ? (r.v / r.tot * 100).toFixed(1).replace('.', ',') : '0') + ' % da barra)'];
+        tooltip(ctx, T, w, h, r.x + r.w / 2, r.y, lines);
+      }
+    }
+    if (!size) { canvas._redraw = () => drawStack(canvas, cfg); hoverable(canvas); }
+  }
+
+  return { RENDER, drawXY, drawStack, theme, niceTicks };
+})();
+
+/* ===== aplicação (interface) ===== */
+(function () {
+  'use strict';
+  const { fmt, fx, sci, parseNum } = CORE;
+  const $ = id => document.getElementById(id);
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const reducedMq = (() => { try { return window.matchMedia('(prefers-reduced-motion: reduce)'); } catch (e) { return { matches: false }; } })();
+  const toast = m => { if (window.__toast) window.__toast(m); };
+  const numStr = (v, d) => Number.isFinite(v) ? String(Number(v.toFixed(d))).replace('.', ',') : '';
+  const store = (() => { const mem = {}; let ok = true; try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); } catch (e) { ok = false; } return { ok, get: k => ok ? localStorage.getItem(k) : (mem[k] || null), set: (k, v) => { if (ok) { try { localStorage.setItem(k, v); } catch (e) { mem[k] = v; } } else mem[k] = v; } }; })();
+  const PREF_KEY = 'perdas-carga-prefs-v1';
+
+  /* ---------- bibliotecas e cenários ---------- */
+  const KS0 = Object.fromEntries(CORE.ACCESSORIES.map(a => [a.key, a.K]));
+  const matOf = id => CORE.MATERIALS.find(m => m.id === id) || CORE.MATERIALS[0];
+  const fluidOf = id => CORE.FLUIDS.find(f => f.id === id) || CORE.FLUIDS[0];
+  const regLabel = r => r === 'transicao' ? 'Transição' : r === 'laminar' ? 'Laminar' : 'Turbulento';
+
+  // DADOS HIPOTÉTICOS de demonstração: trocar por dados reais e citar as fontes.
+  const SCEN = [
+    { nome: 'Cenário 1 — Água em PVC, turbulento', curto: 'Cen. 1', fluidId: 'agua20', Q: 18,
+      desc: 'Água a 20 °C em dois trechos de PVC (75 mm e 50 mm) com os acessórios do caso base.',
+      trechos: [
+        { nome: 'Recalque principal', matId: 'pvc', D: 75, L: 60, acc: { entrada: 1, esfera: 1, c90: 3, retencao: 1 } },
+        { nome: 'Ramal final', matId: 'pvc', D: 50, L: 40, acc: { c90: 2, tedir: 1, gaveta: 1, saida: 1 } }] },
+    { nome: 'Cenário 2 — Óleo viscoso, laminar', curto: 'Cen. 2', fluidId: 'oleovisc', Q: 1.8,
+      desc: 'Óleo viscoso em aço comercial, vazão baixa: escoamento laminar, onde f = 64/Re.',
+      trechos: [{ nome: 'Linha de óleo', matId: 'acocom', D: 50, L: 30, acc: { entrada: 1, c90: 2, gaveta: 1, saida: 1 } }] },
+    { nome: 'Cenário 3 — Mesmo sistema, diâmetros maiores', curto: 'Cen. 3', fluidId: 'agua20', Q: 18,
+      desc: 'Mesmo sistema do cenário 1, com os diâmetros aumentados (100 mm e 75 mm).',
+      trechos: [
+        { nome: 'Recalque principal', matId: 'pvc', D: 100, L: 60, acc: { entrada: 1, esfera: 1, c90: 3, retencao: 1 } },
+        { nome: 'Ramal final', matId: 'pvc', D: 75, L: 40, acc: { c90: 2, tedir: 1, gaveta: 1, saida: 1 } }] },
+    { nome: 'Cenário 4 (extra) — Tubo envelhecido', curto: 'Cen. 4', fluidId: 'agua20', Q: 18,
+      desc: 'Mesmo sistema do cenário 1, mas com tubo envelhecido por incrustação (ε = 0,6 mm).',
+      trechos: [
+        { nome: 'Recalque principal', matId: 'custom', eps: 0.6, D: 75, L: 60, acc: { entrada: 1, esfera: 1, c90: 3, retencao: 1 } },
+        { nome: 'Ramal final', matId: 'custom', eps: 0.6, D: 50, L: 40, acc: { c90: 2, tedir: 1, gaveta: 1, saida: 1 } }] }
+  ];
+  function hydrate(sc) {
+    const fl = fluidOf(sc.fluidId);
+    return { nome: sc.nome, curto: sc.curto, desc: sc.desc, fluidId: sc.fluidId, rho: sc.rho !== undefined ? sc.rho : fl.rho, mu: sc.mu !== undefined ? sc.mu : fl.mu, Q: sc.Q,
+      trechos: sc.trechos.map(t => ({ nome: t.nome, matId: t.matId, eps: t.eps !== undefined ? t.eps : matOf(t.matId).eps, D: t.D, L: t.L, acc: Object.assign({}, t.acc) })) };
+  }
+
+  /* ---------- estado ---------- */
+  const S = { sel: 0, Ks: Object.assign({}, KS0), uq: 'm3h', cvD: '25, 32, 40, 50, 75, 100', Qmax: null,
+    en: { etaB: 70, etaM: 92, hDia: 8, dias: 300, tarifa: 0.8 }, ec: { c100: 60, n: 1.4, fa: 15 }, ag: { rate: 0.05, years: 10 } };
+  function loadScenario(i) { const h = hydrate(SCEN[i]); S.fluidId = h.fluidId; S.rho = h.rho; S.mu = h.mu; S.Q = h.Q; S.trechos = h.trechos; S.sel = 0; S.Qmax = null; }
+  loadScenario(0);
+  const tr = () => S.trechos[S.sel];
+  const fluid = () => ({ rho: S.rho, mu: S.mu });
+  const uqLabel = () => S.uq === 'Ls' ? 'L/s' : 'm³/h';
+  const dispQ = q => S.uq === 'Ls' ? q / 3.6 : q;
+  const fromQ = v => S.uq === 'Ls' ? v * 3.6 : v;
+  const cur = { sys: null, fl: null };
+  const tabIsActive = n => $('tab-' + n).classList.contains('active');
+
+  /* ---------- helpers de interface ---------- */
+  function showMsgs(el, list) { el.innerHTML = list.map(m => `<div class="msg ${m.t}">${m.s}</div>`).join(''); }
+  function metric(k, v, u, id) { return `<div class="metric"${id ? ` data-m="${id}"` : ''}><div class="k">${k}</div><div class="v">${v}${u ? ` <span class="u">${u}</span>` : ''}</div></div>`; }
+  function setVal(el, v) { if (el && document.activeElement !== el) el.value = v; }
+  function copyText(text, btn) {
+    const orig = btn.textContent;
+    const done = ok => { btn.textContent = ok ? 'Copiado!' : 'Não foi possível copiar'; setTimeout(() => { btn.textContent = orig; }, 1600); };
+    const fallback = () => { try { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); const ok = document.execCommand('copy'); document.body.removeChild(ta); done(ok); } catch (e) { done(false); } };
+    try { navigator.clipboard.writeText(text).then(() => done(true), fallback); } catch (e) { fallback(); }
+  }
+  function download(name, text, mime, bom) {
+    const blob = new Blob([(bom ? '﻿' : '') + text], { type: mime || 'text/plain' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  const csvCell = v => { const s = String(v == null ? '' : v); return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const toCsv = rows => rows.map(r => r.map(csvCell).join(';')).join('\r\n');
+  const dlStatus = m => { $('dl-status').textContent = m; };
+
+  /* ---------- controles (slider + campo) ---------- */
+  const CTL = {
+    Q: { name: 'Vazão Q', unit: uqLabel, min: () => dispQ(0.1), max: () => dispQ(500), log: true, get: () => dispQ(S.Q), set: v => { S.Q = fromQ(v); }, dec: () => S.uq === 'Ls' ? 3 : 2 },
+    D: { name: 'Diâmetro interno D', unit: () => 'mm', min: () => 10, max: () => 600, log: true, get: () => tr().D, set: v => { tr().D = v; }, dec: () => 1 },
+    L: { name: 'Comprimento L', unit: () => 'm', min: () => 1, max: () => 2000, log: true, get: () => tr().L, set: v => { tr().L = v; }, dec: () => 1 },
+    eps: { name: 'Rugosidade ε', unit: () => 'mm', min: () => 0.001, max: () => 10, log: true, get: () => tr().eps, set: v => { tr().eps = v; tr().matId = 'custom'; }, dec: () => 4 },
+    Qmax: { name: 'Vazão máxima do gráfico', unit: uqLabel, min: () => dispQ(1), max: () => dispQ(1000), log: true, get: () => dispQ(S.Qmax || 2 * S.Q), set: v => { S.Qmax = fromQ(v); }, dec: () => 2 },
+    years: { name: 'Anos de operação', unit: () => 'anos', min: () => 0, max: () => 40, log: false, get: () => S.ag.years, set: v => { S.ag.years = v; }, dec: () => 0 }
+  };
+  const ctls = [];
+  const valToT = (c, v) => { const a = c.min(), b = c.max(); v = clamp(Number.isFinite(v) ? v : a, a, b); return c.log ? 1000 * Math.log(v / a) / Math.log(b / a) : 1000 * (v - a) / (b - a); };
+  const tToVal = (c, t) => { const a = c.min(), b = c.max(); const v = c.log ? a * Math.pow(b / a, t / 1000) : a + (b - a) * t / 1000; return Number(v.toPrecision(3)); };
+  function buildCtl(host) {
+    const key = host.dataset.ctl, c = CTL[key], id = 'ctl-' + key + '-' + ctls.length;
+    host.classList.add('ctl');
+    host.innerHTML = `<div class="ctl-head"><label for="${id}-n"></label><div class="ctl-num"><input id="${id}-n" type="text" inputmode="decimal" autocomplete="off"><span></span></div></div><input type="range" id="${id}-r" min="0" max="1000" step="1">`;
+    const lab = host.querySelector('label'), num = host.querySelector('input[type=text]'), unit = host.querySelector('.ctl-num span'), rng = host.querySelector('input[type=range]');
+    const inst = { c, lab, num, unit, rng, sync() {
+      lab.textContent = c.name; unit.textContent = c.unit(); rng.setAttribute('aria-label', c.name + ' (' + c.unit() + ')');
+      const v = c.get(); rng.value = String(Math.round(valToT(c, v)));
+      if (document.activeElement !== num) { num.value = numStr(v, c.dec()); num.removeAttribute('aria-invalid'); }
+    } };
+    rng.addEventListener('input', () => { const v = tToVal(c, +rng.value); c.set(v); num.value = numStr(v, c.dec()); num.removeAttribute('aria-invalid'); requestRender(); });
+    num.addEventListener('input', () => {
+      const p = parseNum(num.value);
+      if (Number.isFinite(p)) { c.set(p); num.removeAttribute('aria-invalid'); rng.value = String(Math.round(valToT(c, p))); requestRender(); }
+      else num.setAttribute('aria-invalid', 'true');
+    });
+    num.addEventListener('blur', () => { inst.sync(); });
+    ctls.push(inst);
+  }
+
+  /* ---------- fluido e material ---------- */
+  CORE.FLUIDS.forEach(f => { const o = document.createElement('option'); o.value = f.id; o.textContent = f.nome; $('fl-sel').appendChild(o); });
+  document.querySelectorAll('select[data-mat]').forEach(sel => CORE.MATERIALS.forEach(m => { const o = document.createElement('option'); o.value = m.id; o.textContent = m.nome + (m.id !== 'custom' ? ' (ε ≈ ' + fmt(m.eps, m.eps < 0.01 ? 4 : 3) + ' mm)' : ''); sel.appendChild(o); }));
+  $('fl-sel').addEventListener('change', () => { const f = fluidOf($('fl-sel').value); S.fluidId = f.id; if (f.id !== 'custom') { S.rho = f.rho; S.mu = f.mu; } requestRender(); });
+  function fluidInput(id, key) { $(id).addEventListener('input', () => { const p = parseNum($(id).value); if (Number.isFinite(p)) { S[key] = p; S.fluidId = 'custom'; $(id).removeAttribute('aria-invalid'); requestRender(); } else $(id).setAttribute('aria-invalid', 'true'); }); }
+  fluidInput('fl-rho', 'rho'); fluidInput('fl-mu', 'mu');
+  document.querySelectorAll('select[data-mat]').forEach(sel => sel.addEventListener('change', () => { const m = matOf(sel.value); tr().matId = m.id; if (m.id !== 'custom') tr().eps = m.eps; requestRender(); }));
+
+  /* ---------- trechos e acessórios ---------- */
+  function renderChips() {
+    $('tchips').innerHTML = S.trechos.map((t, i) => `<button type="button" class="tchip" data-i="${i}" aria-pressed="${i === S.sel}">${i + 1} · ${esc(t.nome || 'Trecho')}</button>`).join('');
+  }
+  $('tchips').addEventListener('click', e => { const b = e.target.closest('.tchip'); if (!b) return; S.sel = +b.dataset.i; renderChips(); requestRender(); });
+  $('t-add').addEventListener('click', () => {
+    const base = tr(); S.trechos.push({ nome: 'Trecho ' + (S.trechos.length + 1), matId: base.matId, eps: base.eps, D: base.D, L: base.L, acc: {} });
+    S.sel = S.trechos.length - 1; renderChips(); requestRender();
+  });
+  $('t-del').addEventListener('click', () => {
+    if (S.trechos.length <= 1) { toast('O sistema precisa de pelo menos um trecho.'); return; }
+    S.trechos.splice(S.sel, 1); S.sel = Math.min(S.sel, S.trechos.length - 1); renderChips(); requestRender();
+  });
+  $('t-nome').addEventListener('input', () => { tr().nome = $('t-nome').value; renderChips(); requestRender(); });
+  (function buildAcc() {
+    $('acc-body').innerHTML = CORE.ACCESSORIES.map(a => `<tr data-k="${a.key}"><td>${esc(a.nome)}</td><td><input type="text" inputmode="decimal" data-kin="${a.key}" aria-label="K de ${esc(a.nome)}"></td><td><input type="text" inputmode="numeric" data-qin="${a.key}" aria-label="Quantidade de ${esc(a.nome)}"></td></tr>`).join('');
+    $('acc-body').addEventListener('input', e => {
+      const t = e.target, k = t.dataset.kin || t.dataset.qin; if (!k) return;
+      const p = parseNum(t.value);
+      if (!Number.isFinite(p)) { t.setAttribute('aria-invalid', 'true'); return; }
+      t.removeAttribute('aria-invalid');
+      if (t.dataset.kin) S.Ks[k] = p; else tr().acc[k] = p;
+      requestRender();
+    });
+  })();
+  $('k-reset').addEventListener('click', () => { S.Ks = Object.assign({}, KS0); requestRender(); toast('Coeficientes K restaurados para os valores típicos.'); });
+
+  function syncInputs() {
+    $('fl-sel').value = S.fluidId; setVal($('fl-rho'), numStr(S.rho, 2)); setVal($('fl-mu'), numStr(S.mu, 4));
+    document.querySelectorAll('select[data-mat]').forEach(s => { s.value = tr().matId; });
+    setVal($('t-nome'), tr().nome || '');
+    ctls.forEach(i => i.sync());
+    CORE.ACCESSORIES.forEach(a => {
+      const k = document.querySelector(`[data-kin="${a.key}"]`), q = document.querySelector(`[data-qin="${a.key}"]`);
+      setVal(k, numStr(S.Ks[a.key], 3)); setVal(q, numStr(tr().acc[a.key] || 0, 3));
+    });
+    const en = S.en;
+    setVal($('e-etab'), numStr(en.etaB, 2)); setVal($('e-etam'), numStr(en.etaM, 2)); setVal($('e-hd'), numStr(en.hDia, 2)); setVal($('e-da'), numStr(en.dias, 1)); setVal($('e-tar'), numStr(en.tarifa, 3));
+    setVal($('d-c100'), numStr(S.ec.c100, 2)); setVal($('d-n'), numStr(S.ec.n, 2)); setVal($('d-fa'), numStr(S.ec.fa, 2)); setVal($('a-rate'), numStr(S.ag.rate, 4));
+    setVal($('cv-d'), S.cvD);
+  }
+  [['e-etab', 'en', 'etaB'], ['e-etam', 'en', 'etaM'], ['e-hd', 'en', 'hDia'], ['e-da', 'en', 'dias'], ['e-tar', 'en', 'tarifa'], ['d-c100', 'ec', 'c100'], ['d-n', 'ec', 'n'], ['d-fa', 'ec', 'fa'], ['a-rate', 'ag', 'rate']].forEach(([id, g, k]) => {
+    $(id).addEventListener('input', () => { const p = parseNum($(id).value); if (Number.isFinite(p)) { S[g][k] = p; $(id).removeAttribute('aria-invalid'); requestRender(); } else $(id).setAttribute('aria-invalid', 'true'); });
+  });
+  $('cv-d').addEventListener('input', () => { S.cvD = $('cv-d').value; requestRender(); });
+
+  /* ---------- 1. Calculadora ---------- */
+  let lastMem = '';
+  function showMsgsCollapsed(el, list) {
+    const old = el.querySelector('details'), wasOpen = old && old.open;
+    if (list.length <= 1) { showMsgs(el, list); return; }
+    const rest = list.slice(1);
+    el.innerHTML = '<div class="msg ' + list[0].t + '">' + list[0].s + '</div><details class="msg-more"' + (wasOpen ? ' open' : '') + '><summary>Mais ' + rest.length + (rest.length > 1 ? ' avisos' : ' aviso') + '</summary>' + rest.map(m => '<div class="msg ' + m.t + '">' + m.s + '</div>').join('') + '</details>';
+  }
+  function renderCalc() {
+    const fl = fluid(), sys = CORE.solveSystem(fl, S.Q, S.trechos, S.Ks);
+    cur.sys = sys; cur.fl = fl;
+    $('t-title').textContent = 'Trecho ' + (S.sel + 1) + (tr().nome ? ' — ' + tr().nome : '');
+    let nAcc = 0, sK = 0; CORE.ACCESSORIES.forEach(a => { const q = +tr().acc[a.key] || 0; nAcc += q; sK += q * (Number.isFinite(S.Ks[a.key]) ? S.Ks[a.key] : a.K); });
+    $('acc-sum').textContent = nAcc ? '· ' + fmt(nAcc, 0) + (nAcc === 1 ? ' peça' : ' peças') + ', ΣK = ' + fmt(sK, 2) : '· nenhum';
+    const msgs = [];
+    if (!sys.ok) {
+      sys.errors.forEach(e => msgs.push({ t: 'err', s: esc(e) }));
+      showMsgsCollapsed($('calc-msg'), msgs);
+      const dash = (k, id, u) => metric(k, '—', u, id);
+      $('calc-key').innerHTML = dash('Perda total', 'h', 'm') + dash('Queda de pressão', 'dp', 'kPa') + dash('Reynolds', 're') + dash('Fator de atrito', 'f');
+      $('calc-metrics-t').innerHTML = ''; $('calc-metrics-s').innerHTML = '';
+      $('tr-table-wrap').hidden = true; $('calc-steps').textContent = 'Corrija os dados de entrada para ver a memória de cálculo.'; lastMem = '';
+      $('flow-cap').textContent = 'Sem resultado: corrija os dados.'; FLOW.setMini(null, 1);
+      drawSchem(null); return;
+    }
+    const r = sys.results[S.sel], fi = r.fi;
+    sys.results.forEach((x, i) => x.warnings.forEach(w => msgs.push({ t: 'warn', s: (sys.results.length > 1 ? '<strong>Trecho ' + (i + 1) + ':</strong> ' : '') + esc(w) })));
+    if (!msgs.length) msgs.push({ t: 'ok', s: 'Dados válidos. Regime ' + regLabel(r.regime).toLowerCase() + (r.regime === 'turbulento' ? ': Colebrook-White aplicável.' : r.regime === 'laminar' ? ': f = 64/Re.' : '.') });
+    showMsgsCollapsed($('calc-msg'), msgs);
+    $('calc-key').innerHTML =
+      metric('Perda total', fmt(sys.h, 2), 'm', 'h') + metric('Queda de pressão', fmt(sys.dp / 1000, 1), 'kPa', 'dp') +
+      metric('Reynolds', fmt(r.Re, 0), '', 're') + metric('Fator de atrito', fmt(r.f, 4), '', 'f');
+    $('calc-metrics-t').innerHTML =
+      metric('Velocidade', fmt(r.v, 3), 'm/s') + metric('Regime', regLabel(r.regime)) + metric('ε/D', sci(r.rr, 2)) +
+      metric('f Colebrook-White', fi.fCol === null ? '—' : fmt(fi.fCol, 5)) + metric('f Swamee-Jain', fi.fSJ === null ? '—' : fmt(fi.fSJ, 5)) +
+      metric('Dif. SJ × Colebrook', fi.diffPct === null ? '—' : fmt(fi.diffPct, 2), fi.diffPct === null ? '' : '%') +
+      metric('Perda distribuída hf', fmt(r.hf, 3), 'm') + metric('Perda localizada hL', fmt(r.hL, 3), 'm');
+    $('calc-metrics-s').innerHTML = metric('Distribuída total', fmt(sys.hf, 3), 'm') + metric('Localizada total', fmt(sys.hL, 3), 'm') + metric('Queda de pressão', fmt(sys.dp / 1e5, 4), 'bar');
+    $('flow-cap').textContent = 'Escoamento ' + (r.regime === 'transicao' ? 'em transição' : regLabel(r.regime).toLowerCase()) + (S.trechos.length > 1 ? ' no trecho ' + (S.sel + 1) : '');
+    FLOW.setMini(r.regime, r.v);
+    const tw = $('tr-table-wrap');
+    if (S.trechos.length > 1) {
+      tw.hidden = false;
+      $('tr-table').innerHTML = '<thead><tr><th>Trecho</th><th>D (mm)</th><th>L (m)</th><th>v (m/s)</th><th>Re</th><th>Regime</th><th>f</th><th>hf (m)</th><th>hL (m)</th><th>h (m)</th><th>%</th></tr></thead><tbody>' +
+        sys.results.map((x, i) => '<tr' + (i === S.sel ? ' class="hl"' : '') + '><td>' + (i + 1) + ' · ' + esc(x.nome || '') + '</td><td>' + fmt(x.D, 1) + '</td><td>' + fmt(x.L, 1) + '</td><td>' + fmt(x.v, 3) + '</td><td>' + fmt(x.Re, 0) + '</td><td>' + regLabel(x.regime) + '</td><td>' + fmt(x.f, 5) + '</td><td>' + fmt(x.hf, 3) + '</td><td>' + fmt(x.hL, 3) + '</td><td>' + fmt(x.h, 3) + '</td><td>' + fmt(x.h / sys.h * 100, 1) + '</td></tr>').join('') +
+        '<tr class="tot"><td>Total</td><td></td><td>' + fmt(sys.L, 1) + '</td><td></td><td></td><td></td><td></td><td>' + fmt(sys.hf, 3) + '</td><td>' + fmt(sys.hL, 3) + '</td><td>' + fmt(sys.h, 3) + '</td><td>100,0</td></tr></tbody>';
+    } else tw.hidden = true;
+    lastMem = CORE.memorySystem(fl, S.Q, S.trechos, sys);
+    $('calc-steps').textContent = lastMem;
+    drawSchem(sys);
+  }
+  $('calc-copy').addEventListener('click', e => { if (lastMem) copyText(lastMem, e.currentTarget); });
+  function resultsCsvRows() {
+    const sys = cur.sys, fl = cur.fl; if (!sys || !sys.ok) return null;
+    const rows = [['Fluido', 'rho (kg/m3)', 'mu (mPa.s)', 'Q (m3/h)']];
+    rows.push([fluidOf(S.fluidId).nome, fx(fl.rho, 2), fx(fl.mu, 4), fx(S.Q, 4)]);
+    rows.push([]);
+    rows.push(['Trecho', 'Nome', 'D (mm)', 'L (m)', 'eps (mm)', 'v (m/s)', 'Re', 'Regime', 'f usado', 'f Colebrook', 'f Swamee-Jain', 'Dif SJ/Col (%)', 'hf (m)', 'SomaK', 'hL (m)', 'h (m)']);
+    sys.results.forEach((r, i) => rows.push([i + 1, r.nome, fx(r.D, 2), fx(r.L, 2), fx(r.eps, 4), fx(r.v, 4), fx(r.Re, 1), regLabel(r.regime), fx(r.f, 5), r.fi.fCol === null ? '' : fx(r.fi.fCol, 5), r.fi.fSJ === null ? '' : fx(r.fi.fSJ, 5), r.fi.diffPct === null ? '' : fx(r.fi.diffPct, 3), fx(r.hf, 4), fx(r.sumK, 3), fx(r.hL, 4), fx(r.h, 4)]));
+    rows.push(['Total', '', '', fx(sys.L, 2), '', '', '', '', '', '', '', '', fx(sys.hf, 4), fx(sys.sumK, 3), fx(sys.hL, 4), fx(sys.h, 4)]);
+    rows.push([]); rows.push(['Queda de pressao (kPa)', fx(sys.dp / 1000, 3)]);
+    return rows;
+  }
+  $('calc-csv').addEventListener('click', () => { const r = resultsCsvRows(); if (!r) { dlStatus('Corrija os dados de entrada antes de exportar.'); return; } download('perdas-de-carga.csv', toCsv(r), 'text/csv;charset=utf-8', true); dlStatus('Arquivo perdas-de-carga.csv gerado.'); });
+
+  /* ---------- esquema animado ---------- */
+  const NS = 'http://www.w3.org/2000/svg';
+  const anim = { run: true, paused: false, last: 0, off: 0, flows: [] };
+  function svgEl(tag, attrs, parent) { const e = document.createElementNS(NS, tag); Object.keys(attrs || {}).forEach(k => e.setAttribute(k, attrs[k])); if (parent) parent.appendChild(e); return e; }
+  function drawSchem(sys) {
+    const svg = $('schem');
+    Array.from(svg.children).forEach(c => { if (c.tagName !== 'title') c.remove(); });
+    anim.flows = [];
+    const n = S.trechos.length, x0 = 70, x1 = 690, seg = (x1 - x0) / n, y = 78;
+    svgEl('rect', { x: 8, y: 30, width: 62, height: 100, rx: 4, fill: 'none', stroke: 'var(--text)', 'stroke-width': 2.5 }, svg);
+    svgEl('rect', { x: 11, y: 70, width: 56, height: 57, class: 'sv-water' }, svg);
+    svgEl('rect', { x: 690, y: 30, width: 62, height: 100, rx: 4, fill: 'none', stroke: 'var(--text)', 'stroke-width': 2.5 }, svg);
+    svgEl('rect', { x: 693, y: 90, width: 56, height: 37, class: 'sv-water' }, svg);
+    S.trechos.forEach((t, i) => {
+      const r = sys && sys.ok ? sys.results[i] : null, a = x0 + seg * i, b = a + seg;
+      const th = clamp(8 + (t.D || 50) * 0.16, 10, 42);
+      svgEl('line', { x1: a, y1: y, x2: b, y2: y, stroke: i === S.sel ? 'var(--accent)' : 'var(--pipe)', 'stroke-width': th + 4, 'stroke-linecap': 'butt', opacity: i === S.sel ? .55 : .0 }, svg);
+      svgEl('line', { x1: a, y1: y, x2: b, y2: y, stroke: 'var(--pipe)', 'stroke-width': th, 'stroke-linecap': 'butt' }, svg);
+      const share = r && sys.h > 0 ? r.h / sys.h : 0;
+      const f = svgEl('line', { x1: a, y1: y, x2: b, y2: y, 'stroke-width': Math.max(4, th * .5), 'stroke-dasharray': '12 10', 'stroke-linecap': 'butt', class: 'sv-flow2' }, svg);
+      f.style.stroke = `color-mix(in srgb, var(--c6) ${Math.round(share * 100)}%, var(--water))`;
+      if (r) anim.flows.push({ el: f, v: r.v });
+      if (r && r.acc.length) { // marcadores de acessórios
+        const cnt = r.acc.reduce((s, q) => s + q.qty, 0), m = Math.min(Math.round(cnt), 8);
+        for (let k = 0; k < m; k++) { const cx = a + seg * (k + 1) / (m + 1); svgEl('rect', { x: cx - 4, y: y - th / 2 - 7, width: 8, height: th + 14, rx: 2, fill: 'var(--card)', stroke: 'var(--text)', 'stroke-width': 1.6, opacity: .9 }, svg); }
+      }
+      const tx = (a + b) / 2;
+      const l1 = svgEl('text', { x: tx, y: y + 54, 'text-anchor': 'middle', class: 'sv-text' }, svg); l1.textContent = (n > 1 ? (i + 1) + ' · ' : '') + 'D ' + fmt(t.D, 0) + ' mm · L ' + fmt(t.L, 0) + ' m';
+      const l2 = svgEl('text', { x: tx, y: y + 70, 'text-anchor': 'middle', class: 'sv-muted' }, svg); l2.textContent = r ? 'v = ' + fmt(r.v, 2) + ' m/s · h = ' + fmt(r.h, 2) + ' m' : '—';
+    });
+    const t1 = svgEl('text', { x: 39, y: 148, 'text-anchor': 'middle', class: 'sv-muted' }, svg); t1.textContent = 'Entrada';
+    const t2 = svgEl('text', { x: 721, y: 148, 'text-anchor': 'middle', class: 'sv-muted' }, svg); t2.textContent = 'Saída';
+  }
+  function animTick(t) {
+    requestAnimationFrame(animTick);
+    const dt = Math.min(.1, (t - anim.last) / 1000 || 0); anim.last = t;
+    if (!tabIsActive('calc') || anim.paused || reducedMq.matches) return;
+    anim.off -= dt;
+    anim.flows.forEach(f => { f.el.style.strokeDashoffset = String((anim.off * clamp(f.v * 22, 8, 220)).toFixed(1)); });
+  }
+  $('btn-anim').addEventListener('click', e => { anim.paused = !anim.paused; e.currentTarget.setAttribute('aria-pressed', String(anim.paused)); e.currentTarget.textContent = anim.paused ? 'Retomar animação' : 'Pausar animação'; });
+
+
+  /* ---------- animação dos regimes de escoamento ---------- */
+  const FLOW = (function () {
+    const flows = [];
+    const rnd = (a, b) => a + Math.random() * (b - a);
+    function make(canvas, regime) { const f = { canvas, regime, speed: 1, parts: [], vort: [], puffs: [], tp: 0, w: 0, h: 0, dpr: 1, still: false }; flows.push(f); return f; }
+    const LANES = 9;
+    const lane = () => (Math.floor(Math.random() * LANES) / (LANES - 1) * 2 - 1) * 0.92;
+    function newVort(f, init) { return { x: init ? rnd(0, f.w) : rnd(-60, -10), r: rnd(-.7, .7), g: (Math.random() < .5 ? -1 : 1) * rnd(1.2, 2.4) }; }
+    function seed(f) {
+      const n = Math.min(190, Math.max(60, Math.round(f.w / 3.6)));
+      f.parts = []; for (let i = 0; i < n; i++) f.parts.push({ x: rnd(0, f.w), r: f.regime === 'turbulento' ? rnd(-.95, .95) : lane(), vx: 0, vy: 0, ux: 0, uy: 0, k: i % 3 });
+      f.vort = []; for (let i = 0; i < 6; i++) f.vort.push(newVort(f, true));
+      f.puffs = f.regime === 'transicao' ? [{ x: f.w * .3, len: 110 }] : []; f.tp = 1.8; f.still = false;
+    }
+    function layout(f) {
+      const c = f.canvas, dpr = window.devicePixelRatio || 1, w = c.clientWidth, h = c.clientHeight;
+      if (!w || !h) return false;
+      if (f.w !== w || f.h !== h || f.dpr !== dpr) { f.w = w; f.h = h; f.dpr = dpr; c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); f.pad = Math.max(9, h * .11); f.R = (h - 2 * f.pad) / 2; f.yc = h / 2; seed(f); }
+      return true;
+    }
+    function step(f, dt) {
+      const U = 62 * f.speed, R = f.R, w = f.w, reg = f.regime;
+      if (reg !== 'laminar') f.vort.forEach(v => { v.x += U * (1.05 - .8 * Math.abs(v.r)) * dt; v.r = Math.max(-.8, Math.min(.8, v.r + rnd(-.5, .5) * dt)); if (v.x > w + 60) Object.assign(v, newVort(f, false)); });
+      if (reg === 'transicao') {
+        f.tp -= dt; if (f.tp <= 0) { f.puffs.push({ x: -40, len: rnd(90, 140) }); f.tp = rnd(2.8, 4.2); }
+        f.puffs.forEach(p => { p.x += U * .92 * dt; p.len += 16 * dt; });
+        f.puffs = f.puffs.filter(p => p.x - p.len / 2 < w + 20);
+      }
+      f.parts.forEach(p => {
+        let turb = reg === 'turbulento' ? 1 : 0;
+        if (reg === 'transicao') for (let i = 0; i < f.puffs.length; i++) { const q = f.puffs[i], d = Math.abs(p.x - q.x), half = q.len / 2; if (d < half) turb = Math.max(turb, Math.min(1, 1.6 * (1 - d / half))); }
+        const r = p.r, uLam = U * 2 * (1 - r * r) * .85, uTur = U * 1.25 * Math.pow(Math.max(.03, 1 - Math.abs(r)), 1 / 7);
+        let ux = (1 - turb) * uLam + turb * uTur, uy = 0;
+        if (turb > 0) {
+          p.vx += (-p.vx * 5 + rnd(-1, 1) * 150) * dt * turb; p.vy += (-p.vy * 5 + rnd(-1, 1) * 190) * dt * turb;
+          ux += p.vx * turb; uy += p.vy * turb;
+          for (let i = 0; i < f.vort.length; i++) {
+            const v = f.vort[i], dx = (p.x - v.x) / R, dr = r - v.r, d2 = dx * dx + dr * dr, s = v.g * Math.exp(-d2 * 2.4) * U * .95 * turb;
+            ux += -dr * s; uy += dx * s;
+          }
+        } else { p.vx *= .9; p.vy *= .9; }
+        p.ux = ux; p.uy = uy; p.x += ux * dt; p.r += uy / R * dt;
+        if (p.r > .96) { p.r = .96 - (p.r - .96); p.vy = -Math.abs(p.vy) * .5; } else if (p.r < -.96) { p.r = -.96 + (-.96 - p.r); p.vy = Math.abs(p.vy) * .5; }
+        if (p.x > w + 6) { p.x = rnd(-30, -2); p.r = reg === 'turbulento' ? rnd(-.95, .95) : lane(); p.vx = 0; p.vy = 0; }
+      });
+    }
+    function draw(f, T) {
+      const ctx = f.canvas.getContext('2d'); ctx.setTransform(f.dpr, 0, 0, f.dpr, 0, 0); ctx.clearRect(0, 0, f.w, f.h);
+      const top = f.pad, bot = f.h - f.pad;
+      ctx.globalAlpha = .07; ctx.fillStyle = T.accent; ctx.fillRect(0, top, f.w, bot - top); ctx.globalAlpha = 1;
+      if (f.regime === 'transicao') f.puffs.forEach(q => { const g = ctx.createLinearGradient(q.x - q.len / 2, 0, q.x + q.len / 2, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(.5, T.accent2); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.globalAlpha = .13; ctx.fillStyle = g; ctx.fillRect(q.x - q.len / 2, top, q.len, bot - top); ctx.globalAlpha = 1; });
+      ctx.strokeStyle = T.muted; ctx.lineWidth = 3; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(0, top); ctx.lineTo(f.w, top); ctx.moveTo(0, bot); ctx.lineTo(f.w, bot); ctx.stroke();
+      ctx.lineWidth = 2.4;
+      f.parts.forEach(p => {
+        const y = f.yc + p.r * f.R, a = Math.min(1, .62 + .38 * (1 - Math.abs(p.r) * .6));
+        ctx.strokeStyle = p.k === 0 ? T.accent : T.accent2; ctx.globalAlpha = a;
+        ctx.beginPath(); ctx.moveTo(p.x - p.ux * .16, y - p.uy * .16); ctx.lineTo(p.x, y); ctx.stroke();
+      });
+      ctx.globalAlpha = 1;
+    }
+    let last = 0;
+    function loop(t) {
+      requestAnimationFrame(loop);
+      const dt = Math.min(.05, (t - last) / 1000 || 0); last = t;
+      if (document.hidden) return;
+      const T = CHARTS.theme(), calm = reducedMq.matches;
+      flows.forEach(f => {
+        if (!layout(f)) return;
+        const rc = f.canvas.getBoundingClientRect(); if (rc.bottom < 0 || rc.top > innerHeight) return;
+        if (!calm) step(f, dt); else if (!f.still) { for (let i = 0; i < 50; i++) step(f, .03); f.still = true; }
+        draw(f, T);
+      });
+    }
+    requestAnimationFrame(loop);
+    const mini = make($('flow-mini'), 'turbulento');
+    const cards = Array.from(document.querySelectorAll('canvas.flowcv[data-reg]')).map(c => make(c, c.dataset.reg));
+    const clampv = (v, a, b) => Math.min(b, Math.max(a, v));
+    return {
+      setMini(regime, v) { if (!regime) { mini.speed = .5; return; } if (mini.regime !== regime) { mini.regime = regime; if (mini.w) seed(mini); } mini.speed = clampv((v || 1) / 1.2, .5, 2.2); },
+      setCards(v) { const s = clampv((v || 1) / 1.2, .6, 1.8); cards.forEach(f => { f.speed = s; }); }
+    };
+  })();
+
+  /* ---------- 2. Moody ---------- */
+  const MOODY_RR = [0, 1e-5, 1e-4, 5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2];
+  let moodyStatic = null;
+  function moodyCfg() {
+    const T = CHARTS.theme(), sys = cur.sys, ok = sys && sys.ok;
+    if (!moodyStatic) moodyStatic = MOODY_RR.map(rr => ({ rr, pts: CORE.moodyCurve(rr, 70) }));
+    let minRe = ok ? Math.min.apply(null, sys.results.map(r => r.Re)) : Infinity;
+    const xmin = Math.min(600, Math.pow(10, Math.floor(Math.log10(Math.max(minRe, 1))) )), ymax = Math.max(0.12, 64 / xmin * 1.15);
+    const rrTxt = rr => rr === 0 ? 'liso' : rr.toLocaleString('pt-BR', { maximumFractionDigits: 5 });
+    const series = moodyStatic.map((c, i) => ({ name: i === 0 ? 'Turbulento: Colebrook-White (curvas de ε/D)' : '', noLegend: i !== 0, color: T.muted, alpha: .75, w: 1.3, pts: c.pts, label: rrTxt(c.rr), rrText: rrTxt(c.rr) }));
+    series.push({ name: 'Laminar: f = 64/Re', color: T.c(0), w: 2.5, pts: CORE.logspace(xmin, CORE.RE_LAM, 24).map(Re => ({ x: Re, y: 64 / Re })), rrText: '' });
+    if (ok) { const r = sys.results[S.sel]; series.push({ name: 'ε/D do trecho selecionado', color: T.c(1), w: 3.2, pts: CORE.moodyCurve(Math.max(r.rr, 0), 80), rrText: rrTxt(r.rr) }); }
+    const points = ok ? sys.results.map((r, i) => ({ x: r.Re, y: r.f, color: i === S.sel ? T.c(1) : T.c(0), r: i === S.sel ? 10 : 8, label: String(i + 1), name: 'Trecho ' + (i + 1),
+      tip: ['Trecho ' + (i + 1) + (r.nome ? ' — ' + r.nome : ''), 'Re = ' + fmt(r.Re, 0) + ' (' + regLabel(r.regime).toLowerCase() + ')', 'f = ' + fmt(r.f, 5), 'ε/D = ' + sci(r.rr, 2)] })) : [];
+    return { xlog: true, ylog: true, xmin, xmax: 1e8, ymin: 0.008, ymax, xlabel: 'Número de Reynolds, Re', ylabel: 'Fator de atrito, f', series, points,
+      bands: [{ x0: CORE.RE_LAM, x1: CORE.RE_TURB, color: 'rgba(130,150,165,.22)', label: 'transição' }],
+      tipDefault: (s, p) => [s.name || 'Curva de Moody', 'Re = ' + fmt(p.x, 0), 'f = ' + fmt(p.y, 5), s.rrText ? 'ε/D = ' + s.rrText : ''].filter(Boolean) };
+  }
+  function renderMoody() {
+    const sys = cur.sys, ok = sys && sys.ok;
+    if (ok) {
+      const r = sys.results[S.sel];
+      $('m-metrics').innerHTML = metric('Reynolds', fmt(r.Re, 0)) + metric('ε/D', sci(r.rr, 2)) + metric('Fator de atrito f', fmt(r.f, 5)) + metric('Regime', regLabel(r.regime)) + metric('Perda do trecho', fmt(r.h, 3), 'm');
+      $('m-trecho').textContent = 'Trecho ' + (S.sel + 1) + (r.nome ? ' — ' + r.nome : '') + ': D = ' + fmt(r.D, 1) + ' mm, ' + matOf(tr().matId).nome + '. Para mudar de trecho, use a aba Calculadora.';
+    } else { $('m-metrics').innerHTML = metric('Reynolds', '—') + metric('Fator de atrito f', '—'); $('m-trecho').textContent = 'Corrija os dados na aba Calculadora para ver o ponto.'; }
+    const rr0 = ok ? sys.results[S.sel] : null;
+    document.querySelectorAll('.reg').forEach(el => {
+      const now = !!rr0 && rr0.regime === el.dataset.reg;
+      el.dataset.now = now ? 'true' : 'false';
+      el.querySelector('.reg-now').textContent = now ? 'Regime do trecho ' + (S.sel + 1) + ' (Re = ' + fmt(rr0.Re, 0) + ')' : '';
+    });
+    FLOW.setCards(rr0 ? rr0.v : 1);
+    CHARTS.drawXY($('ch-moody'), moodyCfg());
+  }
+
+  /* ---------- 3. Curvas ---------- */
+  function parseDList() {
+    const out = []; String(S.cvD).split(/[;\s]+|,(?!\d)/).forEach(s => { const p = parseNum(s.replace(/,$/, '')); if (Number.isFinite(p) && p > 0 && p < 5000 && out.indexOf(p) < 0) out.push(p); });
+    return out.slice(0, 10).sort((a, b) => a - b);
+  }
+  function curveCfg() {
+    const T = CHARTS.theme(), t = tr(), fl = fluid(), sys = cur.sys;
+    if (!(S.Q > 0) || !sys || !sys.ok) return null;
+    const Qmax = S.Qmax || 2 * S.Q; if (!(Qmax > 0)) return null;
+    const Qs = CORE.logspace(Qmax / 100, Qmax, 52);
+    let ds = parseDList(); if (!ds.some(d => Math.abs(d - t.D) < 1e-9)) ds.push(t.D); ds.sort((a, b) => a - b);
+    let lo = Infinity, hi = 0; const series = [];
+    ds.forEach((D, i) => {
+      const cur_ = Math.abs(D - t.D) < 1e-9, pts = [];
+      Qs.forEach(Q => {
+        const r = CORE.solveTrecho(fl, Q, { nome: '', eps: t.eps, D, L: t.L, acc: t.acc }, S.Ks);
+        if (!r.ok || !(r.h > 0)) return; lo = Math.min(lo, r.h); hi = Math.max(hi, r.h);
+        pts.push({ x: dispQ(Q), y: r.h, tip: ['D = ' + fmt(D, 1) + ' mm', 'Q = ' + fmt(dispQ(Q), 3) + ' ' + uqLabel(), 'h = ' + fmt(r.h, 3) + ' m', 'v = ' + fmt(r.v, 2) + ' m/s · Re = ' + fmt(r.Re, 0), 'regime ' + regLabel(r.regime).toLowerCase()] });
+      });
+      series.push({ name: 'D = ' + fmt(D, D % 1 ? 1 : 0) + ' mm' + (cur_ ? ' (atual)' : ''), color: cur_ ? T.c(1) : T.c([0, 2, 3, 4, 5, 6][i % 6]), w: cur_ ? 3.6 : 2, pts });
+    });
+    if (!isFinite(lo) || hi <= 0) return null;
+    const ymin = Math.pow(10, Math.floor(Math.log10(lo))), ymax = Math.pow(10, Math.ceil(Math.log10(hi)));
+    const op = sys.results[S.sel];
+    return { xlog: true, ylog: true, xmin: dispQ(Qmax / 100), xmax: dispQ(Qmax), ymin, ymax: ymax <= ymin ? ymin * 10 : ymax, xlabel: 'Vazão Q (' + uqLabel() + ')', ylabel: 'Perda de carga do trecho, h (m)', series,
+      points: S.Q <= Qmax ? [{ x: dispQ(S.Q), y: op.h, color: T.c(1), r: 7, name: 'Ponto atual', tip: ['Ponto atual (trecho ' + (S.sel + 1) + ')', 'Q = ' + fmt(dispQ(S.Q), 3) + ' ' + uqLabel(), 'h = ' + fmt(op.h, 3) + ' m', 'Re = ' + fmt(op.Re, 0)] }] : [] };
+  }
+  function stackCfg() {
+    const T = CHARTS.theme(), sys = cur.sys; if (!sys || !sys.ok) return null;
+    const keys = []; sys.results.forEach(r => r.acc.forEach(a => { if (keys.indexOf(a.key) < 0) keys.push(a.key); }));
+    const cats = sys.results.map((r, i) => 'T' + (i + 1) + '\n' + fmt(r.D, 0) + ' mm'); if (sys.results.length > 1) cats.push('Total');
+    const val = (fn) => { const a = sys.results.map(fn); if (sys.results.length > 1) a.push(a.reduce((s, x) => s + x, 0)); return a; };
+    const segs = [{ name: 'Atrito no tubo (hf)', color: T.c(0), vals: val(r => r.hf) }];
+    keys.forEach((k, i) => segs.push({ name: CORE.ACCESSORIES.find(a => a.key === k).nome, color: T.c(i + 1), vals: val(r => { const a = r.acc.find(x => x.key === k); return a ? a.h : 0; }) }));
+    return { cats, segs, ylabel: 'Perda de carga (m)', yfmt: v => fmt(v, v < 1 ? 2 : 1), vfmt: v => fmt(v, 2) + ' m' };
+  }
+  function renderCurves() {
+    const t = tr();
+    $('cv-info').textContent = (cur.sys && cur.sys.ok) ? 'Trecho ' + (S.sel + 1) + (t.nome ? ' (' + t.nome + ')' : '') + ': ' + fluidOf(S.fluidId).nome + ', ε = ' + fmt(t.eps, 4) + ' mm, L = ' + fmt(t.L, 1) + ' m, ΣK = ' + fmt(cur.sys.results[S.sel].sumK, 2) + '.' : 'Corrija os dados na aba Calculadora para ver as curvas.';
+    const c = curveCfg(), s = stackCfg();
+    if (c) CHARTS.drawXY($('ch-curve'), c); else { const cv = $('ch-curve'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); }
+    if (s) CHARTS.drawStack($('ch-stack'), s); else { const cv = $('ch-stack'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); }
+  }
+
+  /* ---------- 4. Simulações ---------- */
+  const enOK = () => S.en.etaB > 0 && S.en.etaB <= 100 && S.en.etaM > 0 && S.en.etaM <= 100 && S.en.hDia >= 0 && S.en.hDia <= 24 && S.en.dias >= 0 && S.en.dias <= 366 && S.en.tarifa >= 0;
+  function energyOf(fl, Q, h) {
+    if (!enOK()) return null;
+    const p = CORE.pumpPower(fl, Q, h, S.en.etaB / 100, S.en.etaM / 100), e = CORE.annualEnergy(p.Pelec, S.en.hDia, S.en.dias, S.en.tarifa);
+    return Object.assign({}, p, e);
+  }
+  function simItems() {
+    const list = SCEN.map(sc => hydrate(sc));
+    list.push({ nome: 'Atual (ao vivo)', curto: 'Atual', fluidId: S.fluidId, rho: S.rho, mu: S.mu, Q: S.Q, trechos: S.trechos });
+    return list.map(it => { const fl = { rho: it.rho, mu: it.mu }, sys = CORE.solveSystem(fl, it.Q, it.trechos, S.Ks); return Object.assign({}, it, { fl, sys, en: sys.ok ? energyOf(fl, it.Q, sys.h) : null }); });
+  }
+  let lastSim = null;
+  $('sim-more').addEventListener('click', e => { S.simAll = !S.simAll; e.currentTarget.setAttribute('aria-pressed', String(S.simAll)); e.currentTarget.textContent = S.simAll ? 'Mostrar só o essencial' : 'Mostrar todos os indicadores'; requestRender(); });
+  function renderSim() {
+    const items = simItems(); const T = CHARTS.theme();
+    const rowsDef = [
+      ['Fluido', it => [fluidOf(it.fluidId).nome]],
+      ['Vazão (' + uqLabel() + ')', it => [fmt(dispQ(it.Q), S.uq === 'Ls' ? 3 : 2)]],
+      ['Trechos (D · L · material)', it => it.trechos.map((t, i) => (it.trechos.length > 1 ? (i + 1) + ': ' : '') + fmt(t.D, 0) + ' mm · ' + fmt(t.L, 0) + ' m · ' + (t.matId === 'custom' ? 'ε ' + fmt(t.eps, 2) + ' mm' : matOf(t.matId).nome.split(' / ')[0]))],
+      ['Velocidade v (m/s)', it => it.sys.ok ? it.sys.results.map(r => fmt(r.v, 3)) : ['—'], false, true],
+      ['Reynolds', it => it.sys.ok ? it.sys.results.map(r => fmt(r.Re, 0)) : ['—'], false, true],
+      ['Regime', it => it.sys.ok ? it.sys.results.map(r => regLabel(r.regime)) : ['—']],
+      ['Fator de atrito f', it => it.sys.ok ? it.sys.results.map(r => fmt(r.f, 5)) : ['—'], false, true],
+      ['Perda distribuída hf (m)', it => [it.sys.ok ? fmt(it.sys.hf, 3) : '—']],
+      ['Perda localizada hL (m)', it => [it.sys.ok ? fmt(it.sys.hL, 3) : '—']],
+      ['Perda total h (m)', it => [it.sys.ok ? fmt(it.sys.h, 3) : '—'], true],
+      ['Queda de pressão Δp (kPa)', it => [it.sys.ok ? fmt(it.sys.dp / 1000, 2) : '—'], true],
+      ['Potência elétrica (kW)', it => [it.en ? fmt(it.en.Pelec, 3) : '—'], false, true],
+      ['Custo anual de energia (R$)', it => [it.en ? fmt(it.en.cost, 0) : '—'], true],
+      ['Variação de h vs. cenário 1', it => [it === items[0] || !it.sys.ok || !items[0].sys.ok ? '—' : (it.sys.h >= items[0].sys.h ? '+' : '−') + fmt(Math.abs(it.sys.h / items[0].sys.h - 1) * 100, 1) + ' %']]
+    ];
+    const head = '<thead><tr><th>Indicador</th>' + items.map((it, i) => `<th>${esc(it.nome)}${i < SCEN.length ? `<br><button class="btn sec mini" type="button" data-load="${i}">Abrir na calculadora</button>` : ''}</th>`).join('') + '</tr></thead>';
+    const body = '<tbody>' + rowsDef.filter(rd => S.simAll || !rd[3]).map(rd => `<tr${rd[2] ? ' class="key"' : ''}><td>${esc(rd[0])}</td>${items.map(it => `<td>${rd[1](it).map(esc).join('<br>')}</td>`).join('')}</tr>`).join('') + '</tbody>';
+    $('sim-table').innerHTML = head + body;
+    const tsv = [['Indicador'].concat(items.map(i => i.nome)).join('\t')].concat(rowsDef.map(rd => [rd[0]].concat(items.map(it => rd[1](it).join(' | '))).join('\t'))).join('\n');
+    const csvRows = [['Indicador'].concat(items.map(i => i.nome))].concat(rowsDef.map(rd => [rd[0]].concat(items.map(it => rd[1](it).join(' | ')))));
+    lastSim = { tsv, csvRows, items, html: '<table>' + head.replace(/<button.*?<\/button>/g, '') + body + '</table>' };
+    // leitura automática
+    const notes = []; const ok = i => items[i] && items[i].sys.ok;
+    const regs = it => Array.from(new Set(it.sys.results.map(r => regLabel(r.regime).toLowerCase()))).join(' e ');
+    const pct = (a, b) => b > 0 ? fmt(a / b * 100, 0) : '0';
+    if (ok(0)) { const a = items[0].sys; notes.push(`<strong>Cen. 1:</strong> perda total de ${fmt(a.h, 2)} m (${pct(a.hf, a.h)} % distribuída, ${pct(a.hL, a.h)} % localizada), regime ${regs(items[0])}; a queda de pressão é ${fmt(a.dp / 1000, 1)} kPa. O trecho de menor diâmetro responde por ${fmt(Math.max.apply(null, a.results.map(r => r.h)) / a.h * 100, 0)} % da perda, pois a velocidade nele é maior (h ∝ v²).`);
+      const w = CORE.whatToChange(items[0].fl, items[0].Q, items[0].trechos, S.Ks); if (w.contrib.length) notes.push(`<strong>Cen. 1, maior consumidor:</strong> ${esc(w.contrib[0].label)} (${fmt(w.contrib[0].h, 2)} m, ${fmt(w.contrib[0].share, 0)} % do total).`); }
+    if (ok(1)) { const b = items[1].sys, r = b.results[0]; notes.push(`<strong>Cen. 2:</strong> Re = ${fmt(r.Re, 1)} (${regLabel(r.regime).toLowerCase()}); ${r.regime === 'laminar' ? `vale f = 64/Re = ${fmt(r.f, 3)}, e o programa não usa Colebrook. A perda é ${fmt(b.h, 2)} m, quase toda distribuída (${pct(b.hf, b.h)} %), e depende linearmente da vazão e da viscosidade (Hagen-Poiseuille). Os K de livros valem para regime turbulento, então a parte localizada é só estimativa.` : `regime ${regLabel(r.regime).toLowerCase()}: confira o aviso na calculadora.`}`); }
+    if (ok(0) && ok(2)) { const a = items[0], c = items[2], dh = (1 - c.sys.h / a.sys.h) * 100; notes.push(`<strong>Cen. 3 × 1:</strong> aumentar os diâmetros reduz a perda de ${fmt(a.sys.h, 2)} m para ${fmt(c.sys.h, 2)} m (${fmt(dh, 0)} % a menos)` + (a.en && c.en ? ` e o custo anual de energia de R$ ${fmt(a.en.cost, 0)} para R$ ${fmt(c.en.cost, 0)} (economia de R$ ${fmt(a.en.cost - c.en.cost, 0)} por ano). O investimento em tubos maiores não está incluído: veja o diâmetro econômico na aba Extras.` : '.')); }
+    if (ok(0) && ok(3)) { const a = items[0], d = items[3]; notes.push(`<strong>Cen. 4 × 1 (extra):</strong> com tubo envelhecido (ε = 0,6 mm) a perda sobe de ${fmt(a.sys.h, 2)} m para ${fmt(d.sys.h, 2)} m (+${fmt((d.sys.h / a.sys.h - 1) * 100, 0)} %), porque f aumenta com ε/D.`); }
+    notes.push('Os dados dos cenários são hipotéticos/típicos: substitua por dados reais e cite as fontes.');
+    $('sim-notes').innerHTML = notes.map(n => `<li>${n}</li>`).join('');
+    // gráficos
+    const okItems = items.filter(i => i.sys.ok);
+    CHARTS.drawStack($('ch-simh'), { cats: okItems.map(i => i.curto), segs: [{ name: 'Distribuída (hf)', color: T.c(0), vals: okItems.map(i => i.sys.hf) }, { name: 'Localizada (hL)', color: T.c(1), vals: okItems.map(i => i.sys.hL) }], ylabel: 'Perda de carga (m)', yfmt: v => fmt(v, v < 1 ? 2 : 1), vfmt: v => fmt(v, 2) + ' m' });
+    CHARTS.drawStack($('ch-simc'), { cats: okItems.map(i => i.curto), segs: [{ name: 'Custo anual de energia', color: T.c(2), vals: okItems.map(i => i.en ? i.en.cost : 0) }], ylabel: 'R$ por ano', yfmt: v => fmt(v, 0), vfmt: v => 'R$ ' + fmt(v, 0) });
+  }
+  $('sim-table').addEventListener('click', e => { const b = e.target.closest('[data-load]'); if (!b) return; loadScenario(+b.dataset.load); renderChips(); requestRender(); location.hash = 'calc'; toast('Cenário carregado na calculadora: edite à vontade.'); });
+  $('sim-copy').addEventListener('click', e => { if (lastSim) copyText(lastSim.tsv, e.currentTarget); });
+  $('sim-csv').addEventListener('click', () => { if (lastSim) download('simulacoes.csv', toCsv(lastSim.csvRows), 'text/csv;charset=utf-8', true); });
+
+  /* ---------- 5. Extras ---------- */
+  document.querySelectorAll('input[name=ex]').forEach(r => r.addEventListener('change', () => { if (r.checked) { S.ex = r.value; requestRender(); } }));
+  function renderExtras() {
+    document.querySelectorAll('.ex-panel').forEach(p => { p.hidden = p.dataset.ex !== (S.ex || 'energia'); });
+    const sys = cur.sys, fl = fluid(), T = CHARTS.theme(), ok = sys && sys.ok;
+    // energia
+    if (ok && enOK()) {
+      const e = energyOf(fl, S.Q, sys.h);
+      $('e-metrics').innerHTML = metric('Potência hidráulica', fmt(e.Phyd, 4), 'kW') + metric('Potência no eixo', fmt(e.Pshaft, 4), 'kW') + metric('Potência elétrica', fmt(e.Pelec, 4), 'kW') + metric('Energia anual', fmt(e.kWh, 0), 'kWh') + metric('Custo anual', 'R$ ' + fmt(e.cost, 0));
+    } else $('e-metrics').innerHTML = '<div class="msg warn">' + (ok ? 'Confira os parâmetros de energia (rendimentos entre 0 e 100 %, horas até 24, dias até 366).' : 'Corrija os dados na aba Calculadora.') + '</div>';
+    // Hazen-Williams
+    const hwm = [];
+    if (ok) {
+      if (fl.mu > 2 || fl.rho < 900 || fl.rho > 1100) hwm.push({ t: 'warn', s: 'Hazen-Williams vale para água. O fluido atual não é água: ignore esta comparação.' });
+      else if (sys.results.some(r => r.regime !== 'turbulento')) hwm.push({ t: 'warn', s: 'Há trecho fora do regime turbulento: Hazen-Williams não se aplica a ele.' });
+      $('hw-table').innerHTML = '<thead><tr><th>Trecho</th><th>C</th><th>hf Darcy (m)</th><th>hf Hazen (m)</th><th>Diferença</th></tr></thead><tbody>' + sys.results.map((r, i) => { const C = matOf(S.trechos[i].matId).C, hw = CORE.hazenWilliams(S.Q, r.D, r.L, C); return `<tr><td>${i + 1} · ${esc(r.nome || '')}</td><td>${C}</td><td>${fmt(r.hf, 3)}</td><td>${fmt(hw, 3)}</td><td>${r.hf > 0 ? (hw >= r.hf ? '+' : '−') + fmt(Math.abs(hw / r.hf - 1) * 100, 1) + ' %' : '—'}</td></tr>`; }).join('') + '</tbody>';
+    } else $('hw-table').innerHTML = '';
+    showMsgs($('hw-msg'), hwm);
+    // o que mudar
+    if (ok) {
+      const w = CORE.whatToChange(fl, S.Q, S.trechos, S.Ks);
+      $('wc-contrib').innerHTML = '<thead><tr><th>Componente</th><th>h (m)</th><th>%</th></tr></thead><tbody>' + w.contrib.slice(0, 7).map((c, i) => `<tr${i === 0 ? ' class="hl"' : ''}><td>${esc(c.label)}</td><td>${fmt(c.h, 3)}</td><td>${fmt(c.share, 1)}</td></tr>`).join('') + '</tbody>';
+      $('wc-tests').innerHTML = w.tests.length ? '<thead><tr><th>Mudança</th><th>h novo (m)</th><th>Economia</th></tr></thead><tbody>' + w.tests.slice(0, 7).map((c, i) => `<tr${i === 0 ? ' class="hl"' : ''}><td>${esc(c.label)}</td><td>${fmt(c.h, 3)}</td><td>${fmt(c.saving, 3)} m (${fmt(c.pct, 1)} %)</td></tr>`).join('') + '</tbody>' : '<tbody><tr><td>Nenhuma melhoria aplicável ao sistema atual.</td></tr></tbody>';
+    } else { $('wc-contrib').innerHTML = ''; $('wc-tests').innerHTML = ''; }
+    // diâmetro econômico
+    const t = tr();
+    if (ok && enOK() && S.ec.c100 >= 0 && S.ec.n >= 0 && S.ec.fa >= 0 && t.L > 0) {
+      const sumK = sys.results[S.sel].sumK;
+      const list = CORE.COMMERCIAL_D.slice(); if (list.indexOf(t.D) < 0) list.push(t.D); list.sort((a, b) => a - b);
+      const ec = CORE.economicDiameter({ fl, Q: S.Q, L: t.L, eps: t.eps, sumK, etaB: S.en.etaB / 100, etaM: S.en.etaM / 100, hDia: S.en.hDia, dias: S.en.dias, tarifa: S.en.tarifa, c100: S.ec.c100, n: S.ec.n, fa: S.ec.fa / 100 }, list);
+      const rows = ec.rows.filter(r => r.ok), best = ec.rows[ec.best];
+      $('d-info').textContent = best ? 'Trecho ' + (S.sel + 1) + ': menor custo total com D = ' + fmt(best.D, 0) + ' mm (R$ ' + fmt(best.total, 0) + ' por ano). Diâmetro atual: ' + fmt(t.D, 0) + ' mm.' : '';
+      $('d-table').innerHTML = '<thead><tr><th>D (mm)</th><th>v (m/s)</th><th>h (m)</th><th>P elétrica (kW)</th><th>Energia (R$/ano)</th><th>Investimento anualizado (R$/ano)</th><th>Total (R$/ano)</th></tr></thead><tbody>' + rows.map(r => `<tr${best && r.D === best.D ? ' class="hl"' : ''}><td>${fmt(r.D, 0)}${r.D === t.D ? ' (atual)' : ''}</td><td>${fmt(r.v, 2)}</td><td>${fmt(r.h, 2)}</td><td>${fmt(r.Pelec, 3)}</td><td>${fmt(r.energy, 0)}</td><td>${fmt(r.capAnnual, 0)}</td><td>${fmt(r.total, 0)}</td></tr>`).join('') + '</tbody>';
+      const mk = (name, c, k, w) => ({ name, color: c, w, markers: true, pts: rows.map(r => ({ x: r.D, y: r[k], tip: ['D = ' + fmt(r.D, 0) + ' mm', name + ': R$ ' + fmt(r[k], 0) + '/ano', 'v = ' + fmt(r.v, 2) + ' m/s'] })) });
+      const ymax = Math.max.apply(null, rows.map(r => r.total)) * 1.05;
+      CHARTS.drawXY($('ch-econ'), { xmin: Math.min.apply(null, rows.map(r => r.D)) * .9, xmax: Math.max.apply(null, rows.map(r => r.D)) * 1.03, ymin: 0, ymax, xlabel: 'Diâmetro interno (mm)', ylabel: 'R$ por ano', yfmt: v => fmt(v, 0), xfmt: v => fmt(v, 0),
+        series: [mk('Energia', T.c(0), 'energy', 2.4), mk('Investimento anualizado', T.c(1), 'capAnnual', 2.4), mk('Total', T.c(2), 'total', 3.6)], vlines: best ? [{ x: best.D, color: T.c(2), label: 'mínimo: ' + fmt(best.D, 0) + ' mm' }] : [] });
+    } else { $('d-info').textContent = ok ? 'Confira os parâmetros de energia e de custo e use comprimento maior que zero.' : 'Corrija os dados na aba Calculadora.'; $('d-table').innerHTML = ''; const cv = $('ch-econ'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); }
+    // envelhecimento
+    if (ok && enOK() && S.ag.rate >= 0) {
+      const at = y => CORE.solveSystem(fl, S.Q, S.trechos.map(x => Object.assign({}, x, { eps: Math.min(CORE.epsAged(x.eps, S.ag.rate, y), x.D * 0.9) })), S.Ks);
+      const now = at(S.ag.years), new0 = sys; const en = energyOf(fl, S.Q, now.h), en0 = energyOf(fl, S.Q, new0.h);
+      $('a-metrics').innerHTML = metric('ε do trecho 1 em ' + S.ag.years + ' anos', fmt(Math.min(CORE.epsAged(S.trechos[0].eps, S.ag.rate, S.ag.years), S.trechos[0].D * 0.9), 3), 'mm') + metric('Perda total', fmt(now.h, 3), 'm') + metric('Aumento sobre o tubo novo', fmt((now.h / new0.h - 1) * 100, 1), '%') + metric('Custo anual', 'R$ ' + fmt(en.cost, 0)) + metric('Custo extra por ano', 'R$ ' + fmt(en.cost - en0.cost, 0));
+      const pts = []; for (let y = 0; y <= 40; y++) { const s = at(y); if (s.ok) pts.push({ x: y, y: s.h, tip: ['Ano ' + y, 'h = ' + fmt(s.h, 3) + ' m', 'custo = R$ ' + fmt(energyOf(fl, S.Q, s.h).cost, 0) + '/ano'] }); }
+      const lo = Math.min.apply(null, pts.map(p => p.y)), hi = Math.max.apply(null, pts.map(p => p.y));
+      CHARTS.drawXY($('ch-aging'), { xmin: 0, xmax: 40, ymin: Math.max(0, lo - (hi - lo) * .15), ymax: hi + (hi - lo) * .15 + 1e-9, xlabel: 'Anos de operação', ylabel: 'Perda total (m)', yfmt: v => fmt(v, v < 10 ? 2 : 1), xfmt: v => String(v), series: [{ name: 'Perda total', color: T.c(1), w: 3, pts }], vlines: [{ x: S.ag.years, color: T.c(0), label: S.ag.years + ' anos' }] });
+    } else { $('a-metrics').innerHTML = '<div class="msg warn">Confira os parâmetros de energia e a taxa de envelhecimento, ou corrija os dados na aba Calculadora.</div>'; const cv = $('ch-aging'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); }
+  }
+
+  /* ---------- impressão ---------- */
+  function buildReport() {
+    const sys = cur.sys, fl = cur.fl, items = lastSim || (renderSim(), lastSim);
+    const img = (draw, w, h) => { CHARTS.RENDER.light = true; try { const c = document.createElement('canvas'); draw(c, { w, h }); return c.toDataURL('image/png'); } finally { CHARTS.RENDER.light = false; } };
+    const parts = [`<h1>Relatório de perdas de carga hidráulicas</h1><p class="meta">Gerado em ${new Date().toLocaleString('pt-BR')} · Projeto Final de Fenômenos de Transporte</p>`];
+    parts.push('<h2>Dados de entrada</h2>');
+    parts.push(`<p>Fluido: ${esc(fluidOf(S.fluidId).nome)} (ρ = ${fx(fl.rho, 1)} kg/m³; μ = ${fx(fl.mu, 3)} mPa·s). Vazão: ${fx(S.Q, 3)} m³/h (${fx(S.Q / 3.6, 3)} L/s).</p>`);
+    parts.push('<table><thead><tr><th>Trecho</th><th>D (mm)</th><th>L (m)</th><th>ε (mm)</th><th>Acessórios</th></tr></thead><tbody>' + S.trechos.map((t, i) => `<tr><td>${i + 1} · ${esc(t.nome)}</td><td>${fx(t.D, 1)}</td><td>${fx(t.L, 1)}</td><td>${fx(t.eps, 4)}</td><td>${CORE.ACCESSORIES.filter(a => t.acc[a.key] > 0).map(a => t.acc[a.key] + '× ' + esc(a.nome) + ' (K ' + fx(S.Ks[a.key], 2) + ')').join('; ') || '—'}</td></tr>`).join('') + '</tbody></table>');
+    if (sys && sys.ok) {
+      parts.push('<h2>Resultados</h2><table><thead><tr><th>Trecho</th><th>v (m/s)</th><th>Re</th><th>Regime</th><th>f</th><th>hf (m)</th><th>hL (m)</th><th>h (m)</th></tr></thead><tbody>' + sys.results.map((r, i) => `<tr><td>${i + 1}</td><td>${fx(r.v, 3)}</td><td>${fx(r.Re, 0)}</td><td>${regLabel(r.regime)}</td><td>${fx(r.f, 5)}</td><td>${fx(r.hf, 3)}</td><td>${fx(r.hL, 3)}</td><td>${fx(r.h, 3)}</td></tr>`).join('') + `<tr><td><strong>Total</strong></td><td></td><td></td><td></td><td></td><td>${fx(sys.hf, 3)}</td><td>${fx(sys.hL, 3)}</td><td><strong>${fx(sys.h, 3)}</strong></td></tr></tbody></table>`);
+      parts.push(`<p>Queda de pressão: ${fx(sys.dp / 1000, 2)} kPa (${fx(sys.dp / 1e5, 4)} bar).</p>`);
+      parts.push('<h2>Memória de cálculo</h2><pre style="white-space:pre-wrap;font:9.5pt/1.35 Consolas,monospace">' + esc(lastMem) + '</pre>');
+      parts.push('<h2 class="pb">Diagrama de Moody</h2><img alt="Diagrama de Moody" src="' + img((c, s) => CHARTS.drawXY(c, moodyCfg(), s), 900, 560) + '">');
+      const cc = curveCfg(), sc = stackCfg();
+      if (cc) parts.push('<h2>Perda de carga × vazão</h2><img alt="Curvas de perda de carga" src="' + img((c, s) => CHARTS.drawXY(c, cc, s), 900, 460) + '">');
+      if (sc) parts.push('<h2>Origem da perda</h2><img alt="Barras empilhadas" src="' + img((c, s) => CHARTS.drawStack(c, sc, s), 900, 380) + '">');
+    } else parts.push('<p><strong>Há erros nos dados de entrada; corrija antes de imprimir.</strong></p>');
+    parts.push('<h2 class="pb">Simulações</h2><p class="meta">Dados dos cenários hipotéticos/típicos.</p>' + items.html);
+    parts.push('<p class="meta">Coeficientes K, rugosidades e propriedades dos fluidos são valores típicos de livros; confira nas fontes antes de citar.</p>');
+    $('print-report').innerHTML = parts.join('');
+  }
+  $('btn-print').addEventListener('click', () => { buildReport(); window.print(); });
+
+  /* ---------- abas, unidades, tema ---------- */
+  const TABS = ['calc', 'moody', 'curvas', 'sim', 'extras', 'teoria'];
+  function showTab(name, focus) {
+    if (!TABS.includes(name)) name = 'calc';
+    document.querySelectorAll('.tab').forEach(b => { const sel = b.dataset.tab === name; b.setAttribute('aria-selected', String(sel)); b.tabIndex = sel ? 0 : -1; if (sel && focus) b.focus(); });
+    TABS.forEach(t => $('tab-' + t).classList.toggle('active', t === name));
+    try { if (location.hash !== '#' + name) location.hash = name; } catch (e) {}
+    renderAll();
+  }
+  document.querySelectorAll('.tab').forEach(b => {
+    b.addEventListener('click', () => showTab(b.dataset.tab));
+    b.addEventListener('keydown', e => {
+      const i = TABS.indexOf(b.dataset.tab); let n = null;
+      if (e.key === 'ArrowRight') n = (i + 1) % TABS.length; else if (e.key === 'ArrowLeft') n = (i + TABS.length - 1) % TABS.length; else if (e.key === 'Home') n = 0; else if (e.key === 'End') n = TABS.length - 1;
+      if (n !== null) { e.preventDefault(); showTab(TABS[n], true); }
+    });
+  });
+  window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+  function renderAll() {
+    syncInputs(); renderCalc();
+    if (tabIsActive('moody')) renderMoody();
+    if (tabIsActive('curvas')) renderCurves();
+    if (tabIsActive('sim')) renderSim();
+    if (tabIsActive('extras')) renderExtras();
+  }
+  let rq = false; function requestRender() { if (rq) return; rq = true; requestAnimationFrame(() => { rq = false; renderAll(); }); }
+  document.querySelectorAll('input[name=uq]').forEach(r => r.addEventListener('change', () => { if (r.checked) { S.uq = r.value; savePrefs(); requestRender(); } }));
+  function savePrefs() { store.set(PREF_KEY, JSON.stringify({ uq: S.uq, theme: $('theme').value })); }
+  function applyTheme(v) { if (v === 'light' || v === 'dark') document.documentElement.setAttribute('data-theme', v); else document.documentElement.removeAttribute('data-theme'); savePrefs(); requestRender(); }
+  $('theme').addEventListener('change', () => applyTheme($('theme').value));
+  try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', requestRender); } catch (e) {}
+  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(renderAll, 120); });
+
+  /* ---------- início ---------- */
+  document.querySelectorAll('[data-ctl]').forEach(buildCtl);
+  try {
+    const pref = JSON.parse(store.get(PREF_KEY) || 'null');
+    if (pref && pref.uq === 'Ls') { S.uq = 'Ls'; document.querySelector('input[name=uq][value=Ls]').checked = true; }
+    if (pref && ['light', 'dark'].includes(pref.theme)) { $('theme').value = pref.theme; document.documentElement.setAttribute('data-theme', pref.theme); }
+  } catch (e) {}
+  renderChips();
+  requestAnimationFrame(animTick);
+  showTab(location.hash.slice(1));
+  window.__app = { S, CORE, renderAll, buildReport };
+})();
+
+</script>
+<script>
+/* ===== camada de interação (apenas apresentação; não toca nos cálculos) ===== */
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = function () { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+
+  /* 1. indicador deslizante das abas */
+  var nav = document.querySelector('nav[role=tablist]');
+  var ind = document.createElement('span');
+  ind.className = 'ind'; ind.setAttribute('aria-hidden', 'true');
+  nav.insertBefore(ind, nav.firstChild);
+  function moveInd() {
+    var sel = nav.querySelector('.tab[aria-selected="true"]');
+    if (!sel) return;
+    ind.style.width = sel.offsetWidth + 'px';
+    ind.style.transform = 'translateX(' + sel.offsetLeft + 'px)';
+    var r = sel.getBoundingClientRect(), n = nav.getBoundingClientRect();
+    if (r.left < n.left || r.right > n.right) sel.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduce() ? 'auto' : 'smooth' });
+  }
+  new MutationObserver(moveInd).observe(nav, { attributes: true, subtree: true, attributeFilter: ['aria-selected'] });
+  window.addEventListener('resize', moveInd);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveInd);
+  ind.style.transition = 'none'; moveInd(); requestAnimationFrame(function () { ind.style.transition = ''; });
+
+  /* 2. holofote nos cards */
+  document.addEventListener('pointermove', function (e) {
+    if (e.pointerType === 'touch') return;
+    var c = e.target.closest && e.target.closest('.card');
+    if (!c) return;
+    var r = c.getBoundingClientRect();
+    c.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    c.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  }, { passive: true });
+
+  /* 3. sliders: trilha preenchida */
+  function pct(el) { var mn = +el.min || 0, mx = +el.max || 100; el.style.setProperty('--pct', (mx > mn ? (el.value - mn) / (mx - mn) * 100 : 0) + '%'); }
+  document.addEventListener('input', function (e) { if (e.target.type === 'range') pct(e.target); });
+  setInterval(function () { if (!document.hidden) document.querySelectorAll('input[type=range]').forEach(pct); }, 200);
+
+  /* 4. números das métricas animam; indicadores do cabeçalho acompanham o laboratório */
+  var shown = {};
+  var numRe = /-?\d[\d.]*(?:,\d+)?/;
+  function parseBR(s) { return parseFloat(s.replace(/\./g, '').replace(',', '.')); }
+  function chipSet(id, text) {
+    var c = document.querySelector('[data-chip="' + id + '"] .v');
+    if (!c || c.textContent === text) return;
+    c.textContent = text;
+    var p = c.parentNode; p.classList.remove('bump'); void p.offsetWidth; p.classList.add('bump');
+  }
+  function tween(node, key, from, to, dec, pre, post) {
+    var t0 = performance.now(), D = 320;
+    (function step(t) {
+      if (!node.isConnected) return;
+      var k = Math.min(1, (t - t0) / D), e = 1 - Math.pow(1 - k, 3), v = from + (to - from) * e;
+      shown[key] = v;
+      node.data = pre + v.toLocaleString('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec }) + post;
+      if (k < 1) requestAnimationFrame(step); else shown[key] = to;
+    })(t0);
+  }
+  function handle(container) {
+    container.querySelectorAll('.metric').forEach(function (m, i) {
+      var v = m.querySelector('.v'), tn = v && v.firstChild;
+      if (!tn || tn.nodeType !== 3) return;
+      var raw = tn.data, mt = raw.match(numRe);
+      var did = m.getAttribute('data-m');
+      if (did) {
+        var u = v.querySelector('.u');
+        if (['re', 'f', 'h', 'dp'].indexOf(did) > -1) chipSet(did, raw.trim() + (u ? ' ' + u.textContent : ''));
+      }
+      if (!mt) return;
+      var to = parseBR(mt[0]); if (!isFinite(to)) return;
+      var key = container.id + ':' + i, from = shown[key];
+      var dec = (mt[0].split(',')[1] || '').length;
+      var pre = raw.slice(0, mt.index), post = raw.slice(mt.index + mt[0].length);
+      shown[key] = to;
+      if (reduce() || from === undefined || from === to || !container.getClientRects().length) return;
+      shown[key] = from;
+      tween(tn, key, from, to, dec, pre, post);
+    });
+  }
+  ['calc-key', 'calc-metrics-t', 'calc-metrics-s'].forEach(function (id) {
+    var c = $(id); if (!c) return;
+    new MutationObserver(function () { handle(c); }).observe(c, { childList: true });
+    handle(c);
+  });
+  var go = $('chip-go');
+  if (go) go.addEventListener('click', function () { location.hash = 'calc'; });
+
+  /* 5. toasts a partir das mensagens de status e dos botões de copiar */
+  var box = $('toasts');
+  function toast(msg) {
+    if (!msg) return;
+    var el = document.createElement('div');
+    el.className = 'toast'; el.textContent = msg;
+    while (box.children.length > 2) box.removeChild(box.firstChild);
+    box.appendChild(el);
+    setTimeout(function () { el.classList.add('out'); setTimeout(function () { el.remove(); }, 220); }, 2600);
+  }
+  window.__toast = toast;
+  ['dl-status'].forEach(function (id) {
+    var el = $(id); if (!el) return;
+    new MutationObserver(function () { toast(el.textContent.trim()); }).observe(el, { childList: true, characterData: true, subtree: true });
+  });
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('button');
+    if (!b || !/^(calc-copy|sim-copy)$/.test(b.id)) return;
+    setTimeout(function () { toast('Copiado para a área de transferência'); }, 120);
+  });
+})();
+
+</script>
+<script>
+/* ===== página inicial: navegação entre intro e simulador ===== */
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var $ = function (id) { return document.getElementById(id); };
+  if (root.classList.contains('intro-on')) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+  function top() { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }
+  var tide = $('tide'), tideBusy = false;
+  var rm = function () { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+  function withTide(fn) {
+    if (rm() || tideBusy || !tide) { fn(); return; }
+    tideBusy = true; tide.classList.remove('run'); void tide.offsetWidth; tide.classList.add('run');
+    setTimeout(fn, 440);
+    setTimeout(function () { tide.classList.remove('run'); tideBusy = false; }, 980);
+  }
+  function enter(tab) { withTide(function () { enter0(tab); }); }
+  function enter0(tab) {
+    root.classList.remove('intro-on');
+    top();
+    window.dispatchEvent(new Event('resize'));
+    if (tab && location.hash !== '#' + tab) location.hash = tab;
+    else window.dispatchEvent(new Event('hashchange'));
+    var sel = document.querySelector('.tab[aria-selected="true"]'); if (sel) sel.focus({ preventScroll: true });
+  }
+  function home() { withTide(function () { root.classList.add('intro-on'); top(); revealInit(); }); }
+
+  /* revelar ao rolar (introdução) */
+  var revealed = false;
+  function revealInit() {
+    if (revealed || rm() || !('IntersectionObserver' in window)) return;
+    revealed = true;
+    var els = document.querySelectorAll('#intro .in-head, #intro .in-cols p, #intro .in-card, #intro .in-steps li, #intro .in-note-box, #intro .in-final');
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var el = e.target; el.classList.add('in-view'); io.unobserve(el);
+        setTimeout(function () { el.classList.remove('rv', 'in-view'); el.style.removeProperty('--i'); }, 1100);
+      });
+    }, { threshold: .15, rootMargin: '0px 0px -6% 0px' });
+    els.forEach(function (el) {
+      var sib = el.parentNode ? Array.prototype.indexOf.call(el.parentNode.children, el) : 0;
+      el.style.setProperty('--i', Math.min(sib, 5));
+      el.classList.add('rv'); io.observe(el);
+    });
+  }
+  revealInit();
+
+  /* bolhas subindo no fundo */
+  (function () {
+    var box = $('bubbles'); if (!box || rm()) return;
+    for (var i = 0; i < 7; i++) {
+      var b = document.createElement('span'), s = 6 + Math.random() * 22;
+      b.className = 'bub';
+      b.style.cssText = 'left:' + (Math.random() * 100).toFixed(1) + '%;width:' + s.toFixed(0) + 'px;height:' + s.toFixed(0) + 'px;animation-duration:' + (14 + Math.random() * 18).toFixed(1) + 's;animation-delay:-' + (Math.random() * 30).toFixed(1) + 's';
+      box.appendChild(b);
+    }
+  })();
+
+  /* ondulação ao clicar (botões, abas, cartões) */
+  document.addEventListener('pointerdown', function (e) {
+    if (rm()) return;
+    var t = e.target.closest && e.target.closest('button.btn, .tab, .in-card:not(.static)');
+    if (!t || t.disabled) return;
+    var r = t.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2, s = document.createElement('span');
+    s.className = 'ripple';
+    s.style.cssText = 'width:' + d + 'px;height:' + d + 'px;left:' + (e.clientX - r.left - d / 2) + 'px;top:' + (e.clientY - r.top - d / 2) + 'px';
+    t.appendChild(s); setTimeout(function () { s.remove(); }, 750);
+  }, { passive: true });
+
+  /* métricas que mudam piscam em tom de água */
+  (function () {
+    var last = {};
+    ['calc-key', 'calc-metrics-t', 'calc-metrics-s'].forEach(function (id) {
+      var c = $(id); if (!c) return;
+      new MutationObserver(function () {
+        c.querySelectorAll('.metric').forEach(function (m, i) {
+          var k = id + i, v = m.textContent;
+          if (last[k] !== undefined && last[k] !== v && c.getClientRects().length && !rm()) m.classList.add('flash');
+          last[k] = v;
+        });
+      }).observe(c, { childList: true });
+    });
+  })();
+  document.querySelectorAll('[data-enter]').forEach(function (b) { b.addEventListener('click', function () { enter(b.getAttribute('data-enter')); }); });
+  document.querySelectorAll('[data-go]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = document.querySelector(b.getAttribute('data-go'));
+      if (t) t.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    });
+  });
+  var h = $('btn-home'); if (h) h.addEventListener('click', home);
+  var go = $('chip-go'); if (go) go.addEventListener('click', function () { enter('calc'); });
+  var brand = document.querySelector('header.hero .brand');
+  if (brand) { brand.style.cursor = 'pointer'; brand.setAttribute('title', 'Voltar à página inicial'); brand.addEventListener('click', home); }
+  /* tema: seletor da intro espelha o do simulador */
+  var ti = $('theme-intro'), t = $('theme');
+  if (ti && t) {
+    ti.value = t.value;
+    ti.addEventListener('change', function () { t.value = ti.value; t.dispatchEvent(new Event('change')); });
+    t.addEventListener('change', function () { ti.value = t.value; });
+  }
+})();
+
+</script>
+</body>
+</html>

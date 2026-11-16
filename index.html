@@ -2,841 +2,625 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<script>try{if(!location.hash||location.hash==='#')document.documentElement.classList.add('intro-on');}catch(e){}</script>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){var d=document.documentElement,t=null;try{var p=JSON.parse(localStorage.getItem('perdas-carga-prefs-v1')||'null');if(p&&(p.theme==='light'||p.theme==='dark'))t=p.theme;}catch(e){}if(!t){try{t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}catch(e){t='light';}}d.setAttribute('data-theme',t);try{if(!location.hash||location.hash==='#')d.classList.add('intro-on');}catch(e){}})();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Programa de cálculo de perdas de carga hidráulicas distribuídas e localizadas: Darcy-Weisbach, Colebrook-White, diagrama de Moody e simulações.">
 <title>Calculadora de Perdas de Carga Hidráulicas</title>
 <style>
+/* =====================================================================
+   Sistema visual: "água em movimento" sobre uma casca de aplicativo.
+   Tokens → base → casca → componentes → abas → introdução → impressão.
+   ===================================================================== */
 :root{
   color-scheme:light;
-  --bg:#f6f7f9; --card:#ffffff; --text:#1c2430; --muted:#5b6675; --line:#dde2e8; --grid:#e7ebf0;
-  --accent:#1d4ed8; --accent-text:#ffffff; --focus:#b45309; --warn-bg:#fff7e0; --warn-line:#e8c766; --err-bg:#fdecec; --err-line:#e49a9a; --ok-bg:#eaf6ee; --ok-line:#9fd0ae;
-  --c1:#2563eb; --c2:#d97706; --c3:#16a34a; --c4:#c026d3; --c5:#0e7490; --c6:#dc2626; --c7:#7c3aed;
-  --pipe:#9aa6b6; --water:#38bdf8; --metal:#cbd5e1;
+  --bg:#ecf3f6; --bg-grad:radial-gradient(1100px 520px at 85% -8%,rgba(11,110,147,.10),transparent 62%);
+  --card:#ffffff; --surface2:#f1f6f8; --text:#06202c; --muted:#456473; --line:#d3e1e8; --grid:#e2ecf0;
+  --accent:#0b6e93; --accent-text:#ffffff; --accent2:#0e9aa8; --deep:#042c3d;
+  --focus:#b45309;
+  --warn-bg:#fff6dc; --warn-line:#e7c868; --err-bg:#fdecec; --err-line:#e7a3a3; --ok-bg:#e7f5ee; --ok-line:#a3d4b8;
+  --c1:#0369a1; --c2:#d97706; --c3:#059669; --c4:#db2777; --c5:#0891b2; --c6:#dc2626; --c7:#475569;
+  --pipe:#8aa8b8; --water:#22b8e8; --metal:#c3d6e0; --flow-bg:#f3f9fb;
+  --shell:#04293a; --shell-2:rgba(255,255,255,.09); --shell-3:rgba(255,255,255,.18); --shell-text:#eaf6fb; --shell-muted:#a3c3d1; --shell-accent:#4fd0f7; --shell-ink:#04202c;
+  --shadow:0 1px 2px rgba(4,44,61,.05),0 10px 28px -14px rgba(4,44,61,.22);
+  --r:16px; --r-sm:10px;
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  --font:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --font-display:"Segoe UI Variable Display","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Code","SF Mono",Consolas,"Liberation Mono",monospace;
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#0f141b; --card:#171e27; --text:#e6ebf2; --muted:#9aa6b6; --line:#2a3441; --grid:#232d3a;
-  --accent:#6ea0ff; --accent-text:#0b1220; --focus:#fbbf24; --warn-bg:#2c2512; --warn-line:#7a6425; --err-bg:#331a1a; --err-line:#7d3a3a; --ok-bg:#15291c; --ok-line:#2f6a43;
-  --c1:#60a5fa; --c2:#fbbf24; --c3:#4ade80; --c4:#e879f9; --c5:#22d3ee; --c6:#f87171; --c7:#a78bfa;
-  --pipe:#55657a; --water:#38bdf8; --metal:#3b4757;
+  --bg:#06131c; --bg-grad:radial-gradient(1100px 520px at 85% -8%,rgba(60,198,242,.11),transparent 62%);
+  --card:#0b1f2c; --surface2:#102a39; --text:#e4f3f9; --muted:#8fb0c0; --line:#1a3848; --grid:#143142;
+  --accent:#3cc6f2; --accent-text:#03202d; --accent2:#2dd4bf; --deep:#020b11;
+  --focus:#fbbf24;
+  --warn-bg:#2a2410; --warn-line:#6f5b1f; --err-bg:#311719; --err-line:#7a3a3d; --ok-bg:#0f2a20; --ok-line:#2a6a4a;
+  --c1:#38bdf8; --c2:#fbbf24; --c3:#4ade80; --c4:#f472b6; --c5:#2dd4bf; --c6:#f87171; --c7:#94a3b8;
+  --pipe:#3d6378; --water:#38bdf8; --metal:#244458; --flow-bg:#081a26;
+  --shell:#030d14; --shell-2:rgba(255,255,255,.07); --shell-3:rgba(255,255,255,.15);
+  --shadow:0 0 0 0 transparent;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]):not([data-theme="dark"]){
-    color-scheme:dark;
-    --bg:#0f141b; --card:#171e27; --text:#e6ebf2; --muted:#9aa6b6; --line:#2a3441; --grid:#232d3a;
-    --accent:#6ea0ff; --accent-text:#0b1220; --focus:#fbbf24; --warn-bg:#2c2512; --warn-line:#7a6425; --err-bg:#331a1a; --err-line:#7d3a3a; --ok-bg:#15291c; --ok-line:#2f6a43;
-    --c1:#60a5fa; --c2:#fbbf24; --c3:#4ade80; --c4:#e879f9; --c5:#22d3ee; --c6:#f87171; --c7:#a78bfa;
-    --pipe:#55657a; --water:#38bdf8; --metal:#3b4757;
-  }
-}
-:root{--radius:14px;--shadow:0 1px 2px rgba(16,24,40,.05),0 4px 14px rgba(16,24,40,.06);--shadow-hover:0 2px 4px rgba(16,24,40,.08),0 8px 22px rgba(16,24,40,.10);--ease:.18s cubic-bezier(.4,0,.2,1)}
-:root[data-theme="dark"]{--shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.35);--shadow-hover:0 2px 4px rgba(0,0,0,.5),0 8px 22px rgba(0,0,0,.45)}
-*{box-sizing:border-box}
+
+/* ---------- base ---------- */
+*,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{margin:0;background:radial-gradient(1200px 500px at 50% -200px,color-mix(in srgb,var(--accent) 10%,transparent),transparent 70%),var(--bg);background-attachment:fixed;color:var(--text);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
-body.pres-on{padding-bottom:190px}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scrollbar-color:var(--line) transparent}
+body{margin:0;min-height:100vh;background:var(--bg-grad),var(--bg);background-attachment:fixed;color:var(--text);font:16px/1.55 var(--font);-webkit-font-smoothing:antialiased;caret-color:var(--accent)}
+::selection{background:color-mix(in srgb,var(--accent) 28%,transparent)}
+h1,h2,h3,h4{margin:0;font-family:var(--font-display);text-wrap:balance}
+p{text-wrap:pretty}
+a{color:var(--accent);text-underline-offset:3px}
+button,input,select{font:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.skip{position:absolute;left:8px;top:-60px;background:var(--accent);color:var(--accent-text);padding:8px 12px;border-radius:8px;z-index:50}
+.skip{position:absolute;left:8px;top:-60px;z-index:100;background:var(--accent);color:var(--accent-text);padding:8px 12px;border-radius:8px}
 .skip:focus{top:8px}
-header{padding:28px 20px 10px;max-width:1180px;margin:0 auto}
-h1{font-size:clamp(1.4rem,2.6vw,1.95rem);margin:0 0 6px;line-height:1.2;letter-spacing:-.02em;font-weight:750}
-.sub{margin:0;color:var(--muted);font-size:.95rem}
-.toolbar{max-width:1180px;margin:14px auto 0;padding:0 20px;display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center}
-.toolbar>.btn{margin-left:0}
-.toolbar>#btn-present{margin-left:auto}
-.toolbar .grp{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
-.toolbar select{width:auto;padding:6px 8px}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card);box-shadow:var(--shadow)}
-.seg span{transition:background var(--ease),color var(--ease)}
-.seg label:hover input:not(:checked) + span{background:color-mix(in srgb,var(--accent) 10%,transparent)}
-.seg label{margin:0;position:relative;display:block;color:var(--text)}
-.seg input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
-.seg span{display:block;padding:6px 12px;font-size:.88rem;white-space:nowrap}
-.seg input:checked + span{background:var(--accent);color:var(--accent-text);font-weight:600}
-.seg input:focus-visible + span{outline:3px solid var(--focus);outline-offset:-3px}
-nav{max-width:1180px;margin:16px auto 0;padding:0 20px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
-.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--muted);padding:10px 16px;border-radius:999px;font:inherit;font-size:.92rem;cursor:pointer;white-space:nowrap;transition:background var(--ease),color var(--ease),border-color var(--ease),box-shadow var(--ease)}
-.tab:hover{color:var(--text);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:600;box-shadow:0 2px 10px color-mix(in srgb,var(--accent) 35%,transparent)}
-a:focus-visible,.tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,canvas:focus-visible,summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-main{max-width:1180px;margin:0 auto;padding:14px 20px 40px}
+.ic{fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.small{font-size:.85rem;line-height:1.55;color:var(--muted);margin:12px 0 0}
+.small:empty{display:none}
+code{font-family:var(--mono);font-size:.88em;background:var(--surface2);border-radius:6px;padding:1px 6px}
+
+/* ---------- fundo: ondas, bolhas e maré ---------- */
+.ocean{position:fixed;left:0;right:0;bottom:0;height:min(22vh,220px);z-index:-1;pointer-events:none;overflow:hidden}
+.wave{position:absolute;left:0;bottom:0;width:200%;height:100%;fill:var(--accent);will-change:transform;animation:drift 30s linear infinite}
+.wave.w1{opacity:.07;height:70%;animation-duration:24s}
+.wave.w2{opacity:.05;fill:var(--accent2);animation-duration:38s;animation-direction:reverse}
+html.intro-on .wave.w1{opacity:.12}
+html.intro-on .wave.w2{opacity:.09}
+@keyframes drift{to{transform:translateX(-50%)}}
+.bubbles{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+html:not(.intro-on) .bubbles{display:none}
+.bub{position:absolute;bottom:-30px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--accent2) 55%,transparent);opacity:0;will-change:transform;animation:bubup linear infinite}
+@keyframes bubup{0%{transform:translate(0,0) scale(.7);opacity:0}10%{opacity:.6}50%{transform:translate(18px,-50vh) scale(1)}90%{opacity:.35}100%{transform:translate(-14px,-108vh) scale(1.08);opacity:0}}
+#tide{position:fixed;left:0;right:0;top:0;height:120vh;z-index:90;pointer-events:none;transform:translateY(105%);background:linear-gradient(180deg,var(--accent2),var(--accent) 35%,var(--deep));border-radius:50% 50% 0 0/90px 90px 0 0;will-change:transform}
+#tide.run{animation:tide .95s cubic-bezier(.65,0,.35,1) both}
+@keyframes tide{0%{transform:translateY(105%)}45%,55%{transform:translateY(-8%)}100%{transform:translateY(-125%)}}
+
+/* ---------- casca do aplicativo ---------- */
+html.intro-on #app{display:none}
+html:not(.intro-on) #intro{display:none}
+.topbar{position:sticky;top:0;z-index:40;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;height:60px;padding-inline:max(24px,calc((100% - 1232px)/2));background:var(--shell);color:var(--shell-text);border-bottom:1px solid rgba(255,255,255,.07)}
+.mark{width:30px;height:30px;flex:none;display:block}
+.brand{display:flex;align-items:center;gap:10px;margin-left:-6px;padding:6px 10px 6px 6px;border:0;border-radius:10px;background:none;color:inherit;font:650 15px/1 var(--font-display);letter-spacing:-.01em;cursor:pointer;white-space:nowrap}
+.brand:hover{background:var(--shell-2)}
+nav[role="tablist"]{position:relative;display:flex;gap:2px;justify-self:center;padding:4px;border-radius:12px;background:var(--shell-2)}
+.tab{position:relative;z-index:1;display:flex;align-items:center;gap:8px;overflow:hidden;border:0;background:none;color:var(--shell-muted);font:500 14px/1.2 var(--font);padding:8px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;transition:color .18s}
+.tab .ic{display:none;width:21px;height:21px}
+.tab .ls{display:none}
+.tab:hover{color:var(--shell-text)}
+.tab[aria-selected="true"]{color:var(--shell-ink);font-weight:650}
+nav:not(.has-ind) .tab[aria-selected="true"]{background:var(--shell-accent)}
+nav .ind{position:absolute;left:0;top:4px;bottom:4px;width:0;border-radius:9px;background:var(--shell-accent);pointer-events:none;transition:transform .34s var(--ease-out),width .34s var(--ease-out)}
+.tools{display:flex;align-items:center;gap:8px;justify-self:end}
+.icon-btn{position:relative;overflow:hidden;display:grid;place-items:center;width:36px;height:36px;flex:none;border:0;border-radius:10px;background:var(--shell-2);color:var(--shell-text);cursor:pointer;transition:background .15s,transform .15s var(--ease-out)}
+.icon-btn .ic{width:18px;height:18px}
+.icon-btn:hover{background:var(--shell-3)}
+.icon-btn:active{transform:scale(.94)}
+.icon-btn.plain{background:var(--card);color:var(--text);border:1px solid var(--line)}
+.icon-btn.plain:hover{background:var(--surface2)}
+.theme-btn .i-sun{display:none}
+:root[data-theme="dark"] .theme-btn .i-sun{display:block}
+:root[data-theme="dark"] .theme-btn .i-moon{display:none}
+
+.readout{position:sticky;top:60px;z-index:39;display:flex;align-items:center;gap:26px;height:40px;padding-inline:max(24px,calc((100% - 1232px)/2));background:color-mix(in srgb,var(--card) 88%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);font-size:13px;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
+.readout::-webkit-scrollbar{display:none}
+.ro-t{margin-right:auto;color:var(--muted);font-weight:600}
+.chip{display:flex;align-items:baseline;gap:7px}
+.chip .k{color:var(--muted)}
+.chip .v{font-weight:650;font-variant-numeric:tabular-nums}
+.chip.bump .v{animation:bump .3s var(--ease-out)}
+@keyframes bump{from{opacity:.4;transform:translateY(2px)}to{opacity:1;transform:none}}
+
+main{max-width:1280px;margin:0 auto;padding:30px 24px 96px}
 .panel{display:none}
-.panel.active{display:block;animation:fadeup .28s ease both}
-@keyframes fadeup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow);transition:box-shadow var(--ease)}
-.card:hover{box-shadow:var(--shadow-hover)}
-.card h2{font-size:1.05rem;margin:0 0 14px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
-.card h2::before{content:"";width:4px;height:1em;border-radius:2px;background:var(--accent);flex:none}
-.card h3{font-size:.95rem;margin:14px 0 6px}
-.grid2{display:grid;grid-template-columns:minmax(300px,410px) minmax(0,1fr);gap:14px;align-items:start}
-@media (max-width:860px){.grid2{grid-template-columns:1fr}}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.panel.active{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;animation:fade .3s var(--ease-out)}
+@keyframes fade{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ph{margin-bottom:6px}
+.ph h2{font-size:clamp(1.55rem,2.6vw,1.9rem);line-height:1.15;letter-spacing:-.025em;font-weight:700}
+.ph p{margin:6px 0 0;color:var(--muted);max-width:64ch}
+
+/* ---------- superfícies ---------- */
+.card{min-width:0;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow)}
+.card>h3{font-size:1.02rem;font-weight:650;letter-spacing:-.01em;margin-bottom:16px}
+.card h4{font-size:.9rem;font-weight:650;margin:20px 0 10px}
+.grid2{display:grid;grid-template-columns:minmax(330px,420px) minmax(0,1fr);gap:20px;align-items:start}
+.grid2>div{display:grid;gap:20px;min-width:0;align-content:start}
+.cols2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row.tight{margin-top:12px}
+.row.actions{margin-top:20px}
+.ctl-gap{margin-top:20px}
+
+/* ---------- formulários ---------- */
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .fields .full{grid-column:1/-1}
-label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:3px}
-label{font-weight:500}
-input[type=text],select{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);font:inherit;font-size:.95rem;transition:border-color var(--ease),box-shadow var(--ease)}
-input[type=text]:hover,select:hover{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
-input[type=text]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
-.radio{display:flex;gap:14px;flex-wrap:wrap;font-size:.92rem}
-.radio label{display:flex;align-items:center;gap:6px;color:var(--text);font-size:.92rem;margin:0}
-button.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-text);padding:9px 16px;border-radius:10px;font:inherit;font-size:.9rem;font-weight:550;cursor:pointer;transition:filter var(--ease),transform var(--ease),background var(--ease),box-shadow var(--ease)}
-button.btn:hover:not(:disabled){filter:brightness(1.08);box-shadow:0 2px 8px color-mix(in srgb,var(--accent) 30%,transparent)}
-button.btn:active:not(:disabled){transform:translateY(1px)}
-button.btn.sec{background:transparent;color:var(--accent)}
-button.btn.sec:hover:not(:disabled){background:color-mix(in srgb,var(--accent) 10%,transparent);filter:none;box-shadow:none}
-button.btn.danger{border-color:var(--c6);color:var(--c6);background:transparent}
-button.btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-text)}
-button.btn:disabled{opacity:.5;cursor:not-allowed}
-.icon-btn{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;width:34px;height:34px;font-size:1.1rem;cursor:pointer;line-height:1}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.metric{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:12px 14px;background:var(--bg)}
-.metric .k{font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
-.metric .v{font-size:1.45rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.metric .u{font-size:.8rem;color:var(--muted);font-weight:400}
-.msg{border:1px solid;border-radius:8px;padding:8px 12px;margin:8px 0;font-size:.9rem}
+.fields.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+label{display:block;font-size:.82rem;font-weight:550;color:var(--muted);margin-bottom:6px}
+input[type="text"],select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface2);color:var(--text);font-size:.95rem;transition:border-color .15s,box-shadow .15s,background .15s}
+input[type="text"]:hover,select:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+input[type="text"]:focus,select:focus{outline:0;border-color:var(--accent);background:var(--card);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+input[aria-invalid="true"]{border-color:var(--c6)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--c6) 20%,transparent)}
+.ctl{margin-bottom:18px}
+.ctl:last-child{margin-bottom:0}
+.ctl-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+.ctl-head label{margin:0}
+.ctl-num{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:.8rem}
+.ctl-num input{width:92px;padding:7px 10px;text-align:right;font-variant-numeric:tabular-nums}
+.ctl-num span{min-width:32px}
+input[type="range"]{-webkit-appearance:none;appearance:none;display:block;width:100%;height:26px;margin:0;background:transparent;cursor:pointer}
+input[type="range"]::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2)) 0/var(--pct,50%) 100% no-repeat,var(--line)}
+input[type="range"]::-moz-range-track{height:6px;border-radius:999px;background:var(--line)}
+input[type="range"]::-moz-range-progress{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-7px;border-radius:50%;background:var(--card);border:2.5px solid var(--accent);box-shadow:0 2px 6px rgba(0,0,0,.22);transition:transform .15s var(--ease-out),box-shadow .15s}
+input[type="range"]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:var(--card);border:2.5px solid var(--accent);box-shadow:0 2px 6px rgba(0,0,0,.22)}
+input[type="range"]:hover::-webkit-slider-thumb{transform:scale(1.1)}
+input[type="range"]:active::-webkit-slider-thumb{transform:scale(1.18);box-shadow:0 0 0 7px color-mix(in srgb,var(--accent) 20%,transparent)}
+input[type="range"]:focus-visible{outline:0}
+input[type="range"]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px color-mix(in srgb,var(--focus) 45%,transparent)}
+
+/* botões */
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:var(--r-sm);padding:10px 16px;background:var(--accent);color:var(--accent-text);font-size:.92rem;font-weight:600;line-height:1.2;cursor:pointer;transition:filter .15s,background .15s,border-color .15s,transform .15s var(--ease-out)}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.sec{background:var(--surface2);color:var(--text);border-color:var(--line)}
+.btn.sec:hover{filter:none;border-color:color-mix(in srgb,var(--accent) 50%,var(--line));background:color-mix(in srgb,var(--accent) 7%,var(--surface2))}
+.btn.sec[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 16%,var(--surface2));border-color:var(--accent)}
+.btn.danger{background:transparent;color:var(--c6);border-color:color-mix(in srgb,var(--c6) 45%,transparent)}
+.btn.danger:hover{filter:none;background:color-mix(in srgb,var(--c6) 10%,transparent)}
+.btn.sm{padding:7px 12px;font-size:.84rem}
+.btn.mini{padding:5px 9px;font-size:.76rem;margin-top:8px;font-weight:550}
+.btn.big{padding:14px 24px;font-size:1.02rem;border-radius:12px}
+.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.22;transform:scale(0);pointer-events:none;animation:rip .65s var(--ease-out) forwards}
+@keyframes rip{to{transform:scale(1);opacity:0}}
+
+/* controle segmentado */
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:11px;background:var(--surface2)}
+.seg label{position:relative;margin:0}
+.seg input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.seg span{display:block;padding:6px 12px;border-radius:8px;font-size:.86rem;font-weight:550;color:var(--muted);white-space:nowrap;transition:background .15s,color .15s}
+.seg label:hover span{color:var(--text)}
+.seg input:checked+span{background:var(--card);color:var(--text);font-weight:650;box-shadow:0 1px 3px rgba(0,0,0,.14)}
+.seg input:focus-visible+span{outline:2px solid var(--focus);outline-offset:1px}
+.topbar .seg{border-color:transparent;background:var(--shell-2)}
+.topbar .seg span{padding:6px 10px;font-size:.8rem;color:var(--shell-muted)}
+.topbar .seg label:hover span{color:var(--shell-text)}
+.topbar .seg input:checked+span{background:var(--shell-3);color:var(--shell-text);box-shadow:none}
+
+/* trechos */
+.tchips{display:flex;flex-wrap:wrap;gap:8px}
+.tchip{border:1px solid var(--line);border-radius:999px;background:var(--surface2);color:var(--text);padding:7px 14px;font-size:.86rem;font-weight:550;cursor:pointer;transition:background .15s,border-color .15s,color .15s,transform .15s var(--ease-out)}
+.tchip:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.tchip:active{transform:scale(.97)}
+.tchip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-text);font-weight:650}
+
+/* recolhíveis */
+details.fold{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.card>details.fold:only-child{margin:0;padding:0;border:0}
+details.fold>summary,.msg-more>summary{display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer;font-weight:600;border-radius:6px}
+details.fold>summary::-webkit-details-marker,.msg-more>summary::-webkit-details-marker{display:none}
+details.fold>summary::before,.msg-more>summary::before{content:"";width:7px;height:7px;flex:none;margin:0 3px 2px 2px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-45deg);transition:transform .2s var(--ease-out)}
+details.fold[open]>summary::before,.msg-more[open]>summary::before{transform:rotate(45deg)}
+details.fold>summary span{color:var(--muted);font-weight:400}
+details.fold[open]>summary{margin-bottom:14px}
+details.memo>summary{font-family:var(--font-display);font-size:1.02rem;font-weight:650}
+.msg-more{margin-top:8px}
+.msg-more>summary{font-size:.85rem;font-weight:550;color:var(--muted)}
+
+/* mensagens */
+.msg{display:flex;gap:10px;align-items:flex-start;margin-top:8px;padding:10px 14px;border:1px solid;border-radius:var(--r-sm);font-size:.89rem;line-height:1.5}
+.msg>strong{flex:none}
+.msg::before{content:"";flex:none;width:8px;height:8px;margin-top:.45em;border-radius:50%;background:currentColor}
 .msg.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+.msg.warn::before{background:var(--c2)}
 .msg.err{background:var(--err-bg);border-color:var(--err-line)}
+.msg.err::before{background:var(--c6)}
 .msg.ok{background:var(--ok-bg);border-color:var(--ok-line)}
-table{border-collapse:collapse;width:100%;font-size:.88rem}
-th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
-th{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em}
-table:not(.pts) tbody tr:nth-child(even){background:color-mix(in srgb,var(--text) 3%,transparent)}
-table:not(.pts) tbody tr:hover{background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.msg.ok::before{background:var(--c3)}
+
+/* grade de dados */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.metrics:empty{display:none}
+.metric{min-width:0;padding:13px 16px;margin:0 -1px -1px 0;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.metric .k{font-size:.78rem;font-weight:550;color:var(--muted)}
+.metric .v{margin-top:2px;font-family:var(--font-display);font-size:1.22rem;font-weight:650;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.metric .u{font-family:var(--font);font-size:.78rem;font-weight:500;color:var(--muted);letter-spacing:0}
+.metrics>.msg{grid-column:1/-1;margin:12px;border-radius:8px}
+
+/* tabelas */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.tablewrap:has(table:empty){display:none}
+table{width:100%;border-collapse:collapse;font-size:.88rem;font-variant-numeric:tabular-nums}
+th,td{padding:10px 14px;text-align:right;border-bottom:1px solid var(--line)}
 th:first-child,td:first-child{text-align:left}
-.tablewrap{overflow-x:auto}
-.pts td{padding:3px 4px;border:0}
-.pts th{padding:2px 4px;border:0;text-align:left}
-.pts input{padding:6px 8px}
-canvas{width:100%;height:300px;display:block;touch-action:pan-y}
-.charts{display:grid;grid-template-columns:1fr;gap:14px}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88rem;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;white-space:pre-wrap;overflow-x:auto}
-.eq{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:4px 8px;display:inline-block;margin:2px 0}
-ul.tight{margin:6px 0;padding-left:20px}
-ul.tight li{margin:3px 0}
-.small{font-size:.85rem;color:var(--muted)}
-.cols2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-@media (max-width:860px){.cols2{grid-template-columns:1fr}}
-/* controles ao vivo */
-.ctl{margin-bottom:12px}
-.ctl-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
-.ctl-head label{margin:0;flex:1}
-.ctl-num{display:flex;align-items:center;gap:4px;white-space:nowrap;font-size:.82rem;color:var(--muted)}
-.ctl-num input{width:84px;text-align:right;padding:5px 8px}
-input[type=range]{width:100%;height:30px;accent-color:var(--accent);margin:2px 0 0;background:transparent}
-.hintline{font-size:.8rem;color:var(--muted);margin:2px 0 0}
-.pumpinfo{font-size:.82rem;color:var(--muted);margin:8px 0 0}
-details.fold{margin-top:10px}
-details.fold summary{cursor:pointer;font-size:.9rem;color:var(--accent);padding:4px 0}
-/* esquema */
-#schem{width:100%;height:auto;display:block;max-height:340px}
-.sv-text{fill:var(--text);font:12px system-ui,sans-serif}
-.sv-muted{fill:var(--muted);font:11px system-ui,sans-serif}
-.sv-tank{fill:none;stroke:var(--text);stroke-width:2.5}
-.sv-water{fill:var(--water);fill-opacity:.75}
-.sv-pipe{fill:none;stroke:var(--pipe);stroke-width:16;stroke-linejoin:round}
-.sv-flow{fill:none;stroke:var(--water);stroke-width:8;stroke-dasharray:12 10;stroke-linejoin:round}
-.sv-pump{fill:var(--metal);stroke:var(--text);stroke-width:2.5}
-.sv-blade{stroke:var(--text);stroke-width:3;stroke-linecap:round}
-.sv-valve{fill:var(--metal);stroke:var(--text);stroke-width:2}
-.sv-gate{fill:var(--c6)}
-.livebar{display:none}
-@media (max-width:860px){
-  .livebar{display:flex;gap:4px 14px;flex-wrap:wrap;position:sticky;top:0;z-index:6;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 12px;margin-bottom:10px;font-size:.85rem;font-variant-numeric:tabular-nums;box-shadow:0 2px 8px rgba(0,0,0,.12)}
-  .livebar b{font-weight:650}
+thead th{font-size:.76rem;font-weight:600;color:var(--muted);background:var(--surface2);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+tr.hl td{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+tr.tot td{font-weight:700;border-top:2px solid var(--line)}
+table.acc td,table.acc th{padding:7px 10px}
+table.acc input{width:78px;padding:6px 9px;text-align:right}
+#sim-table th,#sim-table td{text-align:left;vertical-align:top;min-width:150px}
+#sim-table thead th{white-space:normal;font-size:.82rem;color:var(--text)}
+#sim-table th:first-child,#sim-table td:first-child{position:sticky;left:0;z-index:1;min-width:180px;background:var(--card);color:var(--muted);font-weight:550}
+#sim-table thead th:first-child{background:var(--surface2)}
+#sim-table tr.key td{font-weight:700}
+#sim-table tr.key td:first-child{color:var(--text)}
+
+/* gráficos e blocos */
+canvas{display:block;width:100%;height:340px;touch-action:pan-y}
+canvas.tall{height:520px}
+.mono{margin-top:14px;padding:18px 20px;border-radius:12px;background:var(--surface2);font:13px/1.75 var(--mono);white-space:pre-wrap;overflow-x:auto}
+.eq{display:inline-block;margin:3px 0;padding:6px 11px;border-radius:8px;background:var(--surface2);font-family:var(--mono);font-size:.9rem}
+ul.tight{margin:0;padding-left:20px}
+ul.tight li{margin:7px 0}
+ul.tight li::marker{color:var(--accent)}
+
+/* ---------- resultado (Calculadora) ---------- */
+.card.result{padding:0;overflow:hidden}
+.flowwrap{position:relative;border-bottom:1px solid var(--line)}
+.flowcv{height:150px;background:var(--flow-bg);touch-action:auto}
+.flowtag{position:absolute;left:16px;bottom:14px;padding:5px 11px;border-radius:999px;background:color-mix(in srgb,var(--card) 88%,transparent);border:1px solid var(--line);font-size:.8rem;font-weight:600}
+.flowtag:empty{display:none}
+.result-body{padding:24px}
+#calc-key{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px 20px}
+#calc-key .metric{padding:0;margin:0;border:0}
+#calc-key .metric[data-m="h"]{grid-column:1/-1;padding-bottom:18px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+#calc-key .metric[data-m="h"] .k{font-size:.9rem}
+#calc-key .metric[data-m="h"] .v{margin-top:4px;font-size:clamp(2.7rem,5.4vw,3.7rem);line-height:1;font-weight:700;letter-spacing:-.035em}
+#calc-key .metric[data-m="h"] .u{font-size:1.15rem;font-weight:600;letter-spacing:0}
+#calc-key .metric .v{font-size:1.4rem}
+#calc-msg{margin-top:16px}
+#calc-msg:empty{display:none}
+#tr-table-wrap{margin-top:16px}
+#schem{display:block;width:100%;height:auto;max-height:260px}
+.sv-text{fill:var(--text);font:600 12px var(--font)}
+.sv-muted{fill:var(--muted);font:11px var(--font)}
+.sv-water{fill:var(--water);fill-opacity:.7}
+.sv-flow2{fill:none;stroke:var(--water)}
+
+/* ---------- regimes (Moody) ---------- */
+.reg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.reg{min-width:0;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:var(--surface2)}
+.reg .flowcv{height:160px;border-bottom:1px solid var(--line)}
+.reg h4{margin:14px 16px 4px;font-size:1.02rem}
+.reg p{margin:0 16px}
+.reg .reg-now{margin:8px 16px 16px;min-height:1.3em;color:var(--accent);font-weight:650}
+.reg[data-now="true"]{border-color:var(--accent);outline:2px solid var(--accent);outline-offset:-2px}
+
+/* ---------- extras ---------- */
+.ex-nav{display:flex;justify-self:start;max-width:100%;overflow-x:auto;scrollbar-width:none}
+.ex-nav::-webkit-scrollbar{display:none}
+.ex-nav label{flex:0 0 auto}
+.ex-nav span{padding:8px 14px;font-size:.9rem}
+#d-info{margin:18px 0 10px;font-weight:650}
+#d-info:empty{display:none}
+
+/* ---------- avisos flutuantes ---------- */
+#toasts{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:calc(100% - 28px)}
+.toast{padding:10px 16px;border-radius:12px;background:var(--shell);color:var(--shell-text);border:1px solid rgba(255,255,255,.12);font-size:.9rem;box-shadow:0 12px 30px -8px rgba(0,0,0,.4);animation:toastin .3s var(--ease-out) both}
+.toast.out{animation:toastout .2s ease both}
+@keyframes toastin{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes toastout{to{opacity:0;transform:translateY(6px)}}
+
+/* ---------- página inicial ---------- */
+#intro{max-width:1180px;margin:0 auto;padding:0 28px}
+.in-top{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.in-brand{display:flex;align-items:center;gap:10px;font:650 16px/1 var(--font-display);letter-spacing:-.01em}
+.in-actions{display:flex;align-items:center;gap:10px}
+.in-hero{padding:clamp(18px,4vh,44px) 0 clamp(24px,3.6vh,34px);max-width:920px}
+.in-hero h1{font-size:clamp(2.3rem,5.4vw,4.3rem);line-height:1.03;letter-spacing:-.04em;font-weight:750}
+.in-hero h1 em{font-style:normal;color:var(--accent)}
+.lead{margin:18px 0 0;max-width:64ch;font-size:1.13rem;line-height:1.6;color:var(--muted)}
+.in-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+.in-hero>*,.demo{animation:rise .7s var(--ease-out) backwards}
+.in-hero>:nth-child(2){animation-delay:.06s}
+.in-hero>:nth-child(3){animation-delay:.12s}
+.demo{animation-delay:.2s}
+@keyframes rise{from{opacity:.3;transform:translateY(14px)}to{opacity:1;transform:none}}
+.demo{overflow:hidden;border:1px solid var(--line);border-radius:20px;background:var(--card);box-shadow:var(--shadow)}
+.demo-pipe .flowcv{height:clamp(140px,15vw,196px)}
+.demo-ctl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.55fr);gap:32px;align-items:center;padding:16px 26px;border-top:1px solid var(--line)}
+.demo-lab{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.demo-lab label{margin:0;font-size:.9rem;color:var(--text);font-weight:600}
+.demo-lab output{font:650 1.05rem var(--font-display);font-variant-numeric:tabular-nums}
+.demo-slider .small{margin-top:4px}
+.demo-read{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:0}
+.demo-read div{padding:2px 0 2px 18px;border-left:1px solid var(--line)}
+.demo-read dt{font-size:.78rem;font-weight:550;color:var(--muted)}
+.demo-read dd{margin:2px 0 0;font:650 1.28rem/1.25 var(--font-display);letter-spacing:-.01em;font-variant-numeric:tabular-nums;white-space:nowrap}
+#demo-reg{transition:color .25s}
+#demo-reg[data-reg="laminar"]{color:var(--c3)}
+#demo-reg[data-reg="transicao"]{color:var(--c2)}
+#demo-reg[data-reg="turbulento"]{color:var(--accent)}
+.in-sec{padding-top:clamp(64px,10vh,104px)}
+.in-sec>h2{max-width:24ch;margin-bottom:32px;font-size:clamp(1.6rem,3.2vw,2.3rem);line-height:1.12;letter-spacing:-.03em;font-weight:700}
+.in-two{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:64px;align-items:start}
+.in-text p{margin:0 0 16px;font-size:1.04rem;line-height:1.7;color:var(--muted)}
+.in-text strong{color:var(--text);font-weight:650}
+.formulas{margin:0;border-top:1px solid var(--line)}
+.formulas div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:baseline;padding:17px 0;border-bottom:1px solid var(--line)}
+.formulas dt{font-size:.86rem;font-weight:550;color:var(--muted)}
+.formulas dd{margin:0;font:1.04rem/1.4 var(--mono)}
+.in-cards{border-top:1px solid var(--line)}
+.in-card{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(150px,230px) minmax(0,1fr) auto;align-items:center;gap:8px 32px;width:100%;padding:22px 10px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--text);text-align:left;cursor:pointer;transition:background .18s,padding .25s var(--ease-out)}
+.in-card h3{font-size:1.15rem;font-weight:650;letter-spacing:-.01em}
+.in-card p{margin:0;color:var(--muted);font-size:.97rem;line-height:1.6}
+.in-card .go{font-size:.9rem;font-weight:650;color:var(--accent);white-space:nowrap}
+.in-end{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:36px;align-items:center;margin-top:clamp(64px,10vh,104px);padding:36px 40px;border-radius:22px;background:var(--shell);color:var(--shell-text)}
+.in-end h2{font-size:1.4rem;letter-spacing:-.02em;font-weight:700}
+.in-end p{margin:10px 0 0;max-width:70ch;color:var(--shell-muted);line-height:1.65}
+.in-end .btn{background:var(--shell-accent);color:var(--shell-ink)}
+.in-foot{padding:36px 0 64px;font-size:.85rem;color:var(--muted)}
+@media (hover:hover) and (pointer:fine){
+  .in-card:hover{background:color-mix(in srgb,var(--accent) 6%,transparent);padding-left:18px}
 }
-.readout{font-size:.85rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin-top:10px;min-height:2.2em}
-.sel2{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
-@media (max-width:640px){.sel2{grid-template-columns:1fr}}
-.dpos{color:var(--text)}
-/* apresentação */
-.pres{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);border-top:3px solid var(--accent);padding:12px 20px 14px;box-shadow:0 -4px 16px rgba(0,0,0,.2)}
-.pres-in{max-width:1180px;margin:0 auto}
-.pres-top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
-.pres-top strong{font-size:1.1rem}
-.pres p{margin:6px 0 10px;font-size:1.02rem}
-/* impressão */
+
+/* ---------- responsivo ---------- */
+@media (max-width:959px){
+  .topbar{position:static;grid-template-columns:1fr auto;height:54px;padding-inline:14px}
+  nav[role="tablist"]{position:fixed;left:0;right:0;bottom:0;z-index:45;justify-self:stretch;width:auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-radius:0;background:var(--shell);border-top:1px solid rgba(255,255,255,.09)}
+  nav .ind{top:6px;bottom:calc(6px + env(safe-area-inset-bottom))}
+  .tab{flex-direction:column;justify-content:center;gap:3px;padding:6px 2px;font-size:10.5px;border-radius:10px}
+  .tab .ic{display:block}
+  .tab .lf{display:none}
+  .tab .ls{display:block}
+  .readout{top:0;gap:18px;padding-inline:14px}
+  main{padding:22px 14px 110px}
+  #toasts{bottom:84px}
+  .grid2,.cols2{grid-template-columns:minmax(0,1fr)}
+  .reg3{grid-template-columns:minmax(0,1fr)}
+  canvas{height:300px}
+  canvas.tall{height:380px}
+  .in-two{grid-template-columns:minmax(0,1fr);gap:36px}
+  .demo-ctl{grid-template-columns:minmax(0,1fr);gap:20px}
+  .in-end{grid-template-columns:minmax(0,1fr);padding:28px}
+}
+@media (max-width:640px){
+  #intro{padding:0 18px}
+  .ro-t{display:none}
+  .card{padding:18px}
+  .result-body{padding:18px}
+  .fields,.fields.three{grid-template-columns:minmax(0,1fr)}
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .demo-read{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 0}
+  .demo-read div:nth-child(odd){padding-left:0;border-left:0}
+  .in-card{grid-template-columns:minmax(0,1fr);padding:20px 4px}
+  .in-cta .btn{flex:1 1 100%}
+  .formulas div{grid-template-columns:minmax(0,1fr);gap:4px}
+  canvas{height:270px}
+  .flowcv,.reg .flowcv{height:140px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .bubbles,#tide{display:none}
+}
+
+/* ---------- impressão ---------- */
 #print-report{display:none}
 @media print{
   html,body{background:#fff!important;color:#000!important}
   body>*:not(#print-report){display:none!important}
-  #print-report{display:block;font:12pt/1.4 system-ui,"Segoe UI",Arial,sans-serif;color:#000}
+  #print-report{display:block;font:11.5pt/1.4 "Segoe UI",Arial,sans-serif;color:#000}
   #print-report h1{font-size:18pt;margin:0 0 4pt}
-  #print-report h2{font-size:13pt;margin:14pt 0 4pt;border-bottom:1px solid #999;padding-bottom:2pt}
+  #print-report h2{font-size:13pt;margin:14pt 0 4pt;padding-bottom:2pt;border-bottom:1px solid #999}
   #print-report table{font-size:10pt;margin:4pt 0}
-  #print-report th,#print-report td{border-bottom:1px solid #bbb;color:#000}
+  #print-report th,#print-report td{border-bottom:1px solid #bbb;color:#000;background:none;position:static}
   #print-report img{max-width:100%;height:auto;page-break-inside:avoid;margin:4pt 0}
   #print-report .meta{color:#444;font-size:10pt}
-  #print-report ul{margin:4pt 0;padding-left:18pt}
   #print-report .pb{page-break-before:always}
 }
-@media (max-width:560px){
-  header{padding-top:20px}
-  .card{padding:16px}
-  .fields{grid-template-columns:1fr}
-  .toolbar>#btn-present{margin-left:0}
-  canvas{height:260px}
-}
-@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
-</style>
-<style id="ui2">
-/* ===== camada de design 2: moderno e interativo ===== */
-:root{--accent2:#0891b2;--ease:.2s cubic-bezier(.23,1,.32,1);--ease-out:cubic-bezier(.23,1,.32,1);--bg:#f3f6fb}
-:root[data-theme="dark"]{--accent2:#22d3ee;--bg:#0b1017;--card:#131a24}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-theme="dark"]){--accent2:#22d3ee;--bg:#0b1017;--card:#131a24}}
-body{background:
-  radial-gradient(900px 420px at 12% -120px,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%),
-  radial-gradient(800px 380px at 92% -160px,color-mix(in srgb,var(--accent2) 14%,transparent),transparent 70%),
-  var(--bg);background-attachment:fixed}
-
-/* hero */
-header.hero{display:grid;grid-template-columns:1fr;gap:18px;padding:30px 20px 8px}
-.brand{display:flex;align-items:center;gap:16px}
-.mark{width:56px;height:56px;flex:none;filter:drop-shadow(0 4px 14px color-mix(in srgb,var(--accent) 35%,transparent))}
-.mark-imp{transform-origin:24px 24px;animation:spin 14s linear infinite}
-.brand:hover .mark-imp{animation-duration:2.2s}
-@keyframes spin{to{transform:rotate(360deg)}}
-.live{display:flex;flex-wrap:wrap;gap:10px}
-.chip{display:flex;flex-direction:column;gap:1px;min-width:118px;padding:9px 14px;border:1px solid var(--line);border-radius:12px;background:color-mix(in srgb,var(--card) 82%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shadow);position:relative;overflow:hidden}
-.chip .k{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
-.chip .v{font-size:1.15rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.chip.bump .v{animation:bump .35s var(--ease-out)}
-@keyframes bump{0%{transform:translateY(3px);opacity:.5}100%{transform:none;opacity:1}}
-.chip-go{justify-content:center;flex-direction:row;align-items:center;font:inherit;font-size:.9rem;font-weight:600;color:var(--accent);cursor:pointer;margin-left:auto;transition:transform var(--ease),background var(--ease)}
-.chip-go::before{display:none}
-.chip-go:hover{background:color-mix(in srgb,var(--accent) 10%,var(--card))}
-.chip-go:active{transform:scale(.97)}
-@media (max-width:560px){.chip{flex:1 1 calc(50% - 10px);min-width:0}.chip-go{flex-basis:100%;margin-left:0}}
-/* entrada do hero (uma vez) */
-.brand,.live .chip,.toolbar{animation:rise .55s var(--ease-out) both}
-.live .chip:nth-child(1){animation-delay:.05s}.live .chip:nth-child(2){animation-delay:.1s}.live .chip:nth-child(3){animation-delay:.15s}.live .chip:nth-child(4){animation-delay:.2s}.live .chip:nth-child(5){animation-delay:.25s}
-.toolbar{animation-delay:.12s}
-@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-
-/* abas: pílula flutuante com indicador deslizante */
-nav{position:sticky;top:10px;z-index:30;width:fit-content;max-width:calc(100% - 28px);margin:18px auto 0;padding:5px;gap:2px;border:1px solid var(--line);border-radius:999px;background:color-mix(in srgb,var(--card) 80%,transparent);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);box-shadow:var(--shadow-hover)}
-nav .ind{position:absolute;left:0;top:5px;bottom:5px;width:0;border-radius:999px;background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 60%,var(--accent2)));box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 40%,transparent);transition:transform .38s var(--ease-out),width .38s var(--ease-out);pointer-events:none}
-.tab{position:relative;z-index:1;border:0;background:transparent;box-shadow:none}
-.tab:hover{background:color-mix(in srgb,var(--accent) 9%,transparent);border-color:transparent}
-.tab[aria-selected="true"]{background:transparent;box-shadow:none;color:var(--accent-text)}
-.tab:active{transform:scale(.97)}
-@media (max-width:860px){.livebar{top:64px}}
-main{padding-top:20px}
-
-/* entrada dos cards ao abrir uma aba (escalonada, 1 vez) */
-.panel.active .card,.panel.active .charts>.card,.panel.active .readout{animation:rise .5s var(--ease-out) both}
-.panel.active .card:nth-child(2){animation-delay:.05s}.panel.active .card:nth-child(3){animation-delay:.1s}.panel.active .card:nth-child(4){animation-delay:.15s}.panel.active .card:nth-child(n+5){animation-delay:.2s}
-
-/* cards: holofote que segue o mouse */
-.card{position:relative;overflow:hidden}
-@media (hover:hover) and (pointer:fine){
-  .card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(420px circle at var(--mx,50%) var(--my,0%),color-mix(in srgb,var(--accent) 9%,transparent),transparent 60%)}
-  .card:hover::after{opacity:1}
-  .card:hover{transform:translateY(-2px)}
-}
-.card{transition:box-shadow var(--ease),transform var(--ease),border-color var(--ease)}
-.card:hover{border-color:color-mix(in srgb,var(--accent) 30%,var(--line))}
-
-/* métricas */
-.metric{transition:transform var(--ease),border-color var(--ease),background var(--ease)}
-.metric:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-.metric .v .u{color:var(--muted)}
-
-/* sliders com trilha preenchida */
-input[type=range]{-webkit-appearance:none;appearance:none;height:26px;cursor:pointer}
-input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2)) 0/var(--pct,50%) 100% no-repeat,var(--line)}
-input[type=range]::-moz-range-track{height:6px;border-radius:999px;background:var(--line)}
-input[type=range]::-moz-range-progress{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-7px;border-radius:50%;background:var(--card);border:3px solid var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.25);transition:transform .15s var(--ease-out),box-shadow .15s}
-input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--card);border:3px solid var(--accent);box-shadow:0 2px 8px rgba(0,0,0,.25)}
-input[type=range]:hover::-webkit-slider-thumb{transform:scale(1.12)}
-input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2);box-shadow:0 0 0 8px color-mix(in srgb,var(--accent) 20%,transparent)}
-
-/* mensagens */
-.msg{border-radius:12px;border-width:1px;padding:10px 14px;animation:rise .35s var(--ease-out) both}
-
-/* esquema SVG */
-#schem{filter:drop-shadow(0 6px 18px color-mix(in srgb,var(--accent) 12%,transparent))}
-
-/* toasts */
-#toasts{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:max-content;max-width:calc(100% - 28px)}
-.toast{pointer-events:auto;padding:10px 16px;border-radius:12px;background:var(--text);color:var(--bg);font-size:.9rem;box-shadow:0 10px 30px rgba(0,0,0,.28);animation:toastin .32s var(--ease-out) both}
-.toast.out{animation:toastout .2s ease-in both}
-@keyframes toastin{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
-@keyframes toastout{to{opacity:0;transform:translateY(6px) scale(.98)}}
-body.pres-on #toasts{bottom:210px}
-
-/* barra de apresentação */
-.pres{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:color-mix(in srgb,var(--card) 88%,transparent);border-top:0;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
-.pres::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-
-/* rodapé de scroll suave nas tabelas */
-.tablewrap{border-radius:10px}
-details.fold[open] summary{margin-bottom:6px}
-/* ===== espaço e respiro (app maior, menos apertado) ===== */
-html{font-size:106.25%}
-header.hero,.toolbar,main{max-width:1320px}
-header.hero{padding:44px 32px 14px;gap:26px}
-h1{font-size:clamp(1.7rem,3vw,2.35rem)}
-.mark{width:64px;height:64px}
-.chip{min-width:150px;padding:13px 18px;border-radius:14px}
-.chip .v{font-size:1.4rem}
-.toolbar{margin-top:26px;padding:0 32px;gap:14px 22px}
-.toolbar .grp{font-size:.92rem}
-.toolbar select{padding:9px 12px}
-.seg span{padding:9px 16px;font-size:.95rem}
-nav{margin-top:30px;padding:6px}
-.tab{padding:12px 20px;font-size:.98rem}
-nav .ind{top:6px;bottom:6px}
-main{padding:34px 32px 100px}
-.grid2{grid-template-columns:minmax(340px,450px) minmax(0,1fr);gap:28px}
-.card{padding:28px;margin-bottom:28px;border-radius:18px}
-.card h2{font-size:1.18rem;margin-bottom:20px}
-.card h3{margin:22px 0 8px;font-size:1.02rem}
-.fields{gap:18px 18px}
-label{font-size:.88rem;margin-bottom:6px}
-input[type=text],select{padding:12px 14px;font-size:1rem}
-.radio{gap:18px;padding:4px 0}
-button.btn{padding:12px 20px;font-size:.96rem}
-.row{gap:12px}
-.metrics{gap:16px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
-.metric{padding:18px 20px;border-radius:14px}
-.metric .v{font-size:1.65rem}
-.msg{padding:14px 18px;margin:14px 0}
-th,td{padding:13px 14px}
-.pts td{padding:5px 6px}
-.charts{gap:28px}
-canvas{height:360px}
-.cols2{gap:28px}
-.ctl{margin-bottom:22px}
-.mono{padding:18px 20px;line-height:1.7}
-.readout{padding:12px 16px;margin-top:14px}
-ul.tight li{margin:7px 0}
-.small{font-size:.9rem;line-height:1.6}
-details.fold{margin-top:16px}
-.pumpinfo{margin-top:14px;line-height:1.6}
-.pres{padding:18px 32px 20px}
-.pres-in{max-width:1320px}
-@media (max-width:860px){header.hero{padding:28px 18px 8px}.toolbar,main{padding-left:18px;padding-right:18px}.card{padding:20px}canvas{height:300px}.grid2,.charts,.cols2{gap:20px}}
-@media (max-width:560px){html{font-size:100%}canvas{height:270px}}
-
-.chip-go{display:none}
-.toolbar{gap:12px 18px}
-.toolbar .btn{padding:10px 16px;font-size:.92rem;white-space:nowrap}
-.toolbar .seg span{padding:8px 13px;font-size:.92rem}
-.toolbar .grp{font-size:.88rem}
-.toolbar>#btn-home{margin-right:4px}
-@media (max-width:1100px){.toolbar>#btn-present{margin-left:0}}
-
-/* ===== página inicial ===== */
-html:not(.intro-on) #intro{display:none}
-html.intro-on header.hero,html.intro-on .toolbar,html.intro-on nav,html.intro-on main,html.intro-on .pres{display:none!important}
-#intro{max-width:1240px;margin:0 auto;padding:0 32px 80px}
-.in-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:26px 0}
-.in-brand{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:-.01em}
-.in-brand .mark{width:40px;height:40px}
-.in-top-actions{display:flex;align-items:center;gap:12px}
-.in-top-actions select{width:auto;padding:9px 12px}
-.in-top-actions .btn{white-space:nowrap;padding:10px 18px}
-.in-brand span{white-space:nowrap}
-.eyebrow{margin:0 0 14px;font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:var(--accent)}
-.in-hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:56px;align-items:center;min-height:min(78vh,720px);padding:36px 0 64px}
-.in-hero h1{font-size:clamp(2.1rem,4.6vw,3.6rem);line-height:1.08;letter-spacing:-.035em;margin:0 0 22px;font-weight:800}
-.lead{font-size:1.18rem;line-height:1.65;color:var(--muted);margin:0 0 32px;max-width:58ch}
-.in-cta{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:38px}
-button.btn.big{padding:16px 28px;font-size:1.05rem;border-radius:14px}
-.in-facts{display:flex;flex-wrap:wrap;gap:12px 40px;list-style:none;margin:0;padding:22px 0 0;border-top:1px solid var(--line)}
-.in-facts li{display:flex;flex-direction:column}
-.in-facts b{font-size:1.9rem;line-height:1.1;letter-spacing:-.02em}
-.in-facts span{font-size:.88rem;color:var(--muted)}
-/* arte */
-.in-hero-art{position:relative;aspect-ratio:1;max-width:460px;width:100%;margin-inline:auto;display:grid;place-items:center}
-.art-ring{position:absolute;border-radius:50%;border:1.5px dashed color-mix(in srgb,var(--accent) 45%,transparent)}
-.art-ring.r1{inset:0;animation:spin 40s linear infinite}
-.art-ring.r2{inset:11%;border-style:solid;border-color:color-mix(in srgb,var(--accent2) 30%,transparent);animation:spin 28s linear infinite reverse}
-.art-ring.r3{inset:24%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 16%,transparent),transparent 70%);border:0}
-.art-imp{width:46%;animation:spin 6s linear infinite;filter:drop-shadow(0 12px 28px color-mix(in srgb,var(--accent) 40%,transparent))}
-.in-hero-art:hover .art-imp{animation-duration:1.6s}
-.art-chip{position:absolute;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shadow-hover);font-size:.92rem;font-variant-numeric:tabular-nums;white-space:nowrap;animation:floaty 6s ease-in-out infinite}
-.art-chip span{color:var(--accent);font-weight:700}
-.art-chip.c1{top:6%;left:-4%}
-.art-chip.c2{bottom:12%;right:-6%;animation-delay:-2s}
-.art-chip.c3{bottom:-2%;left:6%;animation-delay:-4s}
-@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-/* seções */
-.in-sec{padding:72px 0;border-top:1px solid var(--line)}
-.in-head{max-width:760px;margin-bottom:38px}
-.in-head h2{margin:0;font-size:clamp(1.6rem,3vw,2.3rem);line-height:1.15;letter-spacing:-.025em}
-.in-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:36px}
-.in-cols p{margin:0;font-size:1.04rem;line-height:1.75;color:var(--muted)}
-.in-cols strong{color:var(--text)}
-.in-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.in-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:6px;padding:28px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--text);font:inherit;cursor:pointer;box-shadow:var(--shadow);transition:transform var(--ease),box-shadow var(--ease),border-color var(--ease)}
-.in-card.static{cursor:default;background:transparent;box-shadow:none;border-style:dashed}
-.in-card .n{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;margin-bottom:12px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-text)}
-.in-card h3{margin:0;font-size:1.2rem;letter-spacing:-.01em}
-.in-card p{margin:0 0 12px;color:var(--muted);line-height:1.65;font-size:.98rem}
-.in-card .go{margin-top:auto;font-weight:600;color:var(--accent);transition:transform var(--ease)}
-@media (hover:hover) and (pointer:fine){
-  .in-card:not(.static):hover{transform:translateY(-4px);box-shadow:var(--shadow-hover);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-  .in-card:not(.static):hover .go{transform:translateX(4px)}
-}
-.in-card:not(.static):active{transform:scale(.985)}
-.in-steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
-.in-steps li{display:flex;gap:18px;align-items:flex-start}
-.in-steps .n{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);font-weight:700;font-size:1.1rem}
-.in-steps h3{margin:2px 0 6px;font-size:1.15rem}
-.in-steps p{margin:0;color:var(--muted);line-height:1.65}
-.in-note{padding-top:0;border-top:0}
-.in-note-box{padding:32px 36px;border:1px solid var(--warn-line);border-radius:18px;background:var(--warn-bg)}
-.in-note-box h2{margin:0 0 10px;font-size:1.2rem}
-.in-note-box p{margin:0;line-height:1.7}
-.in-final{text-align:center;padding:72px 24px;border:1px solid var(--line);border-radius:28px;background:radial-gradient(600px 240px at 50% 0%,color-mix(in srgb,var(--accent) 14%,transparent),transparent 70%),var(--card);box-shadow:var(--shadow)}
-.in-final h2{margin:0 0 26px;font-size:clamp(1.6rem,3vw,2.3rem);letter-spacing:-.025em}
-.in-final .small{margin:18px 0 0}
-/* entrada da página inicial (uma vez) */
-.in-hero-text>*{animation:rise .6s var(--ease-out) both}
-.in-hero-text>:nth-child(2){animation-delay:.07s}.in-hero-text>:nth-child(3){animation-delay:.14s}.in-hero-text>:nth-child(4){animation-delay:.21s}.in-hero-text>:nth-child(5){animation-delay:.28s}
-.in-hero-art{animation:rise .8s .15s var(--ease-out) both}
-@media (max-width:960px){
-  .in-hero{grid-template-columns:1fr;gap:40px;min-height:0;padding-top:12px}
-  .in-hero-art{max-width:340px}
-  .in-cols,.in-steps{grid-template-columns:1fr}
-  .in-cards{grid-template-columns:1fr 1fr}
-  .art-chip.c1{left:0}.art-chip.c2{right:0}
-}
-@media (max-width:620px){
-  #intro{padding:0 18px 60px}
-  .in-cards{grid-template-columns:1fr}
-  .in-sec{padding:52px 0}
-  .in-top-actions select{display:none}
-  .in-cta .btn{width:100%}
-  .in-final{padding:48px 18px}
-}
-@media (prefers-reduced-motion: reduce){.art-ring,.art-imp,.art-chip,.in-hero-text>*,.in-hero-art{animation:none!important}}
-@media (prefers-reduced-motion: reduce){.mark-imp{animation:none!important}.panel.active .card,.brand,.live .chip,.toolbar,.msg{animation:none!important}nav .ind{transition:none}}
-</style>
-<style id="ui4">
-/* ===== paleta aquática ===== */
-:root{
-  --bg:#e8f3f8;--card:#ffffff;--text:#08283a;--muted:#4a6a7b;--line:#cde1ea;--grid:#dfecf2;
-  --accent:#0a6f96;--accent-text:#ffffff;--accent2:#12b5c9;--deep:#04384f;
-  --c1:#0369a1;--c2:#d97706;--c3:#059669;--c4:#db2777;--c5:#0891b2;--c6:#dc2626;--c7:#475569;
-  --pipe:#8aa8b8;--water:#22b8e8;--metal:#c3d6e0;
-  --shadow:0 1px 2px rgba(4,56,79,.06),0 6px 20px rgba(4,56,79,.08);
-  --shadow-hover:0 2px 4px rgba(4,56,79,.08),0 12px 28px rgba(4,56,79,.14);
-}
-:root[data-theme="dark"]{
-  --bg:#04101a;--card:#0a1e2d;--text:#e2f3fa;--muted:#8db0c3;--line:#16394c;--grid:#11303f;
-  --accent:#3cc3f5;--accent-text:#03202e;--accent2:#2dd4bf;--deep:#021018;
-  --c1:#38bdf8;--c2:#fbbf24;--c3:#4ade80;--c4:#f472b6;--c5:#2dd4bf;--c6:#f87171;--c7:#94a3b8;
-  --pipe:#3d6378;--water:#38bdf8;--metal:#244458;
-  --shadow:0 1px 2px rgba(0,0,0,.45),0 6px 20px rgba(0,0,0,.4);
-  --shadow-hover:0 2px 4px rgba(0,0,0,.5),0 12px 28px rgba(0,0,0,.5);
-}
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]):not([data-theme="dark"]){
-  --bg:#04101a;--card:#0a1e2d;--text:#e2f3fa;--muted:#8db0c3;--line:#16394c;--grid:#11303f;
-  --accent:#3cc3f5;--accent-text:#03202e;--accent2:#2dd4bf;--deep:#021018;
-  --c1:#38bdf8;--c2:#fbbf24;--c3:#4ade80;--c4:#f472b6;--c5:#2dd4bf;--c6:#f87171;--c7:#94a3b8;
-  --pipe:#3d6378;--water:#38bdf8;--metal:#244458;
-  --shadow:0 1px 2px rgba(0,0,0,.45),0 6px 20px rgba(0,0,0,.4);
-  --shadow-hover:0 2px 4px rgba(0,0,0,.5),0 12px 28px rgba(0,0,0,.5);
-}}
-body{background:
-  radial-gradient(900px 440px at 10% -140px,color-mix(in srgb,var(--accent) 20%,transparent),transparent 70%),
-  radial-gradient(800px 420px at 95% -180px,color-mix(in srgb,var(--accent2) 18%,transparent),transparent 70%),
-  linear-gradient(180deg,var(--bg) 0%,var(--bg) 45%,color-mix(in srgb,var(--bg) 82%,var(--accent)) 100%);
-  background-attachment:fixed}
-
-/* ===== oceano: ondas, bolhas e maré ===== */
-.ocean{position:fixed;left:0;right:0;bottom:0;height:min(30vh,300px);z-index:-1;pointer-events:none;overflow:hidden}
-.wave{position:absolute;left:0;bottom:0;width:200%;height:100%;fill:var(--accent);animation:drift 26s linear infinite}
-.wave.w1{opacity:.10;height:62%;animation-duration:20s}
-.wave.w2{opacity:.09;height:80%;fill:var(--accent2);animation-duration:32s;animation-direction:reverse}
-.wave.w3{opacity:.07;height:100%;animation-duration:44s}
-@keyframes drift{to{transform:translateX(-50%)}}
-.bubbles{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-.bub{position:absolute;bottom:-30px;border-radius:50%;border:1.5px solid color-mix(in srgb,var(--accent2) 55%,transparent);background:radial-gradient(circle at 30% 30%,color-mix(in srgb,#fff 45%,transparent),color-mix(in srgb,var(--accent2) 10%,transparent) 60%);opacity:0;animation:bubup linear infinite}
-@keyframes bubup{0%{transform:translate(0,0) scale(.7);opacity:0}10%{opacity:.85}50%{transform:translate(18px,-50vh) scale(1)}90%{opacity:.5}100%{transform:translate(-14px,-108vh) scale(1.08);opacity:0}}
-#tide{position:fixed;left:0;right:0;top:0;height:120vh;z-index:90;pointer-events:none;transform:translateY(105%);background:linear-gradient(180deg,var(--accent2),var(--accent) 35%,var(--deep));border-radius:50% 50% 0 0/90px 90px 0 0}
-#tide.run{animation:tide .95s cubic-bezier(.65,0,.35,1) both}
-@keyframes tide{0%{transform:translateY(105%)}45%,55%{transform:translateY(-8%)}100%{transform:translateY(-125%)}}
-
-/* ===== animações melhoradas ===== */
-/* aba: indicador líquido */
-nav .ind{background:linear-gradient(110deg,var(--accent),var(--accent2),var(--accent));background-size:220% 100%;animation:liquid 5s ease-in-out infinite;transition:transform .5s cubic-bezier(.34,1.3,.5,1),width .5s cubic-bezier(.34,1.3,.5,1)}
-@keyframes liquid{0%,100%{background-position:0 0}50%{background-position:100% 0}}
-/* botões: ondulação ao clicar e brilho ao passar */
-button.btn,.tab,.in-card{position:relative;overflow:hidden}
-.ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.28;transform:scale(0);pointer-events:none;animation:rip .7s cubic-bezier(.23,1,.32,1) forwards}
-@keyframes rip{to{transform:scale(1);opacity:0}}
-button.btn:not(.sec)::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-120%);pointer-events:none}
-@media (hover:hover){button.btn:not(.sec):hover::after{transform:translateX(120%);transition:transform .7s var(--ease-out)}}
-button.btn:not(.sec){background:linear-gradient(135deg,var(--accent),color-mix(in srgb,var(--accent) 65%,var(--accent2)))}
-/* métricas: linha d'água que corre */
-.metric{position:relative;overflow:hidden}
-.metric.flash{animation:flash .6s var(--ease-out)}
-@keyframes flash{0%{background:color-mix(in srgb,var(--accent2) 22%,var(--bg))}100%{background:var(--bg)}}
-/* cabeçalho: ondas de pressão na marca */
-.brand{position:relative}
-.mark{position:relative;z-index:1}
-.brand::before{content:"";position:absolute;left:0;top:50%;width:64px;height:64px;margin-top:-32px;border-radius:50%;border:2px solid var(--accent2);opacity:0;animation:pulse 3.2s ease-out infinite;z-index:0}
-@keyframes pulse{0%{transform:scale(.9);opacity:.55}100%{transform:scale(2);opacity:0}}
-/* chips ao vivo: respiração suave */
-.live .chip:not(.chip-go){animation:rise .55s var(--ease-out) both,bob 5s ease-in-out 1s infinite}
-.live .chip:nth-child(2){animation-delay:.1s,1.4s}.live .chip:nth-child(3){animation-delay:.15s,1.8s}.live .chip:nth-child(4){animation-delay:.2s,2.2s}
-@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-/* esquema: água viva */
-.sv-water{animation:shim 3.6s ease-in-out infinite}
-@keyframes shim{0%,100%{fill-opacity:.62}50%{fill-opacity:.86}}
-.sv-bub{fill:rgba(255,255,255,.55);stroke:rgba(255,255,255,.85);stroke-width:.8;animation:bsv 3.4s ease-in infinite;transform-box:fill-box}
-.sv-bub.b2{animation-duration:4.2s;animation-delay:-1.2s}.sv-bub.b3{animation-duration:2.9s;animation-delay:-2s}
-@keyframes bsv{0%{transform:translateY(0);opacity:0}15%{opacity:.9}100%{transform:translateY(-46px);opacity:0}}
-.sv-pump{transition:stroke .4s}
-/* sliders: pulso da bolinha */
-input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 7px color-mix(in srgb,var(--accent) 25%,transparent)}
-/* hero da introdução: ondas de superfície e entrada */
-.in-hero-art::before,.in-hero-art::after{content:"";position:absolute;inset:22%;border-radius:50%;border:2px solid var(--accent2);opacity:0;animation:ripple 4.5s ease-out infinite}
-.in-hero-art::after{animation-delay:2.25s}
-@keyframes ripple{0%{transform:scale(.7);opacity:.55}100%{transform:scale(1.7);opacity:0}}
-.art-ring.r3{animation:breathe 5s ease-in-out infinite}
-@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
-/* revelar ao rolar (só na introdução) */
-.rv{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease-out),transform .8s var(--ease-out);transition-delay:calc(var(--i,0) * 80ms)}
-.rv.in-view{opacity:1;transform:none}
-.msg{animation:none!important}
-.wave,.bub,#tide{will-change:transform}
-/* barra de apresentação e toasts */
-.toast{border:1px solid color-mix(in srgb,var(--accent2) 40%,transparent);background:linear-gradient(135deg,var(--deep),color-mix(in srgb,var(--deep) 70%,var(--accent)));color:#e8f8ff}
-html:not([data-theme="dark"]) .toast{color:#e8f8ff}
-.in-final{background:radial-gradient(700px 260px at 50% 0%,color-mix(in srgb,var(--accent2) 22%,transparent),transparent 70%),var(--card)}
-@media (prefers-reduced-motion: reduce){
-  .wave,.bub,#tide,.brand::before,.metric::after,.sv-bub,.sv-water,.in-hero-art::before,.in-hero-art::after,.art-ring.r3,nav .ind,.grad{animation:none!important}
-  .live .chip:not(.chip-go){animation:none!important}
-  .rv{opacity:1;transform:none;transition:none}
-  .bubbles,#tide{display:none}
-}
-</style>
-<style id="ui5">
-/* ===== componentes do tema "perdas de carga" ===== */
-.art-pipe{width:80%;filter:drop-shadow(0 12px 28px color-mix(in srgb,var(--accent) 35%,transparent))}
-.art-flow{animation:flowdash 1.2s linear infinite}
-@keyframes flowdash{to{stroke-dashoffset:-26}}
-.in-hero-art:hover .art-flow{animation-duration:.5s}
-.tchips{display:flex;flex-wrap:wrap;gap:10px}
-.tchip{border:1px solid var(--line);background:transparent;color:var(--text);padding:9px 16px;border-radius:999px;font:inherit;font-size:.92rem;cursor:pointer;transition:background var(--ease),color var(--ease),border-color var(--ease),transform var(--ease)}
-.tchip:hover{border-color:color-mix(in srgb,var(--accent) 50%,var(--line))}
-.tchip:active{transform:scale(.97)}
-.tchip[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);border-color:var(--accent);font-weight:600}
-table.acc td,table.acc th{padding:8px 8px}
-table.acc th:nth-child(n+2),table.acc td:nth-child(n+2){text-align:right}
-table.acc input{width:86px;padding:8px 10px;text-align:right}
-canvas.tall{height:520px}
-@media (max-width:860px){canvas.tall{height:380px}}
-tr.hl td{background:color-mix(in srgb,var(--accent2) 15%,transparent)}
-tr.tot td{font-weight:700;border-top:2px solid var(--line)}
-#sim-table th,#sim-table td{text-align:left;vertical-align:top;min-width:150px}
-#sim-table th:first-child,#sim-table td:first-child{min-width:190px;position:sticky;left:0;background:var(--card);z-index:1}
-#sim-table tr.key td{font-weight:700}
-button.btn.mini{padding:6px 10px;font-size:.78rem;margin-top:8px;white-space:normal;text-align:left}
-#schem{max-height:270px}
-.sv-flow2{fill:none;stroke:var(--water)}
-input[aria-invalid="true"]{border-color:var(--c6)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--c6) 22%,transparent)}
-.cols2>.card{margin-bottom:28px}
-code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.88em}
-@media print{#print-report pre{page-break-inside:auto}}
-button.btn.danger:not(.sec){background:transparent;color:var(--c6);border-color:var(--c6)}
-button.btn.danger:not(.sec):hover:not(:disabled){background:color-mix(in srgb,var(--c6) 12%,transparent);filter:none;box-shadow:none}
-button.btn.danger::after{display:none}
-@media (max-width:860px){.grid2{grid-template-columns:minmax(0,1fr)}.cols2{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:560px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{padding:14px}.metric .v{font-size:1.35rem}table.acc input{width:68px}}
-
-/* ===== menos ruído, mais hierarquia ===== */
-.eyebrow{display:none}
-.grad{color:var(--accent)}
-.card h2::before{display:none}
-.card h2{margin-bottom:18px}
-.card::after{display:none!important}
-.card:hover{transform:none;box-shadow:var(--shadow);border-color:var(--line)}
-.metric{border:1px solid var(--line);border-radius:12px}
-.metric::after{display:none}
-.metric:hover{transform:none;border-color:var(--line)}
-.metric .v{background:none;-webkit-text-fill-color:currentColor;color:var(--text)}
-.metric .v .u{-webkit-text-fill-color:var(--muted);color:var(--muted)}
-.metric.flash{animation:none}
-.chip{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--card);min-width:128px;padding:10px 16px}
-.chip::before{display:none}
-.chip .v{font-size:1.2rem}
-.live .chip:not(.chip-go){animation:rise .55s var(--ease-out) both}
-.art-chip{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--card)}
-.mark,.brand::before{filter:none}
-.brand::before{display:none}
-header.hero{padding-top:32px;gap:20px}
-.toolbar{margin-top:20px}
-nav{margin-top:22px}
-main{padding-top:26px}
-
-/* resumo do resultado */
-.summary{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px;align-items:stretch;margin-top:6px}
-.metrics.key{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.metrics.key .metric{padding:14px 16px}
-.metrics.key .metric .v{font-size:1.5rem}
-.flowfig{margin:0;display:flex;flex-direction:column;gap:8px;min-width:0}
-.flowcv{display:block;width:100%;height:150px;border:1px solid var(--line);border-radius:12px;background:var(--bg);touch-action:auto}
-#flow-mini{flex:1;min-height:150px;height:auto}
-.flowfig figcaption{margin:0;text-align:center}
-@media (max-width:760px){.summary{grid-template-columns:minmax(0,1fr)}#flow-mini{height:150px;flex:none}}
-
-/* detalhes recolhíveis */
-details.fold{border-top:1px solid var(--line);padding-top:14px;margin-top:20px}
-details.fold>summary,details.memo>summary{cursor:pointer;font-weight:600;color:var(--text);padding:2px 0;list-style-position:inside}
-details.fold>summary span{color:var(--muted);font-weight:400}
-details.fold[open]>summary{margin-bottom:14px}
-details.memo>summary{font-size:1.1rem;font-weight:700;letter-spacing:-.01em}
-details.fold h3{margin:18px 0 10px}
-.msg-more{margin:4px 0 8px}
-.msg-more>summary{cursor:pointer;font-size:.88rem;color:var(--muted);padding:2px 0}
-.msg-more[open]>summary{margin-bottom:6px}
-.card>details:only-child{margin:0}
-
-/* regimes */
-.reg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
-.reg{display:flex;flex-direction:column;gap:6px;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--bg);min-width:0}
-.reg .flowcv{height:170px;border-radius:10px;background:var(--card);margin-bottom:6px}
-.reg h3{margin:6px 0 0;font-size:1.1rem}
-.reg p{margin:0}
-.reg-now{color:var(--accent);font-weight:600;min-height:1.3em}
-.reg[data-now="true"]{border-color:var(--accent);outline:2px solid var(--accent);outline-offset:-1px}
-@media (max-width:860px){.reg3{grid-template-columns:minmax(0,1fr)}}
-
-/* extras: uma ferramenta por vez */
-.ex-nav{display:flex;max-width:100%;overflow-x:auto;margin-bottom:26px;box-shadow:none}
-.ex-nav label{flex:0 0 auto}
-.ex-panel[hidden]{display:none}
-
-/* introdução: lista em vez de grade de cartões iguais */
-.in-cards{grid-template-columns:minmax(0,1fr);gap:0;border-top:1px solid var(--line)}
-.in-card{display:grid;grid-template-columns:minmax(150px,220px) minmax(0,1fr) auto;align-items:center;gap:8px 28px;padding:22px 6px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;box-shadow:none}
-.in-card.static{border:0;border-bottom:1px solid var(--line);border-style:solid}
-.in-card h3{font-size:1.15rem}
-.in-card p{margin:0}
-.in-card .go{margin-top:0;white-space:nowrap}
-@media (hover:hover) and (pointer:fine){.in-card:not(.static):hover{transform:none;box-shadow:none;background:color-mix(in srgb,var(--accent) 6%,transparent);border-color:var(--line)}}
-@media (max-width:720px){.in-card{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
-
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="mk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#38c6f4"/><stop offset="1" stop-color="#19b3a6"/></linearGradient>
+    <symbol id="i-mark" viewBox="0 0 32 32"><rect width="32" height="32" rx="9" fill="url(#mk)"/><path d="M7 12h9a5 5 0 0 1 5 5v8" fill="none" stroke="#03202d" stroke-width="4.2" stroke-linecap="round"/><path d="M7 20h5" fill="none" stroke="#03202d" stroke-width="4.2" stroke-linecap="round" opacity=".45"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M8.5 7.5h7"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01" stroke-width="2.3"/></symbol>
+    <symbol id="i-moody" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M7.5 7c2.5 6 6.5 8.5 12 9"/></symbol>
+    <symbol id="i-curves" viewBox="0 0 24 24"><path d="M3.5 19c6 0 10-3.5 17-13"/><path d="M3.5 20.5c8 0 12-2.5 17-7"/></symbol>
+    <symbol id="i-sim" viewBox="0 0 24 24"><path d="M6 20V11M12 20V4M18 20v-6"/></symbol>
+    <symbol id="i-extras" viewBox="0 0 24 24"><path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="16" cy="7" r="2.6"/><circle cx="8" cy="17" r="2.6"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 6.5c-2-1.5-4.5-2-8-2v13c3.500 0 6 .5 8 2 2-1.500 4.500-2 8-2v-13c-3.500 0-6 .5-8 2z"/><path d="M12 6.5v13"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.500v2M2.500 12h2M19.500 12h2M5.300 5.300l1.400 1.400M17.300 17.300l1.400 1.400M5.300 18.700l1.400-1.400M17.300 6.700l1.400-1.400"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.300A8.200 8.200 0 0 1 9.700 4a7.500 7.500 0 1 0 10.300 10.300z"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 8.500V4h10v4.500"/><path d="M7 17H5.500A2.500 2.500 0 0 1 3 14.500v-3A3 3 0 0 1 6 8.500h12a3 3 0 0 1 3 3v3a2.500 2.500 0 0 1-2.500 2.500H17"/><path d="M7 14h10v6H7z"/></symbol>
+  </defs>
+</svg>
 <div class="ocean" aria-hidden="true">
-  <svg class="wave w3" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 60 C240 0 480 0 720 60 C960 120 1200 120 1440 60 C1680 0 1920 0 2160 60 C2400 120 2640 120 2880 60 V120 H0Z"/></svg>
   <svg class="wave w2" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 60 C240 0 480 0 720 60 C960 120 1200 120 1440 60 C1680 0 1920 0 2160 60 C2400 120 2640 120 2880 60 V120 H0Z"/></svg>
   <svg class="wave w1" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 60 C240 0 480 0 720 60 C960 120 1200 120 1440 60 C1680 0 1920 0 2160 60 C2400 120 2640 120 2880 60 V120 H0Z"/></svg>
 </div>
 <div class="bubbles" id="bubbles" aria-hidden="true"></div>
 <div id="tide" aria-hidden="true"></div>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><linearGradient id="mk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent2)"/></linearGradient></defs></svg>
 <a class="skip" href="#main">Pular para o conteúdo</a>
-
-<header class="hero">
-  <div class="brand">
-    <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-      <circle cx="24" cy="24" r="22" fill="none" stroke="url(#mk)" stroke-width="2.5"/>
-      <path d="M8 18 H30 Q40 18 40 28 V30" fill="none" stroke="url(#mk)" stroke-width="5" stroke-linecap="round"/>
-      <path d="M8 31 H22" fill="none" stroke="url(#mk)" stroke-width="5" stroke-linecap="round" opacity=".55"/>
-      <circle cx="24" cy="24" r="2" fill="var(--card)" opacity="0"/>
-    </svg>
-    <div>
-      <h1>Calculadora de <span class="grad">perdas de carga hidráulicas</span></h1>
-      <p class="sub">Projeto Final · Fenômenos de Transporte · Engenharia da Computação · CESUPA · tema: Perdas de carga hidráulicas</p>
-    </div>
-  </div>
-  <div class="live" id="hero-live" role="group" aria-label="Resultado atual do trecho selecionado e do sistema">
-    <div class="chip" data-chip="re"><span class="k">Reynolds</span><span class="v">—</span></div>
-    <div class="chip" data-chip="f"><span class="k">Fator de atrito</span><span class="v">—</span></div>
-    <div class="chip" data-chip="h"><span class="k">Perda total</span><span class="v">—</span></div>
-    <div class="chip" data-chip="dp"><span class="k">Queda de pressão</span><span class="v">—</span></div>
-    <button class="chip chip-go" type="button" id="chip-go" aria-label="Abrir a calculadora">Abrir</button>
-  </div>
-</header>
 <div id="toasts" aria-live="polite" aria-atomic="true"></div>
 
 <!-- ============ PÁGINA INICIAL ============ -->
 <div id="intro">
-  <div class="in-top">
-    <div class="in-brand">
-      <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><circle cx="24" cy="24" r="22" fill="none" stroke="url(#mk)" stroke-width="2.5"/><path d="M8 18 H30 Q40 18 40 28 V30" fill="none" stroke="url(#mk)" stroke-width="5" stroke-linecap="round"/><path d="M8 31 H22" fill="none" stroke="url(#mk)" stroke-width="5" stroke-linecap="round" opacity=".55"/></svg>
-      <span>Perdas de carga</span>
-    </div>
-    <div class="in-top-actions">
-      <select id="theme-intro" aria-label="Tema"><option value="auto">Tema automático</option><option value="light">Claro</option><option value="dark">Escuro</option></select>
+  <header class="in-top">
+    <div class="in-brand"><svg class="mark" aria-hidden="true"><use href="#i-mark"/></svg><span>Perdas de carga</span></div>
+    <div class="in-actions">
+      <button class="icon-btn plain theme-btn" type="button" aria-label="Alternar entre tema claro e escuro" title="Tema claro ou escuro"><svg class="ic i-sun" aria-hidden="true"><use href="#i-sun"/></svg><svg class="ic i-moon" aria-hidden="true"><use href="#i-moon"/></svg></button>
       <button class="btn" type="button" data-enter="calc">Abrir calculadora</button>
     </div>
-  </div>
+  </header>
 
   <section class="in-hero">
-    <div class="in-hero-text">
-            <h1>Quanta pressão a tubulação <span class="grad">consome só para a água passar?</span></h1>
-      <p class="lead">Este projeto é um programa de cálculo de perdas de carga hidráulicas. Você informa o fluido, a vazão, o diâmetro, o comprimento, o material e os acessórios; ele calcula a perda distribuída (Darcy-Weisbach), a perda localizada (coeficientes K) e mostra tudo no diagrama de Moody e em gráficos.</p>
-      <div class="in-cta">
-        <button class="btn big" type="button" data-enter="calc">Começar a calcular</button>
-        <button class="btn sec big" type="button" data-go="#in-conceito">Entender o projeto</button>
-      </div>
+    <h1>Quanta pressão a tubulação consome <em>só para a água passar?</em></h1>
+    <p class="lead">Um programa de cálculo de perdas de carga hidráulicas: você informa fluido, vazão, diâmetro, comprimento, material e acessórios, e ele calcula a perda distribuída (Darcy-Weisbach) e a localizada (coeficientes K), com diagrama de Moody e gráficos.</p>
+    <div class="in-cta">
+      <button class="btn big" type="button" data-enter="calc">Começar a calcular</button>
+      <button class="btn sec big" type="button" data-go="#in-conceito">Como funciona</button>
     </div>
-    <div class="in-hero-art" aria-hidden="true">
-      <div class="art-ring r1"></div><div class="art-ring r2"></div><div class="art-ring r3"></div>
-      <svg class="art-pipe" viewBox="0 0 220 160"><defs><linearGradient id="pp" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--accent2)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs>
-        <path d="M10 40 H130 Q170 40 170 80 V120" fill="none" stroke="var(--pipe)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-        <path class="art-flow" d="M10 40 H130 Q170 40 170 80 V120" fill="none" stroke="url(#pp)" stroke-width="9" stroke-linecap="round" stroke-dasharray="14 12"/>
-        <rect x="64" y="22" width="12" height="36" rx="3" fill="var(--card)" stroke="var(--text)" stroke-width="2"/>
-        <rect x="150" y="62" width="40" height="12" rx="3" fill="var(--card)" stroke="var(--text)" stroke-width="2"/></svg>
-      <div class="art-chip c1"><span>h<sub>f</sub></span> = f · L/D · v²/2g</div>
-      <div class="art-chip c2"><span>h<sub>L</sub></span> = ΣK · v²/2g</div>
-      <div class="art-chip c3"><span>Re</span> = ρ · v · D / μ</div>
+  </section>
+
+  <section class="demo" aria-label="Demonstração interativa: mude a vazão e veja o regime de escoamento">
+    <div class="demo-pipe"><canvas id="demo-flow" class="flowcv" aria-hidden="true"></canvas></div>
+    <div class="demo-ctl">
+      <div class="demo-slider">
+        <div class="demo-lab"><label for="demo-q">Arraste a vazão</label><output id="demo-qv" for="demo-q"></output></div>
+        <input type="range" id="demo-q" min="0" max="1000" step="1" value="720">
+        <p class="small">Água a 20 °C em tubo de PVC de 50 mm.</p>
+      </div>
+      <dl class="demo-read">
+        <div><dt>Regime</dt><dd id="demo-reg">—</dd></div>
+        <div><dt>Reynolds</dt><dd id="demo-re">—</dd></div>
+        <div><dt>Fator de atrito</dt><dd id="demo-f">—</dd></div>
+        <div><dt>Perda em 100 m</dt><dd id="demo-h">—</dd></div>
+      </dl>
     </div>
   </section>
 
   <section class="in-sec" id="in-conceito">
-    <div class="in-head"><h2>Cada metro de tubo e cada curva custam pressão</h2></div>
-    <div class="in-cols">
-      <p>Quando um fluido escoa, ele perde energia por atrito nas paredes (<strong>perda distribuída</strong>) e por turbulência em curvas, válvulas, tês e entradas (<strong>perda localizada</strong>). Essa energia perdida precisa ser fornecida por uma bomba ou pela altura do reservatório.</p>
-      <p>O programa calcula a velocidade, o número de Reynolds e o regime de escoamento. Em seguida obtém o fator de atrito: <strong>64/Re</strong> no regime laminar e <strong>Colebrook-White</strong> (resolvido por iteração) no turbulento, conferindo com a fórmula explícita de Swamee-Jain.</p>
-      <p>Depois soma as perdas de cada trecho em série, converte em queda de pressão e mostra a memória de cálculo passo a passo, pronta para copiar para o relatório.</p>
+    <h2>Cada metro de tubo e cada curva custam pressão</h2>
+    <div class="in-two">
+      <div class="in-text">
+        <p>Quando um fluido escoa, ele perde energia por atrito nas paredes (<strong>perda distribuída</strong>) e por turbulência em curvas, válvulas, tês e entradas (<strong>perda localizada</strong>). Essa energia precisa vir de uma bomba ou da altura do reservatório.</p>
+        <p>O programa calcula a velocidade, o número de Reynolds e o regime. Depois obtém o fator de atrito: <strong>64/Re</strong> no regime laminar e <strong>Colebrook-White</strong>, resolvido por iteração, no turbulento, conferindo com a fórmula explícita de Swamee-Jain.</p>
+        <p>Por fim soma as perdas dos trechos em série, converte em queda de pressão e mostra a memória de cálculo passo a passo, pronta para o relatório.</p>
+      </div>
+      <dl class="formulas">
+        <div><dt>Reynolds</dt><dd>Re = ρ · v · D / μ</dd></div>
+        <div><dt>Perda distribuída</dt><dd>h<sub>f</sub> = f · (L/D) · v²/2g</dd></div>
+        <div><dt>Perda localizada</dt><dd>h<sub>L</sub> = ΣK · v²/2g</dd></div>
+        <div><dt>Queda de pressão</dt><dd>Δp = ρ · g · (h<sub>f</sub> + h<sub>L</sub>)</dd></div>
+      </dl>
     </div>
   </section>
 
   <section class="in-sec">
-    <div class="in-head"><h2>Seis seções, do cálculo simples às decisões de projeto</h2></div>
+    <h2>Seis seções, do cálculo simples às decisões de projeto</h2>
     <div class="in-cards">
-      <button class="in-card" type="button" data-enter="calc"><h3>Calculadora</h3><p>Fluido, vazão, trechos em série, material e acessórios com K editáveis. Resultados em tempo real e memória de cálculo.</p><span class="go">Abrir</span></button>
+      <button class="in-card" type="button" data-enter="calc"><h3>Calculadora</h3><p>Fluido, vazão, trechos em série, material e acessórios com K editáveis. Resultado em tempo real e memória de cálculo.</p><span class="go">Abrir</span></button>
       <button class="in-card" type="button" data-enter="moody"><h3>Diagrama de Moody</h3><p>O ponto de operação aparece no diagrama e se move quando você muda vazão, diâmetro ou material.</p><span class="go">Abrir</span></button>
-      <button class="in-card" type="button" data-enter="curvas"><h3>Curvas</h3><p>Perda de carga em função da vazão para vários diâmetros, e barras empilhadas com a contribuição do tubo e de cada acessório.</p><span class="go">Abrir</span></button>
+      <button class="in-card" type="button" data-enter="curvas"><h3>Curvas</h3><p>Perda de carga em função da vazão para vários diâmetros, e a contribuição do tubo e de cada acessório.</p><span class="go">Abrir</span></button>
       <button class="in-card" type="button" data-enter="sim"><h3>Simulações</h3><p>Três situações prontas e editáveis: água em PVC turbulento, óleo laminar e o mesmo sistema com outro diâmetro.</p><span class="go">Abrir</span></button>
-      <button class="in-card" type="button" data-enter="extras"><h3>Extras</h3><p>Hazen-Williams, potência da bomba e custo de energia, diâmetro econômico, envelhecimento do tubo e “o que mudar?”.</p><span class="go">Abrir</span></button>
+      <button class="in-card" type="button" data-enter="extras"><h3>Extras</h3><p>Potência da bomba e custo de energia, o que mudar, diâmetro econômico, envelhecimento do tubo e Hazen-Williams.</p><span class="go">Abrir</span></button>
       <button class="in-card" type="button" data-enter="teoria"><h3>Teoria</h3><p>Equações, hipóteses, limitações e sugestões de referências para o relatório.</p><span class="go">Abrir</span></button>
     </div>
   </section>
 
-  <section class="in-sec">
-    <div class="in-head"><h2>Três passos</h2></div>
-    <ol class="in-steps">
-      <li><div><h3>Descreva o sistema</h3><p>Escolha o fluido e o material, informe vazão, diâmetro e comprimento e marque os acessórios de cada trecho.</p></div></li>
-      <li><div><h3>Mexa nos controles</h3><p>Sliders e campos atualizam tudo na hora. Veja o ponto andar no Moody e as curvas mudarem.</p></div></li>
-      <li><div><h3>Compare e documente</h3><p>Use as simulações, copie a memória de cálculo e exporte CSV ou imprima o relatório.</p></div></li>
-    </ol>
-  </section>
-
-  <section class="in-sec in-note">
-    <div class="in-note-box">
-      <h2>Antes de usar</h2>
-      <p>Os dados dos cenários prontos (vazões, diâmetros, comprimentos, acessórios, preços e tarifa) são <strong>hipotéticos</strong>, e os coeficientes K, as rugosidades e as propriedades dos fluidos são <strong>valores típicos de livros</strong>: confira na fonte antes de citar. Tudo pode ser editado na própria tela.</p>
+  <section class="in-end">
+    <div>
+      <h2>Os dados de exemplo são hipotéticos</h2>
+      <p>Vazões, diâmetros, comprimentos, preços e tarifa dos cenários prontos são de demonstração, e os coeficientes K, as rugosidades e as propriedades dos fluidos são valores típicos de livros. Confira na fonte antes de citar; tudo pode ser editado na própria tela.</p>
     </div>
-  </section>
-
-  <section class="in-final">
-    <h2>Pronto para calcular a primeira perda de carga?</h2>
     <button class="btn big" type="button" data-enter="calc">Abrir a calculadora</button>
-    <p class="small">Tudo roda no seu navegador. Nada é enviado a servidores.</p>
   </section>
+
+  <footer class="in-foot">Projeto Final · Fenômenos de Transporte · Engenharia da Computação · CESUPA. Tudo roda no seu navegador; nada é enviado a servidores.</footer>
 </div>
 
-<div class="toolbar" role="group" aria-label="Preferências e ações">
-  <button class="btn sec" id="btn-home" type="button">Página inicial</button>
-  <div class="grp"><span id="lb-uq">Vazão:</span>
-    <div class="seg" role="radiogroup" aria-labelledby="lb-uq">
-      <label><input type="radio" name="uq" value="m3h" checked><span>m³/h</span></label>
-      <label><input type="radio" name="uq" value="Ls"><span>L/s</span></label>
-    </div></div>
-  <div class="grp"><label for="theme" style="margin:0">Tema:</label>
-    <select id="theme"><option value="auto">Automático</option><option value="light">Claro</option><option value="dark">Escuro</option></select></div>
-  <button class="btn sec" id="btn-print" type="button" style="margin-left:auto">Imprimir relatório</button>
-</div>
+<!-- ============ APLICAÇÃO ============ -->
+<div id="app">
+  <h1 class="sr-only">Calculadora de perdas de carga hidráulicas</h1>
+  <header class="topbar">
+    <button class="brand" id="btn-home" type="button" title="Voltar à página inicial"><svg class="mark" aria-hidden="true"><use href="#i-mark"/></svg><span>Perdas de carga</span></button>
+    <nav role="tablist" aria-label="Seções">
+      <button class="tab" role="tab" id="tabbtn-calc" aria-controls="tab-calc" data-tab="calc" aria-selected="true" aria-label="Calculadora"><svg class="ic" aria-hidden="true"><use href="#i-calc"/></svg><span class="lf">Calculadora</span><span class="ls" aria-hidden="true">Cálculo</span></button>
+      <button class="tab" role="tab" id="tabbtn-moody" aria-controls="tab-moody" data-tab="moody" aria-selected="false" tabindex="-1" aria-label="Moody"><svg class="ic" aria-hidden="true"><use href="#i-moody"/></svg><span class="lf">Moody</span><span class="ls" aria-hidden="true">Moody</span></button>
+      <button class="tab" role="tab" id="tabbtn-curvas" aria-controls="tab-curvas" data-tab="curvas" aria-selected="false" tabindex="-1" aria-label="Curvas"><svg class="ic" aria-hidden="true"><use href="#i-curves"/></svg><span class="lf">Curvas</span><span class="ls" aria-hidden="true">Curvas</span></button>
+      <button class="tab" role="tab" id="tabbtn-sim" aria-controls="tab-sim" data-tab="sim" aria-selected="false" tabindex="-1" aria-label="Simulações"><svg class="ic" aria-hidden="true"><use href="#i-sim"/></svg><span class="lf">Simulações</span><span class="ls" aria-hidden="true">Simular</span></button>
+      <button class="tab" role="tab" id="tabbtn-extras" aria-controls="tab-extras" data-tab="extras" aria-selected="false" tabindex="-1" aria-label="Extras"><svg class="ic" aria-hidden="true"><use href="#i-extras"/></svg><span class="lf">Extras</span><span class="ls" aria-hidden="true">Extras</span></button>
+      <button class="tab" role="tab" id="tabbtn-teoria" aria-controls="tab-teoria" data-tab="teoria" aria-selected="false" tabindex="-1" aria-label="Teoria"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg><span class="lf">Teoria</span><span class="ls" aria-hidden="true">Teoria</span></button>
+    </nav>
+    <div class="tools">
+      <div class="seg" role="radiogroup" aria-label="Unidade de vazão">
+        <label><input type="radio" name="uq" value="m3h" checked><span>m³/h</span></label>
+        <label><input type="radio" name="uq" value="Ls"><span>L/s</span></label>
+      </div>
+      <button class="icon-btn theme-btn" type="button" aria-label="Alternar entre tema claro e escuro" title="Tema claro ou escuro"><svg class="ic i-sun" aria-hidden="true"><use href="#i-sun"/></svg><svg class="ic i-moon" aria-hidden="true"><use href="#i-moon"/></svg></button>
+      <button class="icon-btn" id="btn-print" type="button" aria-label="Imprimir relatório" title="Imprimir relatório"><svg class="ic" aria-hidden="true"><use href="#i-print"/></svg></button>
+    </div>
+  </header>
 
-<nav role="tablist" aria-label="Seções">
-  <button class="tab" role="tab" id="tabbtn-calc" aria-controls="tab-calc" data-tab="calc" aria-selected="true">Calculadora</button>
-  <button class="tab" role="tab" id="tabbtn-moody" aria-controls="tab-moody" data-tab="moody" aria-selected="false" tabindex="-1">Moody</button>
-  <button class="tab" role="tab" id="tabbtn-curvas" aria-controls="tab-curvas" data-tab="curvas" aria-selected="false" tabindex="-1">Curvas</button>
-  <button class="tab" role="tab" id="tabbtn-sim" aria-controls="tab-sim" data-tab="sim" aria-selected="false" tabindex="-1">Simulações</button>
-  <button class="tab" role="tab" id="tabbtn-extras" aria-controls="tab-extras" data-tab="extras" aria-selected="false" tabindex="-1">Extras</button>
-  <button class="tab" role="tab" id="tabbtn-teoria" aria-controls="tab-teoria" data-tab="teoria" aria-selected="false" tabindex="-1">Teoria</button>
-</nav>
+  <div class="readout" id="hero-live" role="group" aria-label="Resultado atual">
+    <span class="ro-t" id="ro-t"></span>
+    <div class="chip" data-chip="h"><span class="k">Perda</span><span class="v">—</span></div>
+    <div class="chip" data-chip="dp"><span class="k">Δp</span><span class="v">—</span></div>
+    <div class="chip" data-chip="re"><span class="k">Re</span><span class="v">—</span></div>
+    <div class="chip" data-chip="f"><span class="k">f</span><span class="v">—</span></div>
+  </div>
 
-<main id="main">
+  <main id="main">
 
 <!-- ============ 1. CALCULADORA ============ -->
 <section id="tab-calc" class="panel active" role="tabpanel" aria-labelledby="tabbtn-calc">
+  <header class="ph"><h2>Calculadora</h2><p>Descreva o fluido, a vazão e os trechos. Tudo recalcula enquanto você mexe.</p></header>
   <div class="grid2">
     <div>
       <div class="card">
-        <h2>Fluido e vazão</h2>
+        <h3>Fluido e vazão</h3>
         <div class="fields">
           <div class="full"><label for="fl-sel">Fluido</label><select id="fl-sel"></select></div>
           <div><label for="fl-rho">Massa específica ρ (kg/m³)</label><input id="fl-rho" type="text" inputmode="decimal"></div>
           <div><label for="fl-mu">Viscosidade μ (mPa·s)</label><input id="fl-mu" type="text" inputmode="decimal"></div>
         </div>
-        <div style="margin-top:20px" data-ctl="Q"></div>
-        <p class="small" style="margin-bottom:0">Valores típicos de tabelas, editáveis. A mesma vazão atravessa todos os trechos em série.</p>
+        <div class="ctl-gap" data-ctl="Q"></div>
+        <p class="small">Valores típicos de tabelas, editáveis. A mesma vazão atravessa todos os trechos em série.</p>
       </div>
 
       <div class="card">
-        <h2 id="t-title">Trecho</h2>
+        <h3 id="t-title">Trecho</h3>
         <div class="tchips" id="tchips" aria-label="Trechos"></div>
-        <div class="row" style="margin-top:12px">
-          <button class="btn sec" id="t-add" type="button">Adicionar trecho</button>
-          <button class="btn danger" id="t-del" type="button">Remover este</button>
+        <div class="row tight">
+          <button class="btn sec sm" id="t-add" type="button">Adicionar trecho</button>
+          <button class="btn danger sm" id="t-del" type="button">Remover este</button>
         </div>
-        <div class="fields" style="margin-top:20px">
+        <div class="fields ctl-gap">
           <div><label for="t-nome">Nome</label><input id="t-nome" type="text" maxlength="30"></div>
           <div><label for="t-mat">Material</label><select id="t-mat" data-mat></select></div>
         </div>
-        <div style="margin-top:20px" data-ctl="D"></div>
+        <div class="ctl-gap" data-ctl="D"></div>
         <div data-ctl="L"></div>
         <div data-ctl="eps"></div>
         <details class="fold" id="acc-det">
           <summary>Acessórios <span id="acc-sum"></span></summary>
           <div class="tablewrap"><table class="acc" id="acc-table">
             <thead><tr><th>Acessório</th><th>K</th><th>Qtd.</th></tr></thead><tbody id="acc-body"></tbody></table></div>
-          <div class="row" style="margin-top:12px"><button class="btn sec" id="k-reset" type="button">Restaurar K típicos</button></div>
-          <p class="small" style="margin-bottom:0"><strong>Valores típicos de livros: conferir na fonte.</strong> Os K são editáveis e valem para todos os trechos.</p>
+          <div class="row tight"><button class="btn sec sm" id="k-reset" type="button">Restaurar K típicos</button></div>
+          <p class="small"><strong>Valores típicos de livros: conferir na fonte.</strong> Os K são editáveis e valem para todos os trechos.</p>
         </details>
       </div>
     </div>
 
     <div>
-      <div class="card">
-        <h2>Resultado</h2>
-        <div id="calc-msg"></div>
-        <div class="summary">
-          <div class="metrics key" id="calc-key"></div>
-          <figure class="flowfig">
-            <canvas id="flow-mini" class="flowcv" aria-hidden="true"></canvas>
-            <figcaption id="flow-cap" class="small"></figcaption>
-          </figure>
+      <div class="card result">
+        <h3 class="sr-only">Resultado</h3>
+        <div class="flowwrap">
+          <canvas id="flow-mini" class="flowcv" aria-hidden="true"></canvas>
+          <span class="flowtag" id="flow-cap"></span>
         </div>
-        <details class="fold more">
-          <summary>Mais detalhes</summary>
-          <h3>Trecho selecionado</h3>
-          <div class="metrics" id="calc-metrics-t"></div>
-          <h3>Sistema</h3>
-          <div class="metrics" id="calc-metrics-s"></div>
-          <div class="tablewrap" id="tr-table-wrap" style="margin-top:16px" hidden><table id="tr-table"></table></div>
-        </details>
-        <div class="row" style="margin-top:20px">
-          <button class="btn sec" id="calc-copy" type="button">Copiar memória de cálculo</button>
-          <button class="btn sec" id="calc-csv" type="button">Baixar CSV</button>
+        <div class="result-body">
+          <div class="key" id="calc-key"></div>
+          <div id="calc-msg"></div>
+          <details class="fold more">
+            <summary>Mais detalhes</summary>
+            <h4>Trecho selecionado</h4>
+            <div class="metrics" id="calc-metrics-t"></div>
+            <h4>Sistema</h4>
+            <div class="metrics" id="calc-metrics-s"></div>
+            <div class="tablewrap" id="tr-table-wrap" hidden><table id="tr-table"></table></div>
+          </details>
+          <div class="row actions">
+            <button class="btn sec" id="calc-copy" type="button">Copiar memória de cálculo</button>
+            <button class="btn sec" id="calc-csv" type="button">Baixar CSV</button>
+          </div>
+          <p class="small" id="dl-status" role="status" aria-live="polite"></p>
         </div>
-        <p class="small" id="dl-status" role="status" aria-live="polite" style="margin-bottom:0"></p>
       </div>
       <div class="card">
-        <h2>Esquema da tubulação</h2>
+        <h3>Esquema da tubulação</h3>
         <svg id="schem" viewBox="0 0 760 170" role="img" aria-labelledby="schem-title"><title id="schem-title">Esquema da tubulação</title></svg>
-        <div class="row" style="margin-top:8px"><button class="btn sec" id="btn-anim" type="button" aria-pressed="false">Pausar animação</button>
+        <div class="row tight"><button class="btn sec sm" id="btn-anim" type="button" aria-pressed="false">Pausar animação</button>
           <span class="small">Espessura = diâmetro, velocidade do fluxo = v, cor mais quente = maior participação na perda.</span></div>
       </div>
       <div class="card">
-        <details class="memo">
+        <details class="fold memo">
           <summary>Memória de cálculo passo a passo</summary>
-          <div class="mono" id="calc-steps" style="margin-top:14px"></div>
+          <div class="mono" id="calc-steps"></div>
         </details>
       </div>
     </div>
@@ -845,10 +629,11 @@ details.fold h3{margin:18px 0 10px}
 
 <!-- ============ 2. MOODY ============ -->
 <section id="tab-moody" class="panel" role="tabpanel" aria-labelledby="tabbtn-moody">
+  <header class="ph"><h2>Diagrama de Moody</h2><p>Onde o seu escoamento cai no diagrama, e como a água se comporta em cada regime.</p></header>
   <div class="grid2">
     <div>
       <div class="card">
-        <h2>Controles</h2>
+        <h3>Controles</h3>
         <div data-ctl="Q"></div>
         <div data-ctl="D"></div>
         <label for="m-mat">Material do trecho selecionado</label>
@@ -857,36 +642,36 @@ details.fold h3{margin:18px 0 10px}
         <p class="small" style="margin-bottom:0" id="m-trecho"></p>
       </div>
       <div class="card">
-        <h2>Leitura do ponto</h2>
+        <h3>Leitura do ponto</h3>
         <div class="metrics" id="m-metrics"></div>
       </div>
     </div>
     <div>
       <div class="card">
-        <h2>Diagrama de Moody</h2>
+        <h3>Seu ponto no diagrama</h3>
         <canvas id="ch-moody" class="tall" role="img" aria-label="Diagrama de Moody com o ponto de operação"></canvas>
         <p class="small" style="margin:10px 0 0">Passe o mouse (ou o dedo) para ler Re, f e ε/D. A faixa cinza é a transição (2300 a 4000). Os pontos numerados são os trechos; o destacado é o selecionado.</p>
       </div>
     </div>
   </div>
   <div class="card" id="reg-card">
-    <h2>Como a água escoa em cada regime</h2>
+    <h3>Como a água escoa em cada regime</h3>
     <div class="reg3">
       <div class="reg" data-reg="laminar">
         <canvas class="flowcv" data-reg="laminar" aria-hidden="true"></canvas>
-        <h3>Laminar</h3>
+        <h4>Laminar</h4>
         <p class="small">Re &lt; 2300. Camadas paralelas deslizam sem se misturar; o centro corre mais que a parede. f = 64/Re.</p>
         <p class="reg-now small"></p>
       </div>
       <div class="reg" data-reg="transicao">
         <canvas class="flowcv" data-reg="transicao" aria-hidden="true"></canvas>
-        <h3>Transição</h3>
+        <h4>Transição</h4>
         <p class="small">2300 a 4000. O escoamento ordenado é interrompido por rajadas turbulentas que vão e vêm. f é incerto.</p>
         <p class="reg-now small"></p>
       </div>
       <div class="reg" data-reg="turbulento">
         <canvas class="flowcv" data-reg="turbulento" aria-hidden="true"></canvas>
-        <h3>Turbulento</h3>
+        <h4>Turbulento</h4>
         <p class="small">Re &gt; 4000. Redemoinhos misturam o fluido e achatam o perfil de velocidade. f por Colebrook-White.</p>
         <p class="reg-now small"></p>
       </div>
@@ -896,8 +681,9 @@ details.fold h3{margin:18px 0 10px}
 
 <!-- ============ 3. CURVAS ============ -->
 <section id="tab-curvas" class="panel" role="tabpanel" aria-labelledby="tabbtn-curvas">
+  <header class="ph"><h2>Curvas de perda de carga</h2><p>Como a perda cresce com a vazão em cada diâmetro, e de onde ela vem.</p></header>
   <div class="card">
-    <h2>Perda de carga × vazão</h2>
+    <h3>Perda de carga × vazão</h3>
     <div class="fields" style="max-width:760px">
       <div><label for="cv-d">Diâmetros comparados (mm, separados por vírgula)</label><input id="cv-d" type="text" value="25, 32, 40, 50, 75, 100"></div>
       <div data-ctl="Qmax"></div>
@@ -907,7 +693,7 @@ details.fold h3{margin:18px 0 10px}
     <p class="small" style="margin:8px 0 0">Usa o fluido, o material, o comprimento e os acessórios do trecho selecionado. A linha mais grossa é o diâmetro atual e o ponto marca a vazão atual. Em escala log-log o trecho turbulento aparece quase reto, com inclinação próxima de 2.</p>
   </div>
   <div class="card">
-    <h2>De onde vem a perda</h2>
+    <h3>De onde vem a perda</h3>
     <canvas id="ch-stack" role="img" aria-label="Barras empilhadas com a perda no tubo e em cada acessório"></canvas>
     <p class="small" style="margin:8px 0 0">Cada barra é um trecho (e o total, se houver mais de um): atrito no tubo mais a perda de cada tipo de acessório, em metros de coluna de fluido.</p>
   </div>
@@ -915,25 +701,27 @@ details.fold h3{margin:18px 0 10px}
 
 <!-- ============ 4. SIMULAÇÕES ============ -->
 <section id="tab-sim" class="panel" role="tabpanel" aria-labelledby="tabbtn-sim">
+  <header class="ph"><h2>Simulações</h2><p>Três situações prontas, lado a lado com o seu cálculo atual.</p></header>
   <div class="card">
-    <h2>Comparação dos cenários</h2>
+    <h3>Comparação dos cenários</h3>
     <p class="small" style="margin-top:0"><strong>Dados hipotéticos/típicos de demonstração:</strong> troque por dados reais e cite as fontes. Cenários 1 a 3 são as simulações pedidas; o 4 é um extra (tubo envelhecido). A coluna “Atual” segue a Calculadora. Custo de energia com os parâmetros da aba Extras.</p>
-    <div class="row" style="margin-bottom:12px"><button class="btn sec" id="sim-more" type="button" aria-pressed="false">Mostrar todos os indicadores</button></div>
+    <div class="row" style="margin:14px 0 12px"><button class="btn sec" id="sim-more" type="button" aria-pressed="false">Mostrar todos os indicadores</button></div>
     <div class="tablewrap"><table id="sim-table"></table></div>
     <div class="row" style="margin-top:16px"><button class="btn sec" id="sim-copy" type="button">Copiar tabela</button><button class="btn sec" id="sim-csv" type="button">Baixar tabela (CSV)</button></div>
   </div>
   <div class="card">
-    <h2>Leitura dos resultados</h2>
+    <h3>Leitura dos resultados</h3>
     <ul class="tight" id="sim-notes"></ul>
   </div>
   <div class="cols2">
-    <div class="card"><h2>Perda total (m): distribuída e localizada</h2><canvas id="ch-simh" role="img" aria-label="Perda distribuída e localizada por cenário"></canvas></div>
-    <div class="card"><h2>Custo anual de energia (R$)</h2><canvas id="ch-simc" role="img" aria-label="Custo anual de energia por cenário"></canvas></div>
+    <div class="card"><h3>Perda total (m): distribuída e localizada</h3><canvas id="ch-simh" role="img" aria-label="Perda distribuída e localizada por cenário"></canvas></div>
+    <div class="card"><h3>Custo anual de energia (R$)</h3><canvas id="ch-simc" role="img" aria-label="Custo anual de energia por cenário"></canvas></div>
   </div>
 </section>
 
 <!-- ============ 5. EXTRAS ============ -->
 <section id="tab-extras" class="panel" role="tabpanel" aria-labelledby="tabbtn-extras">
+  <header class="ph"><h2>Ferramentas extras</h2><p>Energia, melhorias, diâmetro econômico, envelhecimento e Hazen-Williams.</p></header>
   <div class="seg ex-nav" role="radiogroup" aria-label="Ferramenta extra">
     <label><input type="radio" name="ex" value="energia" checked><span>Bomba e energia</span></label>
     <label><input type="radio" name="ex" value="mudar"><span>O que mudar?</span></label>
@@ -944,7 +732,7 @@ details.fold h3{margin:18px 0 10px}
 
   <div class="ex-panel" data-ex="energia">
     <div class="card">
-      <h2>Bomba e energia</h2>
+      <h3>Bomba e energia</h3>
       <div class="fields" style="max-width:760px">
         <div><label for="e-etab">Rendimento da bomba (%)</label><input id="e-etab" type="text" inputmode="decimal"></div>
         <div><label for="e-etam">Rendimento do motor (%)</label><input id="e-etam" type="text" inputmode="decimal"></div>
@@ -959,10 +747,10 @@ details.fold h3{margin:18px 0 10px}
 
   <div class="ex-panel" data-ex="mudar" hidden>
     <div class="card">
-      <h2>O que mudar?</h2>
+      <h3>O que mudar?</h3>
       <div class="cols2">
-        <div><h3 style="margin-top:0">Quem mais consome</h3><div class="tablewrap"><table id="wc-contrib"></table></div></div>
-        <div><h3 style="margin-top:0">Melhorias testadas</h3><div class="tablewrap"><table id="wc-tests"></table></div></div>
+        <div><h4 style="margin-top:0">Quem mais consome</h4><div class="tablewrap"><table id="wc-contrib"></table></div></div>
+        <div><h4 style="margin-top:0">Melhorias testadas</h4><div class="tablewrap"><table id="wc-tests"></table></div></div>
       </div>
       <p class="small" style="margin-bottom:0">Cada melhoria é recalculada sozinha, com a mesma vazão. Os preços não entram: a decisão final depende de custo e disponibilidade.</p>
     </div>
@@ -970,8 +758,8 @@ details.fold h3{margin:18px 0 10px}
 
   <div class="ex-panel" data-ex="econ" hidden>
     <div class="card">
-      <h2>Diâmetro econômico</h2>
-      <div class="fields" style="max-width:820px">
+      <h3>Diâmetro econômico</h3>
+      <div class="fields three">
         <div><label for="d-c100">Custo do tubo de 100 mm (R$/m)</label><input id="d-c100" type="text" inputmode="decimal"></div>
         <div><label for="d-n">Expoente do custo (C ∝ D<sup>n</sup>)</label><input id="d-n" type="text" inputmode="decimal"></div>
         <div><label for="d-fa">Anualização do investimento (%/ano)</label><input id="d-fa" type="text" inputmode="decimal"></div>
@@ -985,7 +773,7 @@ details.fold h3{margin:18px 0 10px}
 
   <div class="ex-panel" data-ex="aging" hidden>
     <div class="card">
-      <h2>Envelhecimento do tubo</h2>
+      <h3>Envelhecimento do tubo</h3>
       <div class="fields" style="max-width:820px">
         <div><label for="a-rate">Aumento da rugosidade (mm/ano)</label><input id="a-rate" type="text" inputmode="decimal"></div>
         <div data-ctl="years"></div>
@@ -998,7 +786,7 @@ details.fold h3{margin:18px 0 10px}
 
   <div class="ex-panel" data-ex="hazen" hidden>
     <div class="card">
-      <h2>Hazen-Williams × Darcy-Weisbach</h2>
+      <h3>Hazen-Williams × Darcy-Weisbach</h3>
       <div id="hw-msg"></div>
       <div class="tablewrap"><table id="hw-table"></table></div>
       <p class="small" style="margin-bottom:0">Hazen-Williams vale para água em escoamento turbulento. O C é típico do material e serve só de conferência: a base do programa é Darcy-Weisbach.</p>
@@ -1008,38 +796,39 @@ details.fold h3{margin:18px 0 10px}
 
 <!-- ============ 6. TEORIA ============ -->
 <section id="tab-teoria" class="panel" role="tabpanel" aria-labelledby="tabbtn-teoria">
+  <header class="ph"><h2>Teoria</h2><p>As equações, as hipóteses e as referências por trás do programa.</p></header>
   <div class="cols2">
     <div class="card">
-      <h2>Equações usadas</h2>
-      <h3>Velocidade e Reynolds</h3>
+      <h3>Equações usadas</h3>
+      <h4>Velocidade e Reynolds</h4>
       <span class="eq">v = Q / A,  A = π·D²/4</span><br>
       <span class="eq">Re = ρ·v·D / μ</span>
       <p class="small">Laminar: Re &lt; 2300. Transição: 2300 a 4000 (resultado incerto). Turbulento: Re &gt; 4000. Os limites são aproximados e dependem de perturbações na entrada.</p>
-      <h3>Perda distribuída (Darcy-Weisbach)</h3>
+      <h4>Perda distribuída (Darcy-Weisbach)</h4>
       <span class="eq">h<sub>f</sub> = f · (L/D) · v²/(2g)</span>
-      <h3>Fator de atrito</h3>
+      <h4>Fator de atrito</h4>
       <span class="eq">Laminar: f = 64/Re</span><br>
       <span class="eq">Colebrook-White: 1/√f = −2·log₁₀[ ε/(3,7·D) + 2,51/(Re·√f) ]</span><br>
       <span class="eq">Swamee-Jain: f = 0,25 / [log₁₀( ε/(3,7·D) + 5,74/Re<sup>0,9</sup> )]²</span>
       <p class="small">Colebrook é implícita e é resolvida por Newton em x = 1/√f, partindo de Swamee-Jain, até variação menor que 10⁻¹³. Swamee-Jain é explícita e serve de conferência (válida para 5000 ≤ Re ≤ 10⁸ e 10⁻⁶ ≤ ε/D ≤ 10⁻²). Na transição o programa adota o maior entre 64/Re e Colebrook, resultado conservador.</p>
-      <h3>Perda localizada</h3>
+      <h4>Perda localizada</h4>
       <span class="eq">h<sub>L</sub> = ΣK · v²/(2g)</span>
-      <h3>Total e pressão</h3>
+      <h4>Total e pressão</h4>
       <span class="eq">h = h<sub>f</sub> + h<sub>L</sub></span><br>
       <span class="eq">Δp = ρ·g·h</span>
       <p class="small">Em trechos em série a vazão é a mesma e as perdas se somam. A velocidade muda com o diâmetro de cada trecho.</p>
-      <h3>Hazen-Williams (conferência)</h3>
+      <h4>Hazen-Williams (conferência)</h4>
       <span class="eq">h<sub>f</sub> = 10,67 · L · Q<sup>1,852</sup> / (C<sup>1,852</sup> · D<sup>4,87</sup>)  (SI)</span>
-      <h3>Potência e energia</h3>
+      <h4>Potência e energia</h4>
       <span class="eq">P<sub>hid</sub> = ρ·g·Q·h</span><br>
       <span class="eq">P<sub>elétrica</sub> = P<sub>hid</sub> / (η<sub>bomba</sub>·η<sub>motor</sub>)</span><br>
       <span class="eq">Custo = P<sub>elétrica</sub> · h/dia · dias/ano · tarifa</span>
-      <h3>Unidades</h3>
+      <h4>Unidades</h4>
       <p class="small" style="margin-top:0">Internamente: m³/h, mm (convertidos para m nas fórmulas) e mPa·s (convertido para Pa·s). L/s = m³/h ÷ 3,6. g = 9,80665 m/s².</p>
     </div>
     <div>
       <div class="card">
-        <h2>Hipóteses e limitações</h2>
+        <h3>Hipóteses e limitações</h3>
         <ul class="tight">
           <li>Fluido incompressível e newtoniano, regime permanente, tubo cheio e de seção circular constante em cada trecho.</li>
           <li>Rugosidade uniforme (ε) e K constantes, independentes de Re.</li>
@@ -1052,7 +841,7 @@ details.fold h3{margin:18px 0 10px}
         </ul>
       </div>
       <div class="card">
-        <h2>Sugestões de referências</h2>
+        <h3>Sugestões de referências</h3>
         <ul class="tight">
           <li>ÇENGEL, Y. A.; CIMBALA, J. M. <em>Mecânica dos Fluidos: Fundamentos e Aplicações</em>. McGraw-Hill.</li>
           <li>FOX, R. W.; McDONALD, A. T. <em>Introdução à Mecânica dos Fluidos</em>. LTC.</li>
@@ -1064,13 +853,14 @@ details.fold h3{margin:18px 0 10px}
         <p class="small">Confira edição, autores, anos e páginas antes de citar no relatório.</p>
       </div>
       <div class="card">
-        <h2>Como o programa conferiu o cálculo</h2>
+        <h3>Como o programa conferiu o cálculo</h3>
         <p style="margin-top:0">O arquivo <code>teste-nucleo.mjs</code> (rodado com Node) executa o núcleo isolado e compara Colebrook com uma solução independente por bisseção, verifica f = 64/Re contra Hagen-Poiseuille, mede a diferença entre Swamee-Jain e Colebrook e reproduz um exemplo calculado à mão.</p>
       </div>
     </div>
   </div>
 </section>
-</main>
+  </main>
+</div>
 
 <div id="print-report" aria-hidden="true"></div>
 
@@ -1375,7 +1165,7 @@ const CORE = (function () {
 const CHARTS = (function () {
   'use strict';
   const RENDER = { light: false };
-  const LIGHT = { '--text': '#08283a', '--muted': '#4a6a7b', '--grid': '#dfecf2', '--line': '#cde1ea', '--card': '#ffffff', '--accent': '#0a6f96', '--accent2': '#12b5c9', '--c1': '#0369a1', '--c2': '#d97706', '--c3': '#059669', '--c4': '#db2777', '--c5': '#0891b2', '--c6': '#dc2626', '--c7': '#475569' };
+  const LIGHT = { '--text': '#06202c', '--muted': '#456473', '--grid': '#e2ecf0', '--line': '#d3e1e8', '--card': '#ffffff', '--accent': '#0b6e93', '--accent2': '#0e9aa8', '--c1': '#0369a1', '--c2': '#d97706', '--c3': '#059669', '--c4': '#db2777', '--c5': '#0891b2', '--c6': '#dc2626', '--c7': '#475569' };
   const EXTRA = ['#f97316', '#84cc16', '#14b8a6', '#eab308'];
   function theme() {
     const cs = getComputedStyle(document.documentElement);
@@ -1412,11 +1202,11 @@ const CHARTS = (function () {
     canvas.addEventListener('pointerleave', () => { canvas._hover = null; rq(); });
   }
   function legend(ctx, T, items, w) {
-    ctx.font = '12px system-ui,sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    ctx.font = '12px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
     const maxW = w - 24; let x = 0, row = 0; const pos = [];
     items.forEach(it => { const tw = ctx.measureText(it.name).width + 30; if (x + tw > maxW && x > 0) { row++; x = 0; } pos.push([x, row]); x += tw + 8; });
     return { rows: items.length ? row + 1 : 0, draw: () => items.forEach((it, i) => {
-      ctx.font = '12px system-ui,sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+      ctx.font = '12px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
       const x0 = 12 + pos[i][0], y0 = 12 + pos[i][1] * 20;
       ctx.strokeStyle = it.color; ctx.fillStyle = it.color; ctx.lineWidth = 3; ctx.setLineDash(it.dash || []);
       if (it.box) { ctx.fillRect(x0, y0 - 5, 14, 10); } else { ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + 16, y0); ctx.stroke(); }
@@ -1424,14 +1214,14 @@ const CHARTS = (function () {
     }) };
   }
   function tooltip(ctx, T, w, h, px, py, lines) {
-    ctx.font = '12px system-ui,sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+    ctx.font = '12px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
     const tw = Math.max.apply(null, lines.map(l => ctx.measureText(l).width)) + 18, th = lines.length * 17 + 12;
     let x = px + 14, y = py - th - 10;
     if (x + tw > w - 4) x = px - tw - 14; if (x < 4) x = 4;
     if (y < 4) y = py + 14; if (y + th > h - 4) y = h - th - 4;
     ctx.fillStyle = T.card; ctx.strokeStyle = T.accent; ctx.lineWidth = 1.2; ctx.globalAlpha = .97;
     ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, y, tw, th, 8) : ctx.rect(x, y, tw, th); ctx.fill(); ctx.stroke(); ctx.globalAlpha = 1;
-    ctx.fillStyle = T.text; lines.forEach((l, i) => { ctx.font = (i === 0 ? '600 ' : '') + '12px system-ui,sans-serif'; ctx.fillText(l, x + 9, y + 15 + i * 17); });
+    ctx.fillStyle = T.text; lines.forEach((l, i) => { ctx.font = (i === 0 ? '600 ' : '') + '12px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.fillText(l, x + 9, y + 15 + i * 17); });
   }
 
   /* ---------- XY ---------- */
@@ -1459,7 +1249,7 @@ const CHARTS = (function () {
     // faixas
     (cfg.bands || []).forEach(b => {
       const a = sx(Math.max(b.x0, cfg.xmin)), c = sx(Math.min(b.x1, cfg.xmax));
-      if (c > a) { ctx.fillStyle = b.color; ctx.fillRect(a, m.t, c - a, ph); if (b.label) { ctx.fillStyle = T.muted; ctx.font = '11px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(b.label, (a + c) / 2, m.t + 4); } }
+      if (c > a) { ctx.fillStyle = b.color; ctx.fillRect(a, m.t, c - a, ph); if (b.label) { ctx.fillStyle = T.muted; ctx.font = '11px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(b.label, (a + c) / 2, m.t + 4); } }
     });
     // grade
     ctx.lineWidth = 1; ctx.setLineDash([]);
@@ -1467,11 +1257,11 @@ const CHARTS = (function () {
     ctx.strokeStyle = T.grid; tx.major.forEach(v => { ctx.beginPath(); ctx.moveTo(sx(v), m.t); ctx.lineTo(sx(v), m.t + ph); ctx.stroke(); }); ty.major.forEach(v => { ctx.beginPath(); ctx.moveTo(m.l, sy(v)); ctx.lineTo(m.l + pw, sy(v)); ctx.stroke(); });
     ctx.strokeStyle = T.line; ctx.strokeRect(m.l, m.t, pw, ph);
     // rótulos dos eixos
-    ctx.fillStyle = T.muted; ctx.font = '11.5px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillStyle = T.muted; ctx.font = '11.5px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
     tx.major.forEach(v => ctx.fillText(cfg.xlog ? logTick(v) : (cfg.xfmt ? cfg.xfmt(v) : String(v)), sx(v), m.t + ph + 6));
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
     ty.major.forEach(v => ctx.fillText(cfg.ylog ? logTick(v) : (cfg.yfmt ? cfg.yfmt(v) : String(v)), m.l - 7, sy(v)));
-    ctx.fillStyle = T.text; ctx.font = '12px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillStyle = T.text; ctx.font = '12px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
     ctx.fillText(cfg.xlabel || '', m.l + pw / 2, h - 4);
     ctx.save(); ctx.translate(14, m.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textBaseline = 'top'; ctx.fillText(cfg.ylabel || '', 0, 0); ctx.restore();
     // séries
@@ -1490,19 +1280,19 @@ const CHARTS = (function () {
     (cfg.vlines || []).forEach(v => { ctx.strokeStyle = v.color || T.accent; ctx.lineWidth = 1.6; ctx.setLineDash(v.dash || [5, 4]); ctx.beginPath(); ctx.moveTo(sx(v.x), m.t); ctx.lineTo(sx(v.x), m.t + ph); ctx.stroke(); ctx.setLineDash([]); });
     ctx.restore();
     // rótulos no fim das curvas
-    ctx.font = '10.5px system-ui,sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    ctx.font = '10.5px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
     cfg.series.forEach(s => {
       if (!s.label) return; const q = s.pts.filter(p => p.x <= cfg.xmax && p.x >= cfg.xmin); if (!q.length) return;
       const p = q[q.length - 1]; ctx.fillStyle = s.color; ctx.globalAlpha = Math.max(.7, s.alpha || 1); ctx.fillText(s.label, Math.min(sx(p.x), m.l + pw) - 4, sy(p.y) - 3); ctx.globalAlpha = 1;
     });
-    (cfg.vlines || []).forEach(v => { if (!v.label) return; ctx.fillStyle = v.color || T.accent; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = '11px system-ui,sans-serif'; ctx.fillText(v.label, sx(v.x) + 5, m.t + 4); });
+    (cfg.vlines || []).forEach(v => { if (!v.label) return; ctx.fillStyle = v.color || T.accent; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.font = '11px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.fillText(v.label, sx(v.x) + 5, m.t + 4); });
     // pontos marcados
     (cfg.points || []).forEach(p => {
       if (p.x < cfg.xmin || p.x > cfg.xmax || p.y < cfg.ymin || p.y > cfg.ymax) return;
       const X = sx(p.x), Y = sy(p.y), r = p.r || 7;
       ctx.beginPath(); ctx.arc(X, Y, r + 3, 0, 7); ctx.fillStyle = T.card; ctx.fill();
       ctx.beginPath(); ctx.arc(X, Y, r, 0, 7); ctx.fillStyle = p.color; ctx.fill(); ctx.strokeStyle = T.card; ctx.lineWidth = 1.5; ctx.stroke();
-      if (p.label) { ctx.fillStyle = T.card; ctx.font = '600 ' + Math.round(r * 1.25) + 'px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(p.label, X, Y + .5); }
+      if (p.label) { ctx.fillStyle = T.card; ctx.font = '600 ' + Math.round(r * 1.25) + 'px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(p.label, X, Y + .5); }
       hit.push({ X, Y, s: { name: p.name || '' }, p, mark: true });
     });
     lg.draw();
@@ -1533,18 +1323,18 @@ const CHARTS = (function () {
     const mx = Math.max.apply(null, totals.concat([1e-12])), tk = niceTicks(0, mx * 1.08, 5);
     if (tk[tk.length - 1] < mx * 1.04) tk.push(tk[tk.length - 1] + (tk.length > 1 ? tk[1] - tk[0] : mx));
     const ymax = tk[tk.length - 1] || 1, sy = v => m.t + ph - v / ymax * ph;
-    ctx.lineWidth = 1; ctx.strokeStyle = T.grid; ctx.fillStyle = T.muted; ctx.font = '11.5px system-ui,sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 1; ctx.strokeStyle = T.grid; ctx.fillStyle = T.muted; ctx.font = '11.5px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
     tk.forEach(v => { ctx.beginPath(); ctx.moveTo(m.l, sy(v)); ctx.lineTo(m.l + pw, sy(v)); ctx.stroke(); ctx.fillText(cfg.yfmt ? cfg.yfmt(v) : String(v), m.l - 7, sy(v)); });
     ctx.strokeStyle = T.line; ctx.strokeRect(m.l, m.t, pw, ph);
     const n = cfg.cats.length, slot = pw / n, bw = Math.min(90, slot * .6), rects = [];
     cfg.cats.forEach((c, i) => {
       let acc = 0; const x = m.l + slot * i + (slot - bw) / 2;
       cfg.segs.forEach(g => { const v = g.vals[i] || 0; if (v <= 0) return; const y0 = sy(acc + v), y1 = sy(acc); ctx.fillStyle = g.color; ctx.fillRect(x, y0, bw, Math.max(1, y1 - y0)); rects.push({ x, y: y0, w: bw, h: y1 - y0, g, v, i, tot: totals[i] }); acc += v; });
-      ctx.fillStyle = T.text; ctx.font = '600 11.5px system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(cfg.vfmt ? cfg.vfmt(totals[i]) : String(totals[i]), x + bw / 2, sy(totals[i]) - 3);
-      ctx.fillStyle = T.muted; ctx.font = '11.5px system-ui,sans-serif'; ctx.textBaseline = 'top';
+      ctx.fillStyle = T.text; ctx.font = '600 11.5px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(cfg.vfmt ? cfg.vfmt(totals[i]) : String(totals[i]), x + bw / 2, sy(totals[i]) - 3);
+      ctx.fillStyle = T.muted; ctx.font = '11.5px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.textBaseline = 'top';
       const words = String(c).split('\n'); words.forEach((wd, k) => ctx.fillText(wd, x + bw / 2, m.t + ph + 6 + k * 14));
     });
-    ctx.fillStyle = T.text; ctx.font = '12px system-ui,sans-serif'; ctx.save(); ctx.translate(14, m.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(cfg.ylabel || '', 0, 0); ctx.restore();
+    ctx.fillStyle = T.text; ctx.font = '12px "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif'; ctx.save(); ctx.translate(14, m.t + ph / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(cfg.ylabel || '', 0, 0); ctx.restore();
     lg.draw();
     const hv = canvas._hover;
     if (hv && !size) {
@@ -1737,6 +1527,7 @@ const CHARTS = (function () {
     const fl = fluid(), sys = CORE.solveSystem(fl, S.Q, S.trechos, S.Ks);
     cur.sys = sys; cur.fl = fl;
     $('t-title').textContent = 'Trecho ' + (S.sel + 1) + (tr().nome ? ' — ' + tr().nome : '');
+    $('ro-t').textContent = 'Trecho ' + (S.sel + 1) + ' de ' + S.trechos.length + (tr().nome ? ' · ' + tr().nome : '');
     let nAcc = 0, sK = 0; CORE.ACCESSORIES.forEach(a => { const q = +tr().acc[a.key] || 0; nAcc += q; sK += q * (Number.isFinite(S.Ks[a.key]) ? S.Ks[a.key] : a.K); });
     $('acc-sum').textContent = nAcc ? '· ' + fmt(nAcc, 0) + (nAcc === 1 ? ' peça' : ' peças') + ', ΣK = ' + fmt(sK, 2) : '· nenhum';
     const msgs = [];
@@ -1842,7 +1633,7 @@ const CHARTS = (function () {
     const lane = () => (Math.floor(Math.random() * LANES) / (LANES - 1) * 2 - 1) * 0.92;
     function newVort(f, init) { return { x: init ? rnd(0, f.w) : rnd(-60, -10), r: rnd(-.7, .7), g: (Math.random() < .5 ? -1 : 1) * rnd(1.2, 2.4) }; }
     function seed(f) {
-      const n = Math.min(190, Math.max(60, Math.round(f.w / 3.6)));
+      const n = Math.min(340, Math.max(60, Math.round(f.w / 3.4)));
       f.parts = []; for (let i = 0; i < n; i++) f.parts.push({ x: rnd(0, f.w), r: f.regime === 'turbulento' ? rnd(-.95, .95) : lane(), vx: 0, vy: 0, ux: 0, uy: 0, k: i % 3 });
       f.vort = []; for (let i = 0; i < 6; i++) f.vort.push(newVort(f, true));
       f.puffs = f.regime === 'transicao' ? [{ x: f.w * .3, len: 110 }] : []; f.tp = 1.8; f.still = false;
@@ -1890,7 +1681,8 @@ const CHARTS = (function () {
       f.parts.forEach(p => {
         const y = f.yc + p.r * f.R, a = Math.min(1, .62 + .38 * (1 - Math.abs(p.r) * .6));
         ctx.strokeStyle = p.k === 0 ? T.accent : T.accent2; ctx.globalAlpha = a;
-        ctx.beginPath(); ctx.moveTo(p.x - p.ux * .16, y - p.uy * .16); ctx.lineTo(p.x, y); ctx.stroke();
+        let dx = p.ux * .16, dy = p.uy * .16; const len = Math.hypot(dx, dy); if (len < 7) { if (len > .01) { dx *= 7 / len; dy *= 7 / len; } else dx = 7; }
+        ctx.beginPath(); ctx.moveTo(p.x - dx, y - dy); ctx.lineTo(p.x, y); ctx.stroke();
       });
       ctx.globalAlpha = 1;
     }
@@ -1911,10 +1703,33 @@ const CHARTS = (function () {
     const mini = make($('flow-mini'), 'turbulento');
     const cards = Array.from(document.querySelectorAll('canvas.flowcv[data-reg]')).map(c => make(c, c.dataset.reg));
     const clampv = (v, a, b) => Math.min(b, Math.max(a, v));
+    const demoF = $('demo-flow') ? make($('demo-flow'), 'turbulento') : null;
+    // sem "pulo": as partículas continuam de onde estão e o novo regime assume
+    const soft = (f, regime, v, lo, hi) => { if (f.regime !== regime) { f.regime = regime; f.puffs = []; f.tp = .25; f.still = false; } f.speed = clampv((v || 1) / 1.2, lo, hi); };
     return {
-      setMini(regime, v) { if (!regime) { mini.speed = .5; return; } if (mini.regime !== regime) { mini.regime = regime; if (mini.w) seed(mini); } mini.speed = clampv((v || 1) / 1.2, .5, 2.2); },
+      setMini(regime, v) { if (!regime) { mini.speed = .5; return; } soft(mini, regime, v, .5, 2.2); },
+      setDemo(regime, v) { if (demoF) soft(demoF, regime, v, .3, 2.6); },
       setCards(v) { const s = clampv((v || 1) / 1.2, .6, 1.8); cards.forEach(f => { f.speed = s; }); }
     };
+  })();
+
+  /* ---------- demonstração da página inicial ---------- */
+  (function () {
+    const rng = $('demo-q'); if (!rng) return;
+    const fl = { rho: 998.2, mu: 1.002 }, t = { nome: '', eps: 0.0015, D: 50, L: 100, acc: {} };
+    // o curso do slider é dividido por regime: 1/3 laminar, 1/6 transição, 1/2 turbulento (log em Re)
+    const reOf = u => u < 1 / 3 ? 500 * Math.pow(CORE.RE_LAM / 500, u * 3) : u < .5 ? CORE.RE_LAM * Math.pow(CORE.RE_TURB / CORE.RE_LAM, (u - 1 / 3) * 6) : CORE.RE_TURB * Math.pow(70, (u - .5) * 2);
+    const qOf = Re => Re * (fl.mu / 1000) * Math.PI * (t.D / 1000) / (4 * fl.rho) * 3600;
+    function upd() {
+      const Q = Number(qOf(reOf(rng.value / 1000)).toPrecision(3)), r = CORE.solveTrecho(fl, Q, t, null);
+      if (!r.ok) return;
+      $('demo-qv').textContent = fmt(Q, Q < 1 ? 3 : Q < 10 ? 2 : 1) + ' m³/h';
+      const reg = $('demo-reg'); reg.textContent = regLabel(r.regime); reg.dataset.reg = r.regime;
+      $('demo-re').textContent = fmt(r.Re, 0); $('demo-f').textContent = fmt(r.f, 4); $('demo-h').textContent = fmt(r.hf, r.hf < 1 ? 3 : 2) + ' m';
+      rng.setAttribute('aria-valuetext', fmt(Q, 2) + ' metros cúbicos por hora, regime ' + regLabel(r.regime).toLowerCase());
+      FLOW.setDemo(r.regime, 1.2 * (.6 + .45 * Math.log10(r.Re / 500)));
+    }
+    rng.addEventListener('input', upd); upd();
   })();
 
   /* ---------- 2. Moody ---------- */
@@ -2088,8 +1903,9 @@ const CHARTS = (function () {
       $('d-info').textContent = best ? 'Trecho ' + (S.sel + 1) + ': menor custo total com D = ' + fmt(best.D, 0) + ' mm (R$ ' + fmt(best.total, 0) + ' por ano). Diâmetro atual: ' + fmt(t.D, 0) + ' mm.' : '';
       $('d-table').innerHTML = '<thead><tr><th>D (mm)</th><th>v (m/s)</th><th>h (m)</th><th>P elétrica (kW)</th><th>Energia (R$/ano)</th><th>Investimento anualizado (R$/ano)</th><th>Total (R$/ano)</th></tr></thead><tbody>' + rows.map(r => `<tr${best && r.D === best.D ? ' class="hl"' : ''}><td>${fmt(r.D, 0)}${r.D === t.D ? ' (atual)' : ''}</td><td>${fmt(r.v, 2)}</td><td>${fmt(r.h, 2)}</td><td>${fmt(r.Pelec, 3)}</td><td>${fmt(r.energy, 0)}</td><td>${fmt(r.capAnnual, 0)}</td><td>${fmt(r.total, 0)}</td></tr>`).join('') + '</tbody>';
       const mk = (name, c, k, w) => ({ name, color: c, w, markers: true, pts: rows.map(r => ({ x: r.D, y: r[k], tip: ['D = ' + fmt(r.D, 0) + ' mm', name + ': R$ ' + fmt(r[k], 0) + '/ano', 'v = ' + fmt(r.v, 2) + ' m/s'] })) });
-      const ymax = Math.max.apply(null, rows.map(r => r.total)) * 1.05;
-      CHARTS.drawXY($('ch-econ'), { xmin: Math.min.apply(null, rows.map(r => r.D)) * .9, xmax: Math.max.apply(null, rows.map(r => r.D)) * 1.03, ymin: 0, ymax, xlabel: 'Diâmetro interno (mm)', ylabel: 'R$ por ano', yfmt: v => fmt(v, 0), xfmt: v => fmt(v, 0),
+      const pos = []; rows.forEach(r => [r.energy, r.capAnnual, r.total].forEach(v => { if (v > 0) pos.push(v); }));
+      const ylo = Math.pow(10, Math.floor(Math.log10(Math.min.apply(null, pos)))), yhi = Math.pow(10, Math.ceil(Math.log10(Math.max.apply(null, pos))));
+      CHARTS.drawXY($('ch-econ'), { xmin: Math.min.apply(null, rows.map(r => r.D)) * .9, xmax: Math.max.apply(null, rows.map(r => r.D)) * 1.03, ylog: true, ymin: ylo, ymax: yhi > ylo ? yhi : ylo * 10, xlabel: 'Diâmetro interno (mm)', ylabel: 'R$ por ano (escala log)', yfmt: v => fmt(v, 0), xfmt: v => fmt(v, 0),
         series: [mk('Energia', T.c(0), 'energy', 2.4), mk('Investimento anualizado', T.c(1), 'capAnnual', 2.4), mk('Total', T.c(2), 'total', 3.6)], vlines: best ? [{ x: best.D, color: T.c(2), label: 'mínimo: ' + fmt(best.D, 0) + ' mm' }] : [] });
     } else { $('d-info').textContent = ok ? 'Confira os parâmetros de energia e de custo e use comprimento maior que zero.' : 'Corrija os dados na aba Calculadora.'; $('d-table').innerHTML = ''; const cv = $('ch-econ'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height); }
     // envelhecimento
@@ -2153,10 +1969,12 @@ const CHARTS = (function () {
   }
   let rq = false; function requestRender() { if (rq) return; rq = true; requestAnimationFrame(() => { rq = false; renderAll(); }); }
   document.querySelectorAll('input[name=uq]').forEach(r => r.addEventListener('change', () => { if (r.checked) { S.uq = r.value; savePrefs(); requestRender(); } }));
-  function savePrefs() { store.set(PREF_KEY, JSON.stringify({ uq: S.uq, theme: $('theme').value })); }
-  function applyTheme(v) { if (v === 'light' || v === 'dark') document.documentElement.setAttribute('data-theme', v); else document.documentElement.removeAttribute('data-theme'); savePrefs(); requestRender(); }
-  $('theme').addEventListener('change', () => applyTheme($('theme').value));
-  try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', requestRender); } catch (e) {}
+  let themePref = null; // 'light' | 'dark' | null (segue o sistema)
+  const sysDark = () => { try { return window.matchMedia('(prefers-color-scheme: dark)').matches; } catch (e) { return false; } };
+  function savePrefs() { store.set(PREF_KEY, JSON.stringify({ uq: S.uq, theme: themePref || 'auto' })); }
+  function applyTheme() { document.documentElement.setAttribute('data-theme', themePref || (sysDark() ? 'dark' : 'light')); requestRender(); }
+  document.querySelectorAll('.theme-btn').forEach(b => b.addEventListener('click', () => { themePref = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'; applyTheme(); savePrefs(); }));
+  try { window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (!themePref) applyTheme(); }); } catch (e) {}
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(renderAll, 120); });
 
   /* ---------- início ---------- */
@@ -2164,8 +1982,9 @@ const CHARTS = (function () {
   try {
     const pref = JSON.parse(store.get(PREF_KEY) || 'null');
     if (pref && pref.uq === 'Ls') { S.uq = 'Ls'; document.querySelector('input[name=uq][value=Ls]').checked = true; }
-    if (pref && ['light', 'dark'].includes(pref.theme)) { $('theme').value = pref.theme; document.documentElement.setAttribute('data-theme', pref.theme); }
+    if (pref && ['light', 'dark'].includes(pref.theme)) themePref = pref.theme;
   } catch (e) {}
+  applyTheme();
   renderChips();
   requestAnimationFrame(animTick);
   showTab(location.hash.slice(1));
@@ -2174,48 +1993,39 @@ const CHARTS = (function () {
 
 </script>
 <script>
-/* ===== camada de interação (apenas apresentação; não toca nos cálculos) ===== */
+/* ===== interações de interface (apenas apresentação; não tocam nos cálculos) ===== */
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
-  var reduce = function () { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+  var root = document.documentElement;
+  var calm = function () { try { return window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
 
-  /* 1. indicador deslizante das abas */
+  /* 1. indicador deslizante das abas (barra superior no desktop, barra inferior no celular) */
   var nav = document.querySelector('nav[role=tablist]');
   var ind = document.createElement('span');
   ind.className = 'ind'; ind.setAttribute('aria-hidden', 'true');
   nav.insertBefore(ind, nav.firstChild);
-  function moveInd() {
+  function moveInd(instant) {
     var sel = nav.querySelector('.tab[aria-selected="true"]');
-    if (!sel) return;
+    if (!sel || !sel.offsetWidth) return;
+    if (instant) ind.style.transition = 'none';
     ind.style.width = sel.offsetWidth + 'px';
     ind.style.transform = 'translateX(' + sel.offsetLeft + 'px)';
-    var r = sel.getBoundingClientRect(), n = nav.getBoundingClientRect();
-    if (r.left < n.left || r.right > n.right) sel.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduce() ? 'auto' : 'smooth' });
+    nav.classList.add('has-ind');
+    if (instant) { void ind.offsetWidth; ind.style.transition = ''; }
   }
-  new MutationObserver(moveInd).observe(nav, { attributes: true, subtree: true, attributeFilter: ['aria-selected'] });
-  window.addEventListener('resize', moveInd);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(moveInd);
-  ind.style.transition = 'none'; moveInd(); requestAnimationFrame(function () { ind.style.transition = ''; });
+  new MutationObserver(function () { moveInd(false); }).observe(nav, { attributes: true, subtree: true, attributeFilter: ['aria-selected'] });
+  window.addEventListener('resize', function () { moveInd(true); });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { moveInd(true); });
+  moveInd(true);
 
-  /* 2. holofote nos cards */
-  document.addEventListener('pointermove', function (e) {
-    if (e.pointerType === 'touch') return;
-    var c = e.target.closest && e.target.closest('.card');
-    if (!c) return;
-    var r = c.getBoundingClientRect();
-    c.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-    c.style.setProperty('--my', (e.clientY - r.top) + 'px');
-  }, { passive: true });
-
-  /* 3. sliders: trilha preenchida */
+  /* 2. sliders: trilha preenchida */
   function pct(el) { var mn = +el.min || 0, mx = +el.max || 100; el.style.setProperty('--pct', (mx > mn ? (el.value - mn) / (mx - mn) * 100 : 0) + '%'); }
   document.addEventListener('input', function (e) { if (e.target.type === 'range') pct(e.target); });
   setInterval(function () { if (!document.hidden) document.querySelectorAll('input[type=range]').forEach(pct); }, 200);
 
-  /* 4. números das métricas animam; indicadores do cabeçalho acompanham o laboratório */
-  var shown = {};
-  var numRe = /-?\d[\d.]*(?:,\d+)?/;
+  /* 3. números das métricas animam; a faixa de leitura acompanha o cálculo */
+  var shown = {}, numRe = /-?\d[\d.]*(?:,\d+)?/;
   function parseBR(s) { return parseFloat(s.replace(/\./g, '').replace(',', '.')); }
   function chipSet(id, text) {
     var c = document.querySelector('[data-chip="' + id + '"] .v');
@@ -2237,19 +2047,14 @@ const CHARTS = (function () {
     container.querySelectorAll('.metric').forEach(function (m, i) {
       var v = m.querySelector('.v'), tn = v && v.firstChild;
       if (!tn || tn.nodeType !== 3) return;
-      var raw = tn.data, mt = raw.match(numRe);
-      var did = m.getAttribute('data-m');
-      if (did) {
-        var u = v.querySelector('.u');
-        if (['re', 'f', 'h', 'dp'].indexOf(did) > -1) chipSet(did, raw.trim() + (u ? ' ' + u.textContent : ''));
-      }
+      var raw = tn.data, mt = raw.match(numRe), did = m.getAttribute('data-m');
+      if (did && ['re', 'f', 'h', 'dp'].indexOf(did) > -1) { var u = v.querySelector('.u'); chipSet(did, raw.trim() + (u ? ' ' + u.textContent : '')); }
       if (!mt) return;
       var to = parseBR(mt[0]); if (!isFinite(to)) return;
       var key = container.id + ':' + i, from = shown[key];
-      var dec = (mt[0].split(',')[1] || '').length;
-      var pre = raw.slice(0, mt.index), post = raw.slice(mt.index + mt[0].length);
+      var dec = (mt[0].split(',')[1] || '').length, pre = raw.slice(0, mt.index), post = raw.slice(mt.index + mt[0].length);
       shown[key] = to;
-      if (reduce() || from === undefined || from === to || !container.getClientRects().length) return;
+      if (calm() || from === undefined || from === to || !container.getClientRects().length) return;
       shown[key] = from;
       tween(tn, key, from, to, dec, pre, post);
     });
@@ -2259,10 +2064,8 @@ const CHARTS = (function () {
     new MutationObserver(function () { handle(c); }).observe(c, { childList: true });
     handle(c);
   });
-  var go = $('chip-go');
-  if (go) go.addEventListener('click', function () { location.hash = 'calc'; });
 
-  /* 5. toasts a partir das mensagens de status e dos botões de copiar */
+  /* 4. avisos flutuantes */
   var box = $('toasts');
   function toast(msg) {
     if (!msg) return;
@@ -2273,120 +2076,61 @@ const CHARTS = (function () {
     setTimeout(function () { el.classList.add('out'); setTimeout(function () { el.remove(); }, 220); }, 2600);
   }
   window.__toast = toast;
-  ['dl-status'].forEach(function (id) {
-    var el = $(id); if (!el) return;
-    new MutationObserver(function () { toast(el.textContent.trim()); }).observe(el, { childList: true, characterData: true, subtree: true });
-  });
+  var st = $('dl-status');
+  if (st) new MutationObserver(function () { toast(st.textContent.trim()); }).observe(st, { childList: true, characterData: true, subtree: true });
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('button');
     if (!b || !/^(calc-copy|sim-copy)$/.test(b.id)) return;
     setTimeout(function () { toast('Copiado para a área de transferência'); }, 120);
   });
-})();
 
-</script>
-<script>
-/* ===== página inicial: navegação entre intro e simulador ===== */
-(function () {
-  'use strict';
-  var root = document.documentElement;
-  var $ = function (id) { return document.getElementById(id); };
+  /* 5. página inicial ↔ aplicativo, com a maré cobrindo a troca */
   if (root.classList.contains('intro-on')) { try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
-  function top() { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }
   var tide = $('tide'), tideBusy = false;
-  var rm = function () { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } };
+  function top() { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }
   function withTide(fn) {
-    if (rm() || tideBusy || !tide) { fn(); return; }
+    if (calm() || tideBusy || !tide) { fn(); return; }
     tideBusy = true; tide.classList.remove('run'); void tide.offsetWidth; tide.classList.add('run');
     setTimeout(fn, 440);
     setTimeout(function () { tide.classList.remove('run'); tideBusy = false; }, 980);
   }
-  function enter(tab) { withTide(function () { enter0(tab); }); }
-  function enter0(tab) {
-    root.classList.remove('intro-on');
-    top();
-    window.dispatchEvent(new Event('resize'));
-    if (tab && location.hash !== '#' + tab) location.hash = tab;
-    else window.dispatchEvent(new Event('hashchange'));
-    var sel = document.querySelector('.tab[aria-selected="true"]'); if (sel) sel.focus({ preventScroll: true });
-  }
-  function home() { withTide(function () { root.classList.add('intro-on'); top(); revealInit(); }); }
-
-  /* revelar ao rolar (introdução) */
-  var revealed = false;
-  function revealInit() {
-    if (revealed || rm() || !('IntersectionObserver' in window)) return;
-    revealed = true;
-    var els = document.querySelectorAll('#intro .in-head, #intro .in-cols p, #intro .in-card, #intro .in-steps li, #intro .in-note-box, #intro .in-final');
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        var el = e.target; el.classList.add('in-view'); io.unobserve(el);
-        setTimeout(function () { el.classList.remove('rv', 'in-view'); el.style.removeProperty('--i'); }, 1100);
-      });
-    }, { threshold: .15, rootMargin: '0px 0px -6% 0px' });
-    els.forEach(function (el) {
-      var sib = el.parentNode ? Array.prototype.indexOf.call(el.parentNode.children, el) : 0;
-      el.style.setProperty('--i', Math.min(sib, 5));
-      el.classList.add('rv'); io.observe(el);
+  function enter(tab) {
+    withTide(function () {
+      root.classList.remove('intro-on'); top();
+      window.dispatchEvent(new Event('resize'));
+      if (tab && location.hash !== '#' + tab) location.hash = tab; else window.dispatchEvent(new Event('hashchange'));
+      moveInd(true);
+      var sel = document.querySelector('.tab[aria-selected="true"]'); if (sel) sel.focus({ preventScroll: true });
     });
   }
-  revealInit();
+  function home() { withTide(function () { root.classList.add('intro-on'); top(); }); }
+  document.querySelectorAll('[data-enter]').forEach(function (b) { b.addEventListener('click', function () { enter(b.getAttribute('data-enter')); }); });
+  document.querySelectorAll('[data-go]').forEach(function (b) {
+    b.addEventListener('click', function () { var t = document.querySelector(b.getAttribute('data-go')); if (t) t.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }); });
+  });
+  var hb = $('btn-home'); if (hb) hb.addEventListener('click', home);
 
-  /* bolhas subindo no fundo */
+  /* 6. bolhas subindo (só na página inicial) */
   (function () {
-    var box = $('bubbles'); if (!box || rm()) return;
+    var bx = $('bubbles'); if (!bx || calm()) return;
     for (var i = 0; i < 7; i++) {
-      var b = document.createElement('span'), s = 6 + Math.random() * 22;
+      var b = document.createElement('span'), s = 6 + Math.random() * 20;
       b.className = 'bub';
-      b.style.cssText = 'left:' + (Math.random() * 100).toFixed(1) + '%;width:' + s.toFixed(0) + 'px;height:' + s.toFixed(0) + 'px;animation-duration:' + (14 + Math.random() * 18).toFixed(1) + 's;animation-delay:-' + (Math.random() * 30).toFixed(1) + 's';
-      box.appendChild(b);
+      b.style.cssText = 'left:' + (Math.random() * 100).toFixed(1) + '%;width:' + s.toFixed(0) + 'px;height:' + s.toFixed(0) + 'px;animation-duration:' + (16 + Math.random() * 18).toFixed(1) + 's;animation-delay:-' + (Math.random() * 30).toFixed(1) + 's';
+      bx.appendChild(b);
     }
   })();
 
-  /* ondulação ao clicar (botões, abas, cartões) */
+  /* 7. ondulação de gota ao clicar */
   document.addEventListener('pointerdown', function (e) {
-    if (rm()) return;
-    var t = e.target.closest && e.target.closest('button.btn, .tab, .in-card:not(.static)');
+    if (calm()) return;
+    var t = e.target.closest && e.target.closest('.btn, .tab, .icon-btn, .in-card');
     if (!t || t.disabled) return;
     var r = t.getBoundingClientRect(), d = Math.max(r.width, r.height) * 2.2, s = document.createElement('span');
     s.className = 'ripple';
     s.style.cssText = 'width:' + d + 'px;height:' + d + 'px;left:' + (e.clientX - r.left - d / 2) + 'px;top:' + (e.clientY - r.top - d / 2) + 'px';
-    t.appendChild(s); setTimeout(function () { s.remove(); }, 750);
+    t.appendChild(s); setTimeout(function () { s.remove(); }, 720);
   }, { passive: true });
-
-  /* métricas que mudam piscam em tom de água */
-  (function () {
-    var last = {};
-    ['calc-key', 'calc-metrics-t', 'calc-metrics-s'].forEach(function (id) {
-      var c = $(id); if (!c) return;
-      new MutationObserver(function () {
-        c.querySelectorAll('.metric').forEach(function (m, i) {
-          var k = id + i, v = m.textContent;
-          if (last[k] !== undefined && last[k] !== v && c.getClientRects().length && !rm()) m.classList.add('flash');
-          last[k] = v;
-        });
-      }).observe(c, { childList: true });
-    });
-  })();
-  document.querySelectorAll('[data-enter]').forEach(function (b) { b.addEventListener('click', function () { enter(b.getAttribute('data-enter')); }); });
-  document.querySelectorAll('[data-go]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var t = document.querySelector(b.getAttribute('data-go'));
-      if (t) t.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
-    });
-  });
-  var h = $('btn-home'); if (h) h.addEventListener('click', home);
-  var go = $('chip-go'); if (go) go.addEventListener('click', function () { enter('calc'); });
-  var brand = document.querySelector('header.hero .brand');
-  if (brand) { brand.style.cursor = 'pointer'; brand.setAttribute('title', 'Voltar à página inicial'); brand.addEventListener('click', home); }
-  /* tema: seletor da intro espelha o do simulador */
-  var ti = $('theme-intro'), t = $('theme');
-  if (ti && t) {
-    ti.value = t.value;
-    ti.addEventListener('change', function () { t.value = ti.value; t.dispatchEvent(new Event('change')); });
-    t.addEventListener('change', function () { ti.value = t.value; });
-  }
 })();
 
 </script>
